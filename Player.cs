@@ -14,6 +14,12 @@ public partial class Player : CharacterBody2D
 		{
 			velocity = direction * Speed;
 		}
+		else
+		{
+			velocity.X = Mathf.MoveToward(velocity.X, 0f, Speed);
+			velocity.Y = Mathf.MoveToward(velocity.Y, 0f, Speed);
+
+		}
 
 		Velocity = velocity;
 		MoveAndSlide();

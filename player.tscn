@@ -2,12 +2,25 @@
 
 [ext_resource type="Script" path="res://Player.cs" id="1_jq4no"]
 
-[sub_resource type="CircleShape2D" id="CircleShape2D_lwurr"]
-radius = 8.0
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_m8qh4"]
+size = Vector2(16, 16)
 
 [node name="Player" type="CharacterBody2D"]
 motion_mode = 1
 script = ExtResource("1_jq4no")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-shape = SubResource("CircleShape2D_lwurr")
+shape = SubResource("RectangleShape2D_m8qh4")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -8.0
+offset_top = -8.0
+offset_right = 8.0
+offset_bottom = 8.0
+grow_horizontal = 2
+grow_vertical = 2

@@ -8,6 +8,7 @@ public partial class Game : Node2D
 	private Player player;
 	private TileMap tileMap;
 	private Marker2D respawnPoint;
+	private Ui ui;
 
 	public const int tileSize = 16;
 	private Dictionary<String, Vector2> inputs = new() {
@@ -23,6 +24,8 @@ public partial class Game : Node2D
 		player = GetNode<Player>("Player");
 		tileMap = (TileMap)FindChild("TileMap");
 		respawnPoint = GetNode<Marker2D>("RespawnPoint");
+		ui = GetNode<Ui>("Ui");
+
 		respawnPoint.GlobalPosition = respawnPoint.GlobalPosition.Snapped(Vector2.One * tileSize);
 		respawnPoint.GlobalPosition += Vector2.One * tileSize / 2;
 
@@ -45,6 +48,31 @@ public partial class Game : Node2D
 				Move(direction);
 			}
 		});
+
+		if (@event is InputEventMouseButton eventMouseButton && eventMouseButton.IsReleased())
+		{
+			var position = eventMouseButton.Position;
+
+			var hoveredTile = tileMap.LocalToMap(position);
+
+			if (hoveredTile != null && !ui.isContextMenuShown)
+			{
+				ui.ShowContextMenu(
+					tileMap.MapToLocal(hoveredTile),
+					new() { ContextMenuAction.Copy, ContextMenuAction.Paste },
+					(action) => OnContextMenuActionSelected(hoveredTile, action)
+					);
+			}
+			else
+			{
+				ui.HideContextMenu();
+			}
+		}
+	}
+
+	private void OnContextMenuActionSelected(Vector2I hoveredTile, ContextMenuAction action)
+	{
+
 	}
 
 	private void Move(string direction)

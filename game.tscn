@@ -1,9 +1,10 @@
-[gd_scene load_steps=7 format=3 uid="uid://d2hb2sk055yo1"]
+[gd_scene load_steps=8 format=3 uid="uid://d2hb2sk055yo1"]
 
 [ext_resource type="Script" path="res://Game.cs" id="1_kuueq"]
 [ext_resource type="PackedScene" uid="uid://djcwo0jwf5ex0" path="res://player.tscn" id="2_qdn5d"]
 [ext_resource type="PackedScene" uid="uid://bindx8eepy7ug" path="res://map.tscn" id="3_da5re"]
 [ext_resource type="Texture2D" uid="uid://d3qch0c4pa6lh" path="res://assets/tile_set.png" id="4_0wo07"]
+[ext_resource type="PackedScene" uid="uid://cwi4e18c87bbn" path="res://ui.tscn" id="5_5wbcv"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_ogd8j"]
 texture = ExtResource("4_0wo07")
@@ -112,3 +113,5 @@ position = Vector2(186, 73)
 
 [node name="RespawnPoint" type="Marker2D" parent="."]
 position = Vector2(200, 98)
+
+[node name="Ui" parent="." instance=ExtResource("5_5wbcv")]

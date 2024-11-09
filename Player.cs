@@ -14,10 +14,12 @@ public partial class Player : Area2D
 		{"right", Vector2.Right},
 	};
 
-	public const float Speed = 300.0f;
+	private RayCast2D rayCast;
 
 	public override void _Ready()
 	{
+		rayCast = GetNode<RayCast2D>("RayCast2D");
+
 		Position = Position.Snapped(Vector2.One * tileSize);
 		Position += Vector2.One * tileSize / 2;
 	}
@@ -35,7 +37,13 @@ public partial class Player : Area2D
 
 	private void Move(string direction)
 	{
-		GlobalPosition += inputs[direction] * tileSize;
+		var potentialMove = inputs[direction] * tileSize;
+		rayCast.TargetPosition = potentialMove;
+		rayCast.ForceRaycastUpdate();
+		if (!rayCast.IsColliding())
+		{
+			GlobalPosition += potentialMove;
+		}
 	}
 
 }

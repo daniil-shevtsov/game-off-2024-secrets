@@ -21,10 +21,10 @@ public partial class Game : Node2D
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
-		player = GetNode<Player>("Player");
+		player = (Player)FindChild("Player");
 		tileMap = (TileMap)FindChild("TileMap");
-		respawnPoint = GetNode<Marker2D>("RespawnPoint");
-		ui = GetNode<Ui>("Ui");
+		respawnPoint = (Marker2D)FindChild("RespawnPoint");
+		ui = (Ui)FindChild("Ui");
 
 		respawnPoint.GlobalPosition = respawnPoint.GlobalPosition.Snapped(Vector2.One * tileSize);
 		respawnPoint.GlobalPosition += Vector2.One * tileSize / 2;

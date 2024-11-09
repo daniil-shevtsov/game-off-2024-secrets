@@ -6,6 +6,8 @@
 size = Vector2(16, 16)
 
 [node name="Player" type="Area2D"]
+collision_layer = 4
+collision_mask = 4
 script = ExtResource("1_jq4no")
 
 [node name="ColorRect" type="ColorRect" parent="."]
@@ -25,3 +27,4 @@ grow_vertical = 2
 shape = SubResource("RectangleShape2D_m8qh4")
 
 [node name="RayCast2D" type="RayCast2D" parent="."]
+collide_with_areas = true

@@ -5,8 +5,7 @@
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_m8qh4"]
 size = Vector2(16, 16)
 
-[node name="Player" type="CharacterBody2D"]
-motion_mode = 1
+[node name="Player" type="Area2D"]
 script = ExtResource("1_jq4no")
 
 [node name="ColorRect" type="ColorRect" parent="."]
@@ -24,3 +23,5 @@ grow_vertical = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_m8qh4")
+
+[node name="RayCast2D" type="RayCast2D" parent="."]

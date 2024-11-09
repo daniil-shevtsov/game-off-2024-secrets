@@ -15,6 +15,11 @@ run/main_scene="res://game.tscn"
 config/features=PackedStringArray("4.2", "C#", "Forward Plus")
 config/icon="res://icon.svg"
 
+[display]
+
+window/size/viewport_width=400
+window/size/viewport_height=240
+
 [dotnet]
 
 project/assembly_name="2024-secrets"

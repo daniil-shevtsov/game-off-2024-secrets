@@ -36,6 +36,7 @@ script = ExtResource("1_kuueq")
 [node name="Map" parent="." instance=ExtResource("3_da5re")]
 
 [node name="TileMap" type="TileMap" parent="Map"]
+texture_filter = 1
 tile_set = SubResource("TileSet_dyg25")
 format = 2
 layer_0/name = "Main"

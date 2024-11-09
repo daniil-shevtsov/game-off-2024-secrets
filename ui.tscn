@@ -8,3 +8,8 @@ script = ExtResource("1_dl6wn")
 [node name="ContextMenu" type="VBoxContainer" parent="."]
 offset_right = 40.0
 offset_bottom = 40.0
+
+[node name="Label" type="Label" parent="."]
+offset_right = 40.0
+offset_bottom = 23.0
+text = "TEST LABEL FOR RESULTION"

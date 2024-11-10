@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 public partial class Game : Node2D
@@ -9,6 +10,10 @@ public partial class Game : Node2D
 	private TileMap tileMap;
 	private Marker2D respawnPoint;
 	private Ui ui;
+	private ColorRect tileHighlight;
+	private SubViewportContainer subViewportContainer;
+	private SubViewport subViewport;
+	private DebugDraw debugDraw;
 
 	public const int tileSize = 16;
 	private Dictionary<String, Vector2> inputs = new() {
@@ -25,6 +30,12 @@ public partial class Game : Node2D
 		tileMap = (TileMap)FindChild("TileMap");
 		respawnPoint = (Marker2D)FindChild("RespawnPoint");
 		ui = (Ui)FindChild("Ui");
+		tileHighlight = (ColorRect)FindChild("TileHighlight");
+		subViewportContainer = (SubViewportContainer)FindChild("SubViewportContainer");
+		subViewport = (SubViewport)FindChild("SubViewport");
+		debugDraw = (DebugDraw)FindChild("DebugDraw");
+
+		debugDraw.camera = (Camera2D)player.FindChild("Camera2D");
 
 		respawnPoint.GlobalPosition = respawnPoint.GlobalPosition.Snapped(Vector2.One * tileSize);
 		respawnPoint.GlobalPosition += Vector2.One * tileSize / 2;
@@ -48,6 +59,26 @@ public partial class Game : Node2D
 				Move(direction);
 			}
 		});
+
+		if (@event is InputEventMouseMotion eventMouseMotion)
+		{
+			var mousePosition = subViewport.GetMousePosition();
+			var hoveredTile = tileMap.LocalToMap(tileMap.ToLocal(mousePosition));
+			if (hoveredTile != null)
+			{
+				var tileGlobalPosition = tileMap.ToGlobal(tileMap.MapToLocal(hoveredTile));
+				tileHighlight.GlobalPosition = tileGlobalPosition;
+				tileHighlight.Visible = true;
+
+				debugDraw.UpdateVectorToDraw("mouse difference", eventMouseMotion.Position, mousePosition, Color.FromHtml("#FF0000"));
+				debugDraw.UpdateVectorToDraw("mouse difference2", eventMouseMotion.Position, tileGlobalPosition, Color.FromHtml("#0000FF"));
+
+			}
+			else
+			{
+				tileHighlight.Visible = false;
+			}
+		}
 
 		if (@event is InputEventMouseButton eventMouseButton && eventMouseButton.IsReleased())
 		{

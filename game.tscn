@@ -1,10 +1,11 @@
-[gd_scene load_steps=8 format=3 uid="uid://d2hb2sk055yo1"]
+[gd_scene load_steps=9 format=3 uid="uid://d2hb2sk055yo1"]
 
 [ext_resource type="Script" path="res://Game.cs" id="1_kuueq"]
 [ext_resource type="PackedScene" uid="uid://djcwo0jwf5ex0" path="res://player.tscn" id="2_qdn5d"]
 [ext_resource type="PackedScene" uid="uid://bindx8eepy7ug" path="res://map.tscn" id="3_da5re"]
 [ext_resource type="Texture2D" uid="uid://d3qch0c4pa6lh" path="res://assets/tile_set.png" id="4_0wo07"]
 [ext_resource type="PackedScene" uid="uid://cwi4e18c87bbn" path="res://ui.tscn" id="5_5wbcv"]
+[ext_resource type="Script" path="res://DebugDraw.cs" id="6_bd6nh"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_ogd8j"]
 texture = ExtResource("4_0wo07")
@@ -134,3 +135,18 @@ position = Vector2(186, 73)
 
 [node name="RespawnPoint" type="Marker2D" parent="SubViewportContainer/SubViewport"]
 position = Vector2(200, 98)
+
+[node name="TileHighlight" type="ColorRect" parent="SubViewportContainer/SubViewport"]
+visible = false
+offset_right = 16.0
+offset_bottom = 16.0
+color = Color(1, 0.470588, 0.219608, 0.360784)
+
+[node name="DebugOverlay" type="CanvasLayer" parent="."]
+
+[node name="DebugDraw" type="Control" parent="DebugOverlay"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("6_bd6nh")

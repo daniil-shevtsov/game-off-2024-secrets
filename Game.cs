@@ -131,7 +131,7 @@ public partial class Game : Node2D
 			if (hoveredTile != null && !ui.isContextMenuShown)
 			{
 				ui.ShowContextMenu(
-					tileMap.MapToLocal(hoveredTile),
+					position,
 					new() { ContextMenuAction.Copy, ContextMenuAction.Paste },
 					(action) => OnContextMenuActionSelected(hoveredTile, action)
 					);

@@ -6,6 +6,7 @@
 script = ExtResource("1_dl6wn")
 
 [node name="ContextMenu" type="VBoxContainer" parent="."]
+visible = false
 offset_right = 40.0
 offset_bottom = 40.0
 

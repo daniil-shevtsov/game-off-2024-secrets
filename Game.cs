@@ -14,6 +14,7 @@ public partial class Game : Node2D
 	private SubViewportContainer subViewportContainer;
 	private SubViewport subViewport;
 	private DebugDraw debugDraw;
+	private DebugDraw viewportDebugDraw;
 
 	public const int tileSize = 16;
 	private Dictionary<String, Vector2> inputs = new() {
@@ -33,9 +34,8 @@ public partial class Game : Node2D
 		tileHighlight = (ColorRect)FindChild("TileHighlight");
 		subViewportContainer = (SubViewportContainer)FindChild("SubViewportContainer");
 		subViewport = (SubViewport)FindChild("SubViewport");
-		debugDraw = (DebugDraw)FindChild("DebugDraw");
-
-		debugDraw.camera = (Camera2D)player.FindChild("Camera2D");
+		debugDraw = ((DebugOverlay)FindChild("DebugOverlay")).debugDraw;
+		viewportDebugDraw = ((DebugOverlay)FindChild("ViewportDebugOverlay")).debugDraw;
 
 		respawnPoint.GlobalPosition = respawnPoint.GlobalPosition.Snapped(Vector2.One * tileSize);
 		respawnPoint.GlobalPosition += Vector2.One * tileSize / 2;
@@ -93,7 +93,9 @@ public partial class Game : Node2D
 				debugDraw.UpdateVectorToDraw("Vector2.Middle2", eventMouseMotion.Position, ViewportLocalToWorld(WorldToViewportLocal(new Vector2(400f / 2f, 240f / 2f))), Color.FromHtml("#00FF00"));
 				debugDraw.UpdateVectorToDraw("Vector2.End2", eventMouseMotion.Position, ViewportLocalToWorld(WorldToViewportLocal(new Vector2(400f, 240f))), Color.FromHtml("#00FF00"));
 
-
+				viewportDebugDraw.UpdateVectorToDraw("Viewport debug1", subViewport.GetMousePosition(), Vector2.Zero, Color.FromHtml("FFFF00"));
+				viewportDebugDraw.UpdateVectorToDraw("Viewport debug2", subViewport.GetMousePosition(), new Vector2(400 / 2f, 240 / 2f), Color.FromHtml("FFFF00"));
+				viewportDebugDraw.UpdateVectorToDraw("Viewport debug3", subViewport.GetMousePosition(), new Vector2(400, 240), Color.FromHtml("FFFF00"));
 
 				// debugDraw.UpdateVectorToDraw("mouse difference1", eventMouseMotion.Position, tileWorldCoordinates, Color.FromHtml("#FF0000"));
 				// debugDraw.UpdateVectorToDraw("mouse difference2", eventMouseMotion.Position, ViewportLocalToWorld(hoverPosition), Color.FromHtml("#0000FF"));

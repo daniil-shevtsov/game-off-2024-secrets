@@ -15,6 +15,7 @@ public partial class Game : Node2D
 	private SubViewport subViewport;
 	private DebugDraw debugDraw;
 	private DebugDraw viewportDebugDraw;
+	private Camera2D camera;
 
 	public const int tileSize = 16;
 	private Dictionary<String, Vector2> inputs = new() {
@@ -36,6 +37,7 @@ public partial class Game : Node2D
 		subViewport = (SubViewport)FindChild("SubViewport");
 		debugDraw = ((DebugOverlay)FindChild("DebugOverlay")).debugDraw;
 		viewportDebugDraw = ((DebugOverlay)FindChild("ViewportDebugOverlay")).debugDraw;
+		camera = (Camera2D)FindChild("Camera2D");
 
 		// respawnPoint.Position = respawnPoint.Position.Snapped(Vector2.One * tileSize);
 		// respawnPoint.Position += Vector2.One * tileSize / 2;
@@ -86,32 +88,31 @@ public partial class Game : Node2D
 				var hoverPosition = WorldToViewportLocal(tileWorldCoordinates);
 				var logical = ViewportLocalToWorld(mousePosition);
 
-				// debugDraw.UpdateVectorToDraw("Vector2.Zero1", eventMouseMotion.Position, Vector2.Zero, Color.FromHtml("#FF0000"));
-				// debugDraw.UpdateVectorToDraw("Vector2.Middle1", eventMouseMotion.Position, new Vector2(1600f / 2f, 960f / 2f), Color.FromHtml("#FF0000"));
-				// debugDraw.UpdateVectorToDraw("Vector2.End1", eventMouseMotion.Position, new Vector2(1600f, 960f), Color.FromHtml("#FF0000"));
+				debugDraw.UpdateVectorToDraw("Vector2.Zero1", eventMouseMotion.Position, Vector2.Zero, Color.FromHtml("#FF0000"));
+				debugDraw.UpdateVectorToDraw("Vector2.Middle1", eventMouseMotion.Position, new Vector2(1600f / 2f, 960f / 2f), Color.FromHtml("#FF0000"));
+				debugDraw.UpdateVectorToDraw("Vector2.End1", eventMouseMotion.Position, new Vector2(1600f, 960f), Color.FromHtml("#FF0000"));
 
-				// viewportDebugDraw.UpdateVectorToDraw("Viewport debug1", subViewport.GetMousePosition(), Vector2.Zero, Color.FromHtml("FFFF00"));
-				// viewportDebugDraw.UpdateVectorToDraw("Viewport debug2", subViewport.GetMousePosition(), new Vector2(400 / 2f, 240 / 2f), Color.FromHtml("FFFF00"));
-				// viewportDebugDraw.UpdateVectorToDraw("Viewport debug3", subViewport.GetMousePosition(), new Vector2(400, 240), Color.FromHtml("FFFF00"));
+				viewportDebugDraw.UpdateVectorToDraw("Viewport debug1", mousePosition, Vector2.Zero, Color.FromHtml("FFFF00"));
+				viewportDebugDraw.UpdateVectorToDraw("Viewport debug2", mousePosition, new Vector2(400 / 2f, 240 / 2f), Color.FromHtml("FFFF00"));
+				viewportDebugDraw.UpdateVectorToDraw("Viewport debug3", mousePosition, new Vector2(400, 240), Color.FromHtml("FFFF00"));
 
 				// viewportDebugDraw.UpdateVectorToDraw("Viewport debug4", subViewport.GetMousePosition(), Vector2.Zero, Color.FromHtml("FFFF00"));
 				// viewportDebugDraw.UpdateVectorToDraw("Viewport debug5", subViewport.GetMousePosition(), WorldToViewportLocal(new Vector2(1600f / 2f, 960f / 2f)), Color.FromHtml("FF00FF"));
 
 				var newHighlightPosition = WorldToViewportLocal(tileWorldCoordinates);
-				// debugDraw.UpdateVectorToDraw("to highlight global", eventMouseMotion.Position, ViewportLocalToWorld(newHighlightPosition), Color.FromHtml("000000"));
 
-				// tileHighlight.GlobalPosition = newHighlightPosition.Snapped(Vector2.One * tileSize);
-				// tileHighlight.GlobalPosition += Vector2.One * tileSize / 2;
-				// tileHighlight.GlobalPosition = ViewportLocalToWorld(tileHighlight.GlobalPosition);
-				var snapped = subViewport.GetMousePosition().Snapped(Vector2.One * tileSize);
+				var snapped = mousePosition.Snapped(Vector2.One * tileSize);
 				var final = snapped + Vector2.One * tileSize / 2;
-				tileHighlight.Position = (subViewport.GetMousePosition() - Vector2.One * tileSize / 2).Snapped(Vector2.One * tileSize);
-				debugDraw.UpdateVectorToDraw("to highlight local", ViewportLocalToWorld(subViewport.GetMousePosition()), ViewportLocalToWorld(snapped), Color.FromHtml("0000FF"));
-				debugDraw.UpdateVectorToDraw("to highlight local final", ViewportLocalToWorld(subViewport.GetMousePosition()), ViewportLocalToWorld(final), Color.FromHtml("FF00FF"));
-				debugDraw.UpdateVectorToDraw("to highlight local player", ViewportLocalToWorld(subViewport.GetMousePosition()), ViewportLocalToWorld(player.Position), Color.FromHtml("FF0000"));
-				debugDraw.UpdateVectorToDraw("to highlight local position", ViewportLocalToWorld(subViewport.GetMousePosition()), ViewportLocalToWorld(tileHighlight.Position), Color.FromHtml("000000"));
+				tileHighlight.Position = (mousePosition - Vector2.One * tileSize / 2).Snapped(Vector2.One * tileSize);
+				debugDraw.UpdateVectorToDraw("to highlight local", ViewportLocalToWorld(mousePosition), ViewportLocalToWorld(snapped), Color.FromHtml("0000FF"));
+				debugDraw.UpdateVectorToDraw("to highlight local final", ViewportLocalToWorld(mousePosition), ViewportLocalToWorld(final), Color.FromHtml("FF00FF"));
+				debugDraw.UpdateVectorToDraw("to highlight local player", ViewportLocalToWorld(mousePosition), ViewportLocalToWorld(player.Position), Color.FromHtml("FF0000"));
+				debugDraw.UpdateVectorToDraw("to highlight local position", ViewportLocalToWorld(mousePosition), ViewportLocalToWorld(tileHighlight.Position), Color.FromHtml("000000"));
 
-				GD.Print($"Local: mouse={subViewport.GetMousePosition()} player={player.Position} highlight before={snapped} highlight after={final}");
+				viewportDebugDraw.UpdateVectorToDraw("13213123213", WorldToViewportLocal(eventMouseMotion.Position), WorldToViewportLocal(new Vector2(1600f / 2f, 960f / 2f)), Color.FromHtml("#FFFFFF"));
+
+
+				GD.Print($"Local: mouse={mousePosition} player={player.Position} highlight before={snapped} highlight after={final}");
 				// tileHighlight.GlobalPosition = ViewportLocalToWorld(tileHighlight.GlobalPosition);
 
 				tileHighlight.Visible = true;

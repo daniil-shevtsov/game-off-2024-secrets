@@ -83,12 +83,23 @@ public partial class Game : Node2D
 				var tileGlobalPosition = tileMap.ToGlobal(tileMap.MapToLocal(hoveredTile));
 
 				var tileWorldCoordinates = TileMapLocalToWorld(hoveredTile);
-				var hoverPosition = (subViewport.GetViewport().GetScreenTransform() * GetGlobalTransformWithCanvas()).Inverse() * tileWorldCoordinates;
+				var hoverPosition = WorldToViewportLocal(tileWorldCoordinates);
+				var logical = ViewportLocalToWorld(mousePosition);
 
-				debugDraw.UpdateVectorToDraw("mouse difference1", eventMouseMotion.Position, tileWorldCoordinates, Color.FromHtml("#FF0000"));
-				debugDraw.UpdateVectorToDraw("mouse difference2", eventMouseMotion.Position, ViewportLocalToWorld(hoverPosition), Color.FromHtml("#0000FF"));
+				debugDraw.UpdateVectorToDraw("Vector2.Zero1", eventMouseMotion.Position, Vector2.Zero, Color.FromHtml("#FF0000"));
+				debugDraw.UpdateVectorToDraw("Vector2.Middle1", eventMouseMotion.Position, new Vector2(1600f / 2f, 960f / 2f), Color.FromHtml("#FF0000"));
+				debugDraw.UpdateVectorToDraw("Vector2.End1", eventMouseMotion.Position, new Vector2(1600f, 960f), Color.FromHtml("#FF0000"));
+				debugDraw.UpdateVectorToDraw("Vector2.Zero2", eventMouseMotion.Position, ViewportLocalToWorld(WorldToViewportLocal(Vector2.Zero)), Color.FromHtml("#00FF00"));
+				debugDraw.UpdateVectorToDraw("Vector2.Middle2", eventMouseMotion.Position, ViewportLocalToWorld(WorldToViewportLocal(new Vector2(400f / 2f, 240f / 2f))), Color.FromHtml("#00FF00"));
+				debugDraw.UpdateVectorToDraw("Vector2.End2", eventMouseMotion.Position, ViewportLocalToWorld(WorldToViewportLocal(new Vector2(400f, 240f))), Color.FromHtml("#00FF00"));
 
-				tileHighlight.GlobalPosition = tileGlobalPosition;
+
+
+				// debugDraw.UpdateVectorToDraw("mouse difference1", eventMouseMotion.Position, tileWorldCoordinates, Color.FromHtml("#FF0000"));
+				// debugDraw.UpdateVectorToDraw("mouse difference2", eventMouseMotion.Position, ViewportLocalToWorld(hoverPosition), Color.FromHtml("#0000FF"));
+				// debugDraw.UpdateVectorToDraw("mouse difference3", eventMouseMotion.Position, logical, Color.FromHtml("#00FF00"));
+				GD.Print($"Difference: {ViewportLocalToWorld(hoverPosition) - eventMouseMotion.Position} {subViewport.GetMousePosition() - eventMouseMotion.Position}");
+				tileHighlight.GlobalPosition = WorldToViewportLocal(Vector2.Zero);
 				// debugDraw.UpdateVectorToDraw("mouse difference3", eventMouseMotion.Position, tileHighlight.GlobalPosition, Color.FromHtml("#00FF00"));
 
 				tileHighlight.Visible = true;

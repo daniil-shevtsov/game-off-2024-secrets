@@ -50,6 +50,20 @@ public partial class Game : Node2D
 	{
 	}
 
+	private Vector2 TileMapLocalToWorld(Vector2I position)
+	{
+		return ViewportLocalToWorld(tileMap.MapToLocal(position));
+	}
+	private Vector2 ViewportLocalToWorld(Vector2 position)
+	{
+		return subViewport.GetViewport().GetScreenTransform() * GetGlobalTransformWithCanvas() * position;
+	}
+
+	private Vector2 WorldToViewportLocal(Vector2 position)
+	{
+		return subViewport.GetViewport().GetScreenTransform().AffineInverse() * GetGlobalTransformWithCanvas() * position;
+	}
+
 	public override void _UnhandledInput(InputEvent @event)
 	{
 		inputs.Keys.ToList().ForEach(direction =>
@@ -67,12 +81,17 @@ public partial class Game : Node2D
 			if (hoveredTile != null)
 			{
 				var tileGlobalPosition = tileMap.ToGlobal(tileMap.MapToLocal(hoveredTile));
+
+				var tileWorldCoordinates = TileMapLocalToWorld(hoveredTile);
+				var hoverPosition = (subViewport.GetViewport().GetScreenTransform() * GetGlobalTransformWithCanvas()).Inverse() * tileWorldCoordinates;
+
+				debugDraw.UpdateVectorToDraw("mouse difference1", eventMouseMotion.Position, tileWorldCoordinates, Color.FromHtml("#FF0000"));
+				debugDraw.UpdateVectorToDraw("mouse difference2", eventMouseMotion.Position, ViewportLocalToWorld(hoverPosition), Color.FromHtml("#0000FF"));
+
 				tileHighlight.GlobalPosition = tileGlobalPosition;
+				// debugDraw.UpdateVectorToDraw("mouse difference3", eventMouseMotion.Position, tileHighlight.GlobalPosition, Color.FromHtml("#00FF00"));
+
 				tileHighlight.Visible = true;
-
-				debugDraw.UpdateVectorToDraw("mouse difference", eventMouseMotion.Position, mousePosition, Color.FromHtml("#FF0000"));
-				debugDraw.UpdateVectorToDraw("mouse difference2", eventMouseMotion.Position, tileGlobalPosition, Color.FromHtml("#0000FF"));
-
 			}
 			else
 			{

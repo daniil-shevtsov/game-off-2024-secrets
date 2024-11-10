@@ -131,8 +131,6 @@ layer_0/tile_data = PackedInt32Array(65536, 0, 0, 131072, 0, 0, 196608, 0, 0, 26
 [node name="Player" parent="SubViewportContainer/SubViewport" instance=ExtResource("2_qdn5d")]
 position = Vector2(200, 120)
 
-[node name="Camera2D" type="Camera2D" parent="SubViewportContainer/SubViewport/Player"]
-
 [node name="RespawnPoint" type="Marker2D" parent="SubViewportContainer/SubViewport"]
 position = Vector2(200, 98)
 

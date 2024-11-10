@@ -97,12 +97,22 @@ public partial class Game : Node2D
 				// viewportDebugDraw.UpdateVectorToDraw("Viewport debug4", subViewport.GetMousePosition(), Vector2.Zero, Color.FromHtml("FFFF00"));
 				viewportDebugDraw.UpdateVectorToDraw("Viewport debug5", subViewport.GetMousePosition(), WorldToViewportLocal(new Vector2(1600f / 2f, 960f / 2f)), Color.FromHtml("FF00FF"));
 
-				var newHighlightPosition = new Vector2(400 / 2f, 240 / 2f);
-				viewportDebugDraw.UpdateVectorToDraw("to highlight local", subViewport.GetMousePosition(), newHighlightPosition, Color.FromHtml("FFFFFF"));
+				var newHighlightPosition = WorldToViewportLocal(tileWorldCoordinates);
 				debugDraw.UpdateVectorToDraw("to highlight global", eventMouseMotion.Position, ViewportLocalToWorld(newHighlightPosition), Color.FromHtml("000000"));
 
+				// tileHighlight.GlobalPosition = newHighlightPosition.Snapped(Vector2.One * tileSize);
+				// tileHighlight.GlobalPosition += Vector2.One * tileSize / 2;
+				// tileHighlight.GlobalPosition = ViewportLocalToWorld(tileHighlight.GlobalPosition);
+				var snapped = subViewport.GetMousePosition().Snapped(Vector2.One * tileSize);
+				var final = snapped + Vector2.One * tileSize / 2;
+				tileHighlight.Position = final;
+				viewportDebugDraw.UpdateVectorToDraw("to highlight local", subViewport.GetMousePosition(), snapped, Color.FromHtml("0000FF"));
+				viewportDebugDraw.UpdateVectorToDraw("to highlight local final", subViewport.GetMousePosition(), final, Color.FromHtml("FF00FF"));
+				viewportDebugDraw.UpdateVectorToDraw("to highlight local player", subViewport.GetMousePosition(), player.Position, Color.FromHtml("FF0000"));
+				viewportDebugDraw.UpdateVectorToDraw("to highlight local position", subViewport.GetMousePosition(), tileHighlight.Position, Color.FromHtml("000000"));
 
-				tileHighlight.Position = newHighlightPosition;
+				GD.Print($"Local: mouse={subViewport.GetMousePosition()} player={player.Position} highlight before={snapped} highlight after={final}");
+				// tileHighlight.GlobalPosition = ViewportLocalToWorld(tileHighlight.GlobalPosition);
 
 				tileHighlight.Visible = true;
 			}

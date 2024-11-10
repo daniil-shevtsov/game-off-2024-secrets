@@ -37,12 +37,12 @@ public partial class Game : Node2D
 		debugDraw = ((DebugOverlay)FindChild("DebugOverlay")).debugDraw;
 		viewportDebugDraw = ((DebugOverlay)FindChild("ViewportDebugOverlay")).debugDraw;
 
-		respawnPoint.GlobalPosition = respawnPoint.GlobalPosition.Snapped(Vector2.One * tileSize);
-		respawnPoint.GlobalPosition += Vector2.One * tileSize / 2;
+		// respawnPoint.Position = respawnPoint.Position.Snapped(Vector2.One * tileSize);
+		// respawnPoint.Position += Vector2.One * tileSize / 2;
 
-		player.GlobalPosition = respawnPoint.GlobalPosition;
-		player.GlobalPosition = player.GlobalPosition.Snapped(Vector2.One * tileSize);
-		player.GlobalPosition += Vector2.One * tileSize / 2;
+		player.Position = respawnPoint.Position;
+		// player.Position = player.Position.Snapped(Vector2.One * tileSize);
+		// player.Position += Vector2.One * tileSize / 2;
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.

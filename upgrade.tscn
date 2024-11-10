@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3 uid="uid://de50mccme8u7u"]
+
+[ext_resource type="Texture2D" uid="uid://bekwwvawj06me" path="res://assets/untitled.png" id="1_i68vs"]
+
+[node name="Upgrade" type="Node2D"]
+position = Vector2(120, -168)
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture_filter = 1
+texture = ExtResource("1_i68vs")

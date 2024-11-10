@@ -61,7 +61,7 @@ public partial class Game : Node2D
 
 	private Vector2 WorldToViewportLocal(Vector2 position)
 	{
-		return subViewport.GetViewport().GetScreenTransform().AffineInverse() * GetGlobalTransformWithCanvas() * position;
+		return subViewport.GetViewport().GetScreenTransform().AffineInverse() * GetGlobalTransformWithCanvas().AffineInverse() * position;
 	}
 
 	public override void _UnhandledInput(InputEvent @event)

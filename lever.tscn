@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://cmmitmbomgpoy"]
+
+[ext_resource type="Texture2D" uid="uid://bqh5ff6tgkgrj" path="res://assets/lever.png" id="1_pgq8q"]
+
+[node name="Lever" type="Node2D"]
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture_filter = 1
+texture = ExtResource("1_pgq8q")

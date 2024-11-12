@@ -32,7 +32,7 @@ public partial class DebugDraw : Control
 			var start = vector.start;//camera.UnprojectPosition(vector.start);
 			var end = vector.end;//camera.UnprojectPosition(vector.end);
 
-			GD.Print($"Drawing {vector.key} line from {start} to {end} with color {color}");
+			// GD.Print($"Drawing {vector.key} line from {start} to {end} with color {color}");
 			DrawLine(start, end, color, width);
 			DrawTriangle(end, start.DirectionTo(end), width * 2, color);
 		}

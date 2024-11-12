@@ -1,7 +1,6 @@
 using Godot;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 public partial class Game : Node2D
@@ -103,7 +102,8 @@ public partial class Game : Node2D
 
 				var snapped = mousePosition.Snapped(Vector2.One * tileSize);
 				var final = snapped + Vector2.One * tileSize / 2;
-				tileHighlight.Position = (mousePosition - Vector2.One * tileSize / 2).Snapped(Vector2.One * tileSize);
+				var final2 = (mousePosition - Vector2.One * tileSize / 2).Snapped(Vector2.One * tileSize);
+				tileHighlight.Position = final2;
 				debugDraw.UpdateVectorToDraw("to highlight local", ViewportLocalToWorld(mousePosition), ViewportLocalToWorld(snapped), Color.FromHtml("0000FF"));
 				debugDraw.UpdateVectorToDraw("to highlight local final", ViewportLocalToWorld(mousePosition), ViewportLocalToWorld(final), Color.FromHtml("FF00FF"));
 				debugDraw.UpdateVectorToDraw("to highlight local player", ViewportLocalToWorld(mousePosition), ViewportLocalToWorld(player.Position), Color.FromHtml("FF0000"));
@@ -112,8 +112,10 @@ public partial class Game : Node2D
 				viewportDebugDraw.UpdateVectorToDraw("13213123213", WorldToViewportLocal(eventMouseMotion.Position), WorldToViewportLocal(new Vector2(1600f / 2f, 960f / 2f)), Color.FromHtml("#FFFFFF"));
 
 
-				GD.Print($"Local: mouse={mousePosition} player={player.Position} highlight before={snapped} highlight after={final}");
+				GD.Print($"Local: mouse={mousePosition} player={player.Position} highlight before={snapped} highlight final={final} final2={final2}");
 				// tileHighlight.GlobalPosition = ViewportLocalToWorld(tileHighlight.GlobalPosition);
+
+				tileHighlight.Position = WorldToViewportLocal(ViewportLocalToWorld(player.Position - Vector2.One * 32f / 2f));
 
 				tileHighlight.Visible = true;
 			}

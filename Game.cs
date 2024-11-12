@@ -44,8 +44,8 @@ public partial class Game : Node2D
 		// respawnPoint.Position += Vector2.One * tileSize / 2;
 
 		player.Position = respawnPoint.Position;
-		// player.Position = player.Position.Snapped(Vector2.One * tileSize);
-		// player.Position += Vector2.One * tileSize / 2;
+		player.Position = player.Position.Snapped(Vector2.One * tileSize);
+		player.Position += Vector2.One * tileSize / 2;
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -96,7 +96,7 @@ public partial class Game : Node2D
 				var final2 = (mousePosition - Vector2.One * tileSize / 2).Snapped(Vector2.One * tileSize);
 
 				tileHighlight.Position = final2;
-				tileHighlight.Visible = false;
+				tileHighlight.Visible = true;
 			}
 			else
 			{
@@ -106,12 +106,13 @@ public partial class Game : Node2D
 
 		if (@event is InputEventMouseButton eventMouseButton && eventMouseButton.IsReleased())
 		{
-			var position = ViewportLocalToWorld(GetMouseLocalPositionWithMagicOffset());
+			var position = eventMouseButton.Position;
 
 			var hoveredTile = tileMap.LocalToMap(position);
 
 			if (hoveredTile != null && !ui.isContextMenuShown)
 			{
+				GD.Print("Show menu");
 				ui.ShowContextMenu(
 					position,
 					new() { ContextMenuAction.Copy, ContextMenuAction.Paste },
@@ -120,6 +121,7 @@ public partial class Game : Node2D
 			}
 			else
 			{
+				GD.Print("Hide menu");
 				ui.HideContextMenu();
 			}
 		}

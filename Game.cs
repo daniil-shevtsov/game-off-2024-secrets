@@ -169,7 +169,7 @@ public partial class Game : Node2D
 			{
 				var objectPosition = o.GlobalPosition;
 				var difference = (objectPosition - hoveredTileGlobalPosition).Abs();
-				var epsilon = tileSize / 2f;
+				var epsilon = tileSize / 4f;
 				GD.Print($"Abs({objectPosition} - {hoveredTileGlobalPosition}) = {difference} <= {epsilon}");
 				return difference <= new Vector2(epsilon, epsilon);
 			});

@@ -25,9 +25,13 @@ public partial class Game : Node2D
 		{"right", Vector2.Right},
 	};
 
+	private Bridge bridge;
+
 	private List<Upgrade> upgrades = new();
 
-	private List<ContextMenuAction> obtainedActions = new();
+	private List<ContextMenuAction> obtainedActions = new() { ContextMenuAction.Use };
+
+	private List<Node2D> objects = new();
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
@@ -46,6 +50,11 @@ public partial class Game : Node2D
 
 		upgrades.Add((Upgrade)FindChild("Upgrade"));
 		upgrades.Add((Upgrade)FindChild("Upgrade2"));
+
+		bridge = (Bridge)FindChild("Bridge");
+		objects.Add((Lever)FindChild("Lever"));
+		objects.Add(bridge);
+
 		// respawnPoint.Position = respawnPoint.Position.Snapped(Vector2.One * tileSize);
 		// respawnPoint.Position += Vector2.One * tileSize / 2;
 
@@ -152,7 +161,25 @@ public partial class Game : Node2D
 
 	private void OnContextMenuActionSelected(Vector2I hoveredTile, ContextMenuAction action)
 	{
+		if (action == ContextMenuAction.Use)
+		{
+			GD.Print($"Use clicked {objects.Count()}");
+			var hoveredTileGlobalPosition = GetMouseLocalPositionWithMagicOffset();//TileMapLocalToWorld(hoveredTile);
+			var selectedObject = objects.Find(o =>
+			{
+				var objectPosition = o.GlobalPosition;
+				var difference = (objectPosition - hoveredTileGlobalPosition).Abs();
+				var epsilon = tileSize / 2f;
+				GD.Print($"Abs({objectPosition} - {hoveredTileGlobalPosition}) = {difference} <= {epsilon}");
+				return difference <= new Vector2(epsilon, epsilon);
+			});
+			GD.Print($"Selected: {selectedObject}");
 
+			if (selectedObject is Lever)
+			{
+				bridge.ToggleExpanded();
+			}
+		}
 	}
 
 	private void Move(string direction)

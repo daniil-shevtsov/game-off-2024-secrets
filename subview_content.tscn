@@ -1,9 +1,10 @@
-[gd_scene load_steps=7 format=3 uid="uid://b3v30t0d0vnvp"]
+[gd_scene load_steps=8 format=3 uid="uid://b3v30t0d0vnvp"]
 
 [ext_resource type="PackedScene" uid="uid://bindx8eepy7ug" path="res://map.tscn" id="1_1d5xd"]
 [ext_resource type="Texture2D" uid="uid://d3qch0c4pa6lh" path="res://assets/tile_set.png" id="2_lxgo6"]
 [ext_resource type="PackedScene" uid="uid://djcwo0jwf5ex0" path="res://player.tscn" id="3_0uujt"]
 [ext_resource type="PackedScene" uid="uid://de50mccme8u7u" path="res://upgrade.tscn" id="4_trdr7"]
+[ext_resource type="Texture2D" uid="uid://bekwwvawj06me" path="res://assets/untitled.png" id="5_1urmc"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_ogd8j"]
 texture = ExtResource("2_lxgo6")
@@ -120,3 +121,7 @@ offset_bottom = 16.0
 color = Color(1, 0.470588, 0.219608, 0.360784)
 
 [node name="Upgrade" parent="." instance=ExtResource("4_trdr7")]
+
+[node name="SpriteHighlight" type="Sprite2D" parent="."]
+position = Vector2(8, 8)
+texture = ExtResource("5_1urmc")

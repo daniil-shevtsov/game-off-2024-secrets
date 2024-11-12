@@ -10,6 +10,7 @@ public partial class Game : Node2D
 	private Marker2D respawnPoint;
 	private Ui ui;
 	private ColorRect tileHighlight;
+	private Sprite2D spriteHighlight;
 	private SubViewportContainer subViewportContainer;
 	private SubViewport subViewport;
 	private DebugDraw debugDraw;
@@ -32,6 +33,7 @@ public partial class Game : Node2D
 		respawnPoint = (Marker2D)FindChild("RespawnPoint");
 		ui = (Ui)FindChild("Ui");
 		tileHighlight = (ColorRect)FindChild("TileHighlight");
+		spriteHighlight = (Sprite2D)FindChild("SpriteHighlight");
 		subViewportContainer = (SubViewportContainer)FindChild("SubViewportContainer");
 		subViewport = (SubViewport)FindChild("SubViewport");
 		debugDraw = ((DebugOverlay)FindChild("DebugOverlay")).debugDraw;
@@ -79,7 +81,8 @@ public partial class Game : Node2D
 		{
 			var globalMousePosition = GetGlobalMousePosition();
 			var localMousePosition = WorldToViewportLocal(globalMousePosition);
-			var mousePosition = localMousePosition;
+			var magicOffset = subViewport.GetCamera2D().GetScreenCenterPosition() - new Vector2(200, 120);
+			var mousePosition = localMousePosition + magicOffset;
 			var hoveredTile = tileMap.LocalToMap(tileMap.ToLocal(mousePosition));
 			if (hoveredTile != null)
 			{
@@ -106,6 +109,9 @@ public partial class Game : Node2D
 				var final = snapped + Vector2.One * tileSize / 2;
 				var final2 = (mousePosition - Vector2.One * tileSize / 2).Snapped(Vector2.One * tileSize);
 				tileHighlight.Position = final2;
+				spriteHighlight.Position = final;
+
+				GD.Print($"sub_center_position={subViewport.GetCamera2D().GetScreenCenterPosition()} global_center_position={camera.GetScreenCenterPosition()}");
 				// debugDraw.UpdateVectorToDraw("to highlight local", ViewportLocalToWorld(mousePosition), ViewportLocalToWorld(snapped), Color.FromHtml("0000FF"));
 				// debugDraw.UpdateVectorToDraw("to highlight local final", ViewportLocalToWorld(mousePosition), ViewportLocalToWorld(final), Color.FromHtml("FF00FF"));
 				// debugDraw.UpdateVectorToDraw("to highlight local player", ViewportLocalToWorld(mousePosition), ViewportLocalToWorld(player.Position), Color.FromHtml("FF0000"));
@@ -124,7 +130,7 @@ public partial class Game : Node2D
 
 				// tileHighlight.Position = WorldToViewportLocal(ViewportLocalToWorld(player.Position - Vector2.One * 32f / 2f));
 
-				tileHighlight.Visible = false;
+				tileHighlight.Visible = true;
 			}
 			else
 			{
@@ -182,7 +188,7 @@ public partial class Game : Node2D
 		var finalTile = tileMap.LocalToMap(finalPosition);
 		var finalTileType = getTileType(finalTile);
 
-		GD.Print($"current={getTileType(currentTile)} potential={getTileType(potentialTile)} final={finalTileType}");
+		// GD.Print($"current={getTileType(currentTile)} potential={getTileType(potentialTile)} final={finalTileType}");
 
 		if (finalTileType == TileType.Water)
 		{

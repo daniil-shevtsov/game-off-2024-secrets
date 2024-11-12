@@ -25,6 +25,10 @@ public partial class Game : Node2D
 		{"right", Vector2.Right},
 	};
 
+	private List<Upgrade> upgrades = new();
+
+	private List<ContextMenuAction> obtainedActions = new();
+
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
@@ -40,12 +44,25 @@ public partial class Game : Node2D
 		viewportDebugDraw = ((DebugOverlay)FindChild("ViewportDebugOverlay")).debugDraw;
 		camera = (Camera2D)FindChild("Camera2D");
 
+		upgrades.Add((Upgrade)FindChild("Upgrade"));
+		upgrades.Add((Upgrade)FindChild("Upgrade2"));
 		// respawnPoint.Position = respawnPoint.Position.Snapped(Vector2.One * tileSize);
 		// respawnPoint.Position += Vector2.One * tileSize / 2;
 
 		player.Position = respawnPoint.Position;
 		player.Position = player.Position.Snapped(Vector2.One * tileSize);
 		player.Position += Vector2.One * tileSize / 2;
+
+		player.pickupArea.BodyEntered += OnPickup;
+	}
+
+	public void OnPickup(Node body)
+	{
+		var upgrade = body as Upgrade;
+		if (upgrade != null)
+		{
+			obtainedActions.Add(upgrade.action);
+		}
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -110,12 +127,12 @@ public partial class Game : Node2D
 
 			var hoveredTile = tileMap.LocalToMap(position);
 
-			if (hoveredTile != null && !ui.isContextMenuShown)
+			if (hoveredTile != null && !ui.isContextMenuShown && obtainedActions.Count > 0)
 			{
 				GD.Print("Show menu");
 				ui.ShowContextMenu(
 					position,
-					new() { ContextMenuAction.Copy, ContextMenuAction.Paste },
+					obtainedActions,
 					(action) => OnContextMenuActionSelected(hoveredTile, action)
 					);
 			}

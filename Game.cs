@@ -65,12 +65,9 @@ public partial class Game : Node2D
 			var tileType = ParseTileType(tileIndices);
 			if (tileType != null)
 			{
-				tileData.Add(new TileKey(tileIndices.X, tileIndices.Y), new TileData((TileType)tileType));
+				tileData.Add(new TileKey(tileIndices), new TileData((TileType)tileType));
 			}
 		});
-
-		// respawnPoint.Position = respawnPoint.Position.Snapped(Vector2.One * tileSize);
-		// respawnPoint.Position += Vector2.One * tileSize / 2;
 
 		player.Position = respawnPoint.Position;
 		player.Position = player.Position.Snapped(Vector2.One * tileSize);
@@ -215,12 +212,8 @@ public partial class Game : Node2D
 		}
 		player.GlobalPosition = finalPosition;
 
-		var currentTile = tileMap.LocalToMap(currentPosition);
-		var potentialTile = tileMap.LocalToMap(potentialNewPosition);
 		var finalTile = tileMap.LocalToMap(finalPosition);
-		var finalTileType = ParseTileType(finalTile);
-
-		// GD.Print($"current={getTileType(currentTile)} potential={getTileType(potentialTile)} final={finalTileType}");
+		var finalTileType = tileData[new TileKey(finalTile)].type;
 
 		if (finalTileType == TileType.Water)
 		{
@@ -253,7 +246,10 @@ public partial class Game : Node2D
 	}
 }
 
-public record TileKey(int X, int Y);
+public record TileKey(int X, int Y)
+{
+	public TileKey(Vector2I tilePosition) : this(tilePosition.X, tilePosition.Y) { }
+}
 public record TileData(
 	TileType type
 // TileTraits traits,

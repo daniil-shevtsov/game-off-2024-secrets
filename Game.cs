@@ -52,13 +52,6 @@ public partial class Game : Node2D
 		viewportDebugDraw = ((DebugOverlay)FindChild("ViewportDebugOverlay")).debugDraw;
 		camera = (Camera2D)FindChild("Camera2D");
 
-		upgrades.Add((Upgrade)FindChild("Upgrade"));
-		upgrades.Add((Upgrade)FindChild("Upgrade2"));
-
-		bridge = (Bridge)FindChild("Bridge");
-		objects.Add((Lever)FindChild("Lever"));
-		objects.Add(bridge);
-
 		var allCoords = tileMap.GetUsedCells(tileLayer);
 		allCoords.ToList().ForEach(tileIndices =>
 		{
@@ -73,11 +66,25 @@ public partial class Game : Node2D
 					Traits: new TileTraits(
 						IsWalkable: type != TileType.Wall,
 						isDeath: type == TileType.Water
-					)
+					),
+					item: null
 					);
 				tileData.Add(key, data);
 			}
 		});
+
+		upgrades.Add((Upgrade)FindChild("Upgrade"));
+		upgrades.Add((Upgrade)FindChild("Upgrade2"));
+		upgrades.ForEach(upgrade =>
+		{
+			var key = new TileKey(tileMap.LocalToMap(upgrade.GlobalPosition));
+			var upgradeTileData = tileData[key];
+			ModifyTileItem(key, upgrade);
+		});
+
+		bridge = (Bridge)FindChild("Bridge");
+		objects.Add((Lever)FindChild("Lever"));
+		objects.Add(bridge);
 
 		player.Position = respawnPoint.Position;
 		player.Position = player.Position.Snapped(Vector2.One * tileSize);
@@ -86,12 +93,22 @@ public partial class Game : Node2D
 		player.pickupArea.BodyEntered += OnPickup;
 	}
 
+	private void ModifyTileItem(TileKey key, Item item)
+	{
+		if (item == null)
+		{
+			((Node2D)tileData[key].item).Visible = false;
+		}
+		tileData[key] = tileData[key] with { item = item };
+	}
+
 	public void OnPickup(Node body)
 	{
 		var upgrade = body as Upgrade;
 		if (upgrade != null)
 		{
 			obtainedActions.Add(upgrade.action);
+			ModifyTileItem(new TileKey(tileMap.LocalToMap(upgrade.GlobalPosition)), null);
 		}
 	}
 
@@ -278,7 +295,8 @@ public record TileKey(int X, int Y)
 }
 public record TileData(
 	TileType type,
-	TileTraits Traits
+	TileTraits Traits,
+	Item item
 // object content
 );
 
@@ -286,3 +304,14 @@ public record TileTraits(
 	bool IsWalkable,
 	bool isDeath
 );
+
+
+public interface Structure
+{
+
+}
+
+public interface Item
+{
+
+}

@@ -1,7 +1,7 @@
 using Godot;
 using System;
 
-public partial class Upgrade : StaticBody2D
+public partial class Upgrade : StaticBody2D, Item
 {
 	[Export]
 	public ContextMenuAction action;

@@ -197,12 +197,14 @@ public partial class Game : Node2D
 	{
 		var potentialMove = inputs[direction] * tileSize;
 		var potentialNewPosition = player.GlobalPosition + potentialMove;
-		player.rayCast.TargetPosition = potentialMove;
-		player.rayCast.ForceRaycastUpdate();
 
 		var currentPosition = player.GlobalPosition;
 		var finalPosition = currentPosition;
-		if (!player.rayCast.IsColliding())
+
+		var finalTile = tileMap.LocalToMap(finalPosition);
+		var shouldMove = IsTileWalkable(potentialMove, potentialNewPosition);
+
+		if (shouldMove)
 		{
 			finalPosition = potentialNewPosition;
 		}
@@ -212,13 +214,20 @@ public partial class Game : Node2D
 		}
 		player.GlobalPosition = finalPosition;
 
-		var finalTile = tileMap.LocalToMap(finalPosition);
 		var finalTileType = tileData[new TileKey(finalTile)].type;
 
 		if (finalTileType == TileType.Water)
 		{
 			KillPlayer();
 		}
+	}
+
+	private bool IsTileWalkable(Vector2 potentialMove, Vector2 potentialNewPosition)
+	{
+		player.rayCast.TargetPosition = potentialMove;
+		player.rayCast.ForceRaycastUpdate();
+		var shouldMove = !player.rayCast.IsColliding();
+		return shouldMove;
 	}
 
 	private TileType? ParseTileType(Vector2I tileCoords)

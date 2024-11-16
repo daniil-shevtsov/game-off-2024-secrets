@@ -95,11 +95,7 @@ public partial class Game : Node2D
 			tileData[key] = tileData[key] with { Structure = structure };
 		});
 
-		player.Position = respawnPoint.Position;
-		player.Position = player.Position.Snapped(Vector2.One * tileSize);
-		player.Position += Vector2.One * tileSize / 2;
-
-		// player.pickupArea.BodyEntered += OnPickup;
+		Respawn();
 	}
 
 	private void ModifyTileItem(TileKey key, Item item)

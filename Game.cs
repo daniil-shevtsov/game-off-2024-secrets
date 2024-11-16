@@ -90,7 +90,7 @@ public partial class Game : Node2D
 		player.Position = player.Position.Snapped(Vector2.One * tileSize);
 		player.Position += Vector2.One * tileSize / 2;
 
-		player.pickupArea.BodyEntered += OnPickup;
+		// player.pickupArea.BodyEntered += OnPickup;
 	}
 
 	private void ModifyTileItem(TileKey key, Item item)
@@ -102,13 +102,13 @@ public partial class Game : Node2D
 		tileData[key] = tileData[key] with { item = item };
 	}
 
-	public void OnPickup(Node body)
+	public void OnPickup(TileKey tileKey, Item body)
 	{
 		var upgrade = body as Upgrade;
 		if (upgrade != null)
 		{
 			obtainedActions.Add(upgrade.action);
-			ModifyTileItem(new TileKey(tileMap.LocalToMap(upgrade.GlobalPosition)), null);
+			ModifyTileItem(tileKey, null);
 		}
 	}
 
@@ -227,27 +227,26 @@ public partial class Game : Node2D
 		var potentialNewTilePosition = tileMap.LocalToMap(potentialNewPosition);
 
 		var currentPosition = player.GlobalPosition;
-		var finalPosition = currentPosition;
 
 		var shouldMove = IsTileWalkable(potentialMove, potentialNewPosition, potentialNewTilePosition);
 
 		if (shouldMove)
 		{
-			finalPosition = potentialNewPosition;
-		}
-		else
-		{
-			finalPosition = currentPosition;
-		}
-		var finalTile = tileMap.LocalToMap(finalPosition);
+			var finalPosition = potentialNewPosition;
+			var finalTilePosition = potentialNewTilePosition;
+			var key = new TileKey(finalTilePosition);
+			var finalTile = tileData[key];
 
-		player.GlobalPosition = finalPosition;
+			player.GlobalPosition = finalPosition;
 
-		var finalTileType = tileData[new TileKey(finalTile)].type;
-
-		if (finalTileType == TileType.Water)
-		{
-			KillPlayer();
+			if (finalTile.item != null)
+			{
+				OnPickup(key, finalTile.item);
+			}
+			if (finalTile.type == TileType.Water)
+			{
+				KillPlayer();
+			}
 		}
 	}
 

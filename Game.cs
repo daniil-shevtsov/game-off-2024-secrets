@@ -65,7 +65,17 @@ public partial class Game : Node2D
 			var tileType = ParseTileType(tileIndices);
 			if (tileType != null)
 			{
-				tileData.Add(new TileKey(tileIndices), new TileData((TileType)tileType));
+				var key = new TileKey(tileIndices);
+
+				var type = (TileType)tileType;
+				var data = new TileData(
+					type: type,
+					Traits: new TileTraits(
+						IsWalkable: type != TileType.Wall,
+						isDeath: type == TileType.Water
+					)
+					);
+				tileData.Add(key, data);
 			}
 		});
 
@@ -197,12 +207,12 @@ public partial class Game : Node2D
 	{
 		var potentialMove = inputs[direction] * tileSize;
 		var potentialNewPosition = player.GlobalPosition + potentialMove;
+		var potentialNewTilePosition = tileMap.LocalToMap(potentialNewPosition);
 
 		var currentPosition = player.GlobalPosition;
 		var finalPosition = currentPosition;
 
-		var finalTile = tileMap.LocalToMap(finalPosition);
-		var shouldMove = IsTileWalkable(potentialMove, potentialNewPosition);
+		var shouldMove = IsTileWalkable(potentialMove, potentialNewPosition, potentialNewTilePosition);
 
 		if (shouldMove)
 		{
@@ -212,6 +222,8 @@ public partial class Game : Node2D
 		{
 			finalPosition = currentPosition;
 		}
+		var finalTile = tileMap.LocalToMap(finalPosition);
+
 		player.GlobalPosition = finalPosition;
 
 		var finalTileType = tileData[new TileKey(finalTile)].type;
@@ -222,11 +234,16 @@ public partial class Game : Node2D
 		}
 	}
 
-	private bool IsTileWalkable(Vector2 potentialMove, Vector2 potentialNewPosition)
+	private bool IsTileWalkable(Vector2 potentialMove, Vector2 potentialNewPosition, Vector2I potentialNewTilePosition)
 	{
 		player.rayCast.TargetPosition = potentialMove;
 		player.rayCast.ForceRaycastUpdate();
+
+		var potentialNewTile = tileData[new TileKey(potentialNewTilePosition)];
+
 		var shouldMove = !player.rayCast.IsColliding();
+		shouldMove = potentialNewTile.Traits.IsWalkable;
+
 		return shouldMove;
 	}
 
@@ -260,12 +277,12 @@ public record TileKey(int X, int Y)
 	public TileKey(Vector2I tilePosition) : this(tilePosition.X, tilePosition.Y) { }
 }
 public record TileData(
-	TileType type
-// TileTraits traits,
+	TileType type,
+	TileTraits Traits
 // object content
 );
 
 public record TileTraits(
-	bool isWalkable,
+	bool IsWalkable,
 	bool isDeath
 );

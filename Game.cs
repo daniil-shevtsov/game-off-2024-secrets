@@ -2,6 +2,7 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 public partial class Game : Node2D
 {
@@ -278,8 +279,12 @@ public partial class Game : Node2D
 		}
 	}
 
-	private void KillPlayer()
+	private async void KillPlayer()
 	{
+		var tween = CreateTween();
+		tween.TweenProperty(player, "scale", Vector2.Zero, 0.5f).SetTrans(Tween.TransitionType.Quad);
+		await ToSignal(tween, Tween.SignalName.Finished);
+		player.Scale = Vector2.One;
 		Respawn();
 	}
 

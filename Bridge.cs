@@ -1,7 +1,7 @@
 using Godot;
 using System;
 
-public partial class Bridge : Node2D
+public partial class Bridge : Node2D, Structure
 {
 	private Sprite2D retractedSprite;
 	private Sprite2D expandedSprite;

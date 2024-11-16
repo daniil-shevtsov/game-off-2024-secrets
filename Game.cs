@@ -35,7 +35,9 @@ public partial class Game : Node2D
 
 	private List<ContextMenuAction> obtainedActions = new() { ContextMenuAction.Use };
 
-	private List<Node2D> objects = new();
+	private List<Structure> structures = new();
+
+	private TileKey hoveredTileKey = null;
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
@@ -67,7 +69,8 @@ public partial class Game : Node2D
 						IsWalkable: type != TileType.Wall,
 						isDeath: type == TileType.Water
 					),
-					item: null
+					item: null,
+					Structure: null
 					);
 				tileData.Add(key, data);
 			}
@@ -83,8 +86,14 @@ public partial class Game : Node2D
 		});
 
 		bridge = (Bridge)FindChild("Bridge");
-		objects.Add((Lever)FindChild("Lever"));
-		objects.Add(bridge);
+		structures.Add((Lever)FindChild("Lever"));
+		structures.Add(bridge);
+		structures.ForEach(structure =>
+	{
+		var key = new TileKey(tileMap.LocalToMap(((Node2D)structure).GlobalPosition));
+		var upgradeTileData = tileData[key];
+		tileData[key] = tileData[key] with { Structure = structure };
+	});
 
 		player.Position = respawnPoint.Position;
 		player.Position = player.Position.Snapped(Vector2.One * tileSize);
@@ -170,15 +179,33 @@ public partial class Game : Node2D
 
 		if (@event is InputEventMouseButton eventMouseButton && eventMouseButton.IsReleased())
 		{
-			var position = eventMouseButton.Position;
+			var position = GetMouseLocalPositionWithMagicOffset();
 
 			var hoveredTile = tileMap.LocalToMap(position);
+			var contextMenuPosition = ViewportLocalToWorld(tileMap.MapToLocal(hoveredTile));
+			hoveredTileKey = new TileKey(hoveredTile);
+			GD.Print($"KEKKK {tileMap.LocalToMap(player.GlobalPosition)} {hoveredTile}");
+			GD.Print($"KEKKK {player.GlobalPosition} {tileMap.MapToLocal(hoveredTile)}");
+			GD.Print($"KEKKK {ViewportLocalToWorld(player.GlobalPosition)} {ViewportLocalToWorld(tileMap.MapToLocal(hoveredTile))}");
+			GD.Print($"KEKKK {eventMouseButton.Position} {position}");
+			GD.Print($"KEKKK --------------------------------");
+
+			var magicOffset = subViewport.GetCamera2D().GetScreenCenterPosition() - new Vector2(200, 120);
+
+			var a0 = GetGlobalMousePosition();
+			var a1 = WorldToViewportLocal(a0);
+			var a2 = a1 + magicOffset;
+
+			var b3 = tileMap.MapToLocal(hoveredTile);
+			var b2 = b3 - magicOffset;
+			var b1 = ViewportLocalToWorld(b2);
 
 			if (hoveredTile != null && !ui.isContextMenuShown && obtainedActions.Count > 0)
 			{
+
 				GD.Print("Show menu");
 				ui.ShowContextMenu(
-					position,
+					b1,
 					obtainedActions,
 					(action) => OnContextMenuActionSelected(hoveredTile, action)
 					);
@@ -197,23 +224,35 @@ public partial class Game : Node2D
 		return WorldToViewportLocal(GetGlobalMousePosition()) + magicOffset;
 	}
 
-	private void OnContextMenuActionSelected(Vector2I hoveredTile, ContextMenuAction action)
+	private Vector2 CalculateMagicOffset()
+	{
+		return subViewport.GetCamera2D().GetScreenCenterPosition() - new Vector2(200, 120);
+	}
+
+	private Vector2 GetPositionWithMagicOffset(Vector2 position)
+	{
+		var magicOffset = subViewport.GetCamera2D().GetScreenCenterPosition() - new Vector2(200, 120);
+		return WorldToViewportLocal(position) + magicOffset;
+	}
+	private void OnContextMenuActionSelected(Vector2I hoveredTilePosition, ContextMenuAction action)
 	{
 		if (action == ContextMenuAction.Use)
 		{
-			GD.Print($"Use clicked {objects.Count()}");
+			GD.Print($"Use clicked {structures.Count()}");
 			var hoveredTileGlobalPosition = GetMouseLocalPositionWithMagicOffset();//TileMapLocalToWorld(hoveredTile);
-			var selectedObject = objects.Find(o =>
-			{
-				var objectPosition = o.GlobalPosition;
-				var difference = (objectPosition - hoveredTileGlobalPosition).Abs();
-				var epsilon = tileSize / 2f;
-				GD.Print($"Abs({objectPosition} - {hoveredTileGlobalPosition}) = {difference} <= {epsilon}");
-				return difference <= new Vector2(epsilon, epsilon);
-			});
-			GD.Print($"Selected: {selectedObject}");
+			var hoveredTile = tileData[new TileKey(hoveredTilePosition)];
+			var selectedStructure = hoveredTile.Structure;
+			// var selectedObject = structures.Find(structure =>
+			// {
+			// 	var objectPosition = structure.GlobalPosition;
+			// 	var difference = (objectPosition - hoveredTileGlobalPosition).Abs();
+			// 	var epsilon = tileSize / 2f;
+			// 	GD.Print($"Abs({objectPosition} - {hoveredTileGlobalPosition}) = {difference} <= {epsilon}");
+			// 	return difference <= new Vector2(epsilon, epsilon);
+			// });
+			GD.Print($"Selected: {selectedStructure}");
 
-			if (selectedObject is Lever)
+			if (selectedStructure is Lever)
 			{
 				bridge.ToggleExpanded();
 			}
@@ -295,7 +334,8 @@ public record TileKey(int X, int Y)
 public record TileData(
 	TileType type,
 	TileTraits Traits,
-	Item item
+	Item item,
+	Structure Structure
 // object content
 );
 

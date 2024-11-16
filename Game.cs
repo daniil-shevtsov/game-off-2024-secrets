@@ -17,6 +17,10 @@ public partial class Game : Node2D
 	private DebugDraw viewportDebugDraw;
 	private Camera2D camera;
 
+	private Dictionary<TileKey, TileData> tileData = new();
+
+	private int tileLayer = 0;
+
 	public const int tileSize = 16;
 	private Dictionary<String, Vector2> inputs = new() {
 		{"left", Vector2.Left},
@@ -54,6 +58,16 @@ public partial class Game : Node2D
 		bridge = (Bridge)FindChild("Bridge");
 		objects.Add((Lever)FindChild("Lever"));
 		objects.Add(bridge);
+
+		var allCoords = tileMap.GetUsedCells(tileLayer);
+		allCoords.ToList().ForEach(tileIndices =>
+		{
+			var tileType = ParseTileType(tileIndices);
+			if (tileType != null)
+			{
+				tileData.Add(new TileKey(tileIndices.X, tileIndices.Y), new TileData((TileType)tileType));
+			}
+		});
 
 		// respawnPoint.Position = respawnPoint.Position.Snapped(Vector2.One * tileSize);
 		// respawnPoint.Position += Vector2.One * tileSize / 2;
@@ -204,7 +218,7 @@ public partial class Game : Node2D
 		var currentTile = tileMap.LocalToMap(currentPosition);
 		var potentialTile = tileMap.LocalToMap(potentialNewPosition);
 		var finalTile = tileMap.LocalToMap(finalPosition);
-		var finalTileType = getTileType(finalTile);
+		var finalTileType = ParseTileType(finalTile);
 
 		// GD.Print($"current={getTileType(currentTile)} potential={getTileType(potentialTile)} final={finalTileType}");
 
@@ -214,9 +228,9 @@ public partial class Game : Node2D
 		}
 	}
 
-	private TileType? getTileType(Vector2I tileCoords)
+	private TileType? ParseTileType(Vector2I tileCoords)
 	{
-		var data = tileMap.GetCellTileData(0, tileCoords);
+		var data = tileMap.GetCellTileData(tileLayer, tileCoords);
 		if (data != null)
 		{
 			return (TileType)Enum.Parse(typeof(TileType), (String)data.GetCustomData("type"), true);
@@ -238,3 +252,15 @@ public partial class Game : Node2D
 		player.GlobalPosition = respawnPoint.GlobalPosition;
 	}
 }
+
+public record TileKey(int X, int Y);
+public record TileData(
+	TileType type
+// TileTraits traits,
+// object content
+);
+
+public record TileTraits(
+	bool isWalkable,
+	bool isDeath
+);

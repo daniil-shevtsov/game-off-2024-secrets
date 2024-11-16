@@ -168,6 +168,9 @@ public partial class Game : Node2D
 				var final = snapped + Vector2.One * tileSize / 2;
 				var final2 = (mousePosition - Vector2.One * tileSize / 2).Snapped(Vector2.One * tileSize);
 
+				//TODO: Set hoverkey Here
+				hoveredTileKey = new TileKey(hoveredTile);
+
 				tileHighlight.Position = final2;
 				tileHighlight.Visible = true;
 			}
@@ -179,23 +182,12 @@ public partial class Game : Node2D
 
 		if (@event is InputEventMouseButton eventMouseButton && eventMouseButton.IsReleased())
 		{
-			var position = GetMouseLocalPositionWithMagicOffset();
-
-			var hoveredTile = tileMap.LocalToMap(position);
-			var contextMenuPosition = ViewportLocalToWorld(tileMap.MapToLocal(hoveredTile));
-			hoveredTileKey = new TileKey(hoveredTile);
-			GD.Print($"KEKKK {tileMap.LocalToMap(player.GlobalPosition)} {hoveredTile}");
-			GD.Print($"KEKKK {player.GlobalPosition} {tileMap.MapToLocal(hoveredTile)}");
-			GD.Print($"KEKKK {ViewportLocalToWorld(player.GlobalPosition)} {ViewportLocalToWorld(tileMap.MapToLocal(hoveredTile))}");
-			GD.Print($"KEKKK {eventMouseButton.Position} {position}");
-			GD.Print($"KEKKK --------------------------------");
-
-			var magicOffset = subViewport.GetCamera2D().GetScreenCenterPosition() - new Vector2(200, 120);
-
-			var a0 = GetGlobalMousePosition();
-			var a1 = WorldToViewportLocal(a0);
-			var a2 = a1 + magicOffset;
-
+			if (hoveredTileKey == null)
+			{
+				return;
+			}
+			var hoveredTile = GetTileIndices(hoveredTileKey);
+			var magicOffset = CalculateMagicOffset();
 			var b3 = tileMap.MapToLocal(hoveredTile);
 			var b2 = b3 - magicOffset;
 			var b1 = ViewportLocalToWorld(b2);
@@ -218,12 +210,6 @@ public partial class Game : Node2D
 		}
 	}
 
-	private Vector2 GetMouseLocalPositionWithMagicOffset()
-	{
-		var magicOffset = subViewport.GetCamera2D().GetScreenCenterPosition() - new Vector2(200, 120);
-		return WorldToViewportLocal(GetGlobalMousePosition()) + magicOffset;
-	}
-
 	private Vector2 CalculateMagicOffset()
 	{
 		return subViewport.GetCamera2D().GetScreenCenterPosition() - new Vector2(200, 120);
@@ -233,6 +219,11 @@ public partial class Game : Node2D
 	{
 		var magicOffset = subViewport.GetCamera2D().GetScreenCenterPosition() - new Vector2(200, 120);
 		return WorldToViewportLocal(position) + magicOffset;
+	}
+
+	private Vector2 GetMouseLocalPositionWithMagicOffset()
+	{
+		return GetPositionWithMagicOffset(GetGlobalMousePosition());
 	}
 	private void OnContextMenuActionSelected(Vector2I hoveredTilePosition, ContextMenuAction action)
 	{
@@ -324,6 +315,11 @@ public partial class Game : Node2D
 	{
 		GD.Print("RESPAWN");
 		player.GlobalPosition = respawnPoint.GlobalPosition;
+	}
+
+	private Vector2I GetTileIndices(TileKey tileKey)
+	{
+		return new Vector2I(tileKey.X, tileKey.Y);
 	}
 }
 

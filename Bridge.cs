@@ -27,4 +27,9 @@ public partial class Bridge : Node2D, Structure
 		expandedSprite.Visible = isExpanded;
 	}
 
+	public bool IsExpanded()
+	{
+		return isExpanded;
+	}
+
 }

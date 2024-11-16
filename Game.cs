@@ -89,11 +89,11 @@ public partial class Game : Node2D
 		structures.Add((Lever)FindChild("Lever"));
 		structures.Add(bridge);
 		structures.ForEach(structure =>
-	{
-		var key = new TileKey(tileMap.LocalToMap(((Node2D)structure).GlobalPosition));
-		var upgradeTileData = tileData[key];
-		tileData[key] = tileData[key] with { Structure = structure };
-	});
+		{
+			var key = new TileKey(tileMap.LocalToMap(((Node2D)structure).GlobalPosition));
+			var upgradeTileData = tileData[key];
+			tileData[key] = tileData[key] with { Structure = structure };
+		});
 
 		player.Position = respawnPoint.Position;
 		player.Position = player.Position.Snapped(Vector2.One * tileSize);
@@ -234,6 +234,7 @@ public partial class Game : Node2D
 
 		if (shouldMove)
 		{
+			GD.Print("MOVE");
 			var finalPosition = potentialNewPosition;
 			var finalTilePosition = potentialNewTilePosition;
 			var key = new TileKey(finalTilePosition);
@@ -245,7 +246,7 @@ public partial class Game : Node2D
 			{
 				OnPickup(key, finalTile.item);
 			}
-			if (finalTile.type == TileType.Water)
+			if (finalTile.type == TileType.Water && (finalTile.Structure == null || (finalTile.Structure is Bridge && ((Bridge)finalTile.Structure).IsExpanded() == false)))
 			{
 				KillPlayer();
 			}
@@ -254,14 +255,17 @@ public partial class Game : Node2D
 
 	private bool IsTileWalkable(Vector2 potentialMove, Vector2 potentialNewPosition, Vector2I potentialNewTilePosition)
 	{
-		player.rayCast.TargetPosition = potentialMove;
-		player.rayCast.ForceRaycastUpdate();
-
 		var potentialNewTile = tileData[new TileKey(potentialNewTilePosition)];
 
-		var shouldMove = !player.rayCast.IsColliding();
-		shouldMove = potentialNewTile.Traits.IsWalkable;
+		Bridge bridge = null;
+		if (potentialNewTile.Structure is Bridge)
+		{
+			bridge = (Bridge)potentialNewTile.Structure;
+		}
+		var isBridgeExpanded = bridge?.IsExpanded();
 
+		var shouldMove = potentialNewTile.Traits.IsWalkable || isBridgeExpanded == true;
+		GD.Print($"Bridge: {bridge} {isBridgeExpanded} {shouldMove}");
 		return shouldMove;
 	}
 

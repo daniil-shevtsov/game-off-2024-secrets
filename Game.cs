@@ -152,7 +152,7 @@ public partial class Game : Node2D
 
 		if (@event is InputEventMouseMotion eventMouseMotion)
 		{
-			var mousePosition = GetMouseLocalPositionWithMagicOffset();
+			var mousePosition = GlobalToLocalWithMagicOffset(GetGlobalMousePosition());
 			var hoveredTile = tileMap.LocalToMap(tileMap.ToLocal(mousePosition));
 			if (hoveredTile != null)
 			{
@@ -187,17 +187,15 @@ public partial class Game : Node2D
 				return;
 			}
 			var hoveredTile = GetTileIndices(hoveredTileKey);
-			var magicOffset = CalculateMagicOffset();
-			var b3 = tileMap.MapToLocal(hoveredTile);
-			var b2 = b3 - magicOffset;
-			var b1 = ViewportLocalToWorld(b2);
+			var hoveredTileLocalPosition = tileMap.MapToLocal(hoveredTile);
+			var positionToSpawnContextMenu = LocalToGlobalWithMagicOffset(hoveredTileLocalPosition);
 
-			if (hoveredTile != null && !ui.isContextMenuShown && obtainedActions.Count > 0)
+			if (!ui.isContextMenuShown && obtainedActions.Count > 0)
 			{
 
 				GD.Print("Show menu");
 				ui.ShowContextMenu(
-					b1,
+					positionToSpawnContextMenu,
 					obtainedActions,
 					(action) => OnContextMenuActionSelected(hoveredTile, action)
 					);
@@ -210,38 +208,12 @@ public partial class Game : Node2D
 		}
 	}
 
-	private Vector2 CalculateMagicOffset()
-	{
-		return subViewport.GetCamera2D().GetScreenCenterPosition() - new Vector2(200, 120);
-	}
-
-	private Vector2 GetPositionWithMagicOffset(Vector2 position)
-	{
-		var magicOffset = subViewport.GetCamera2D().GetScreenCenterPosition() - new Vector2(200, 120);
-		return WorldToViewportLocal(position) + magicOffset;
-	}
-
-	private Vector2 GetMouseLocalPositionWithMagicOffset()
-	{
-		return GetPositionWithMagicOffset(GetGlobalMousePosition());
-	}
 	private void OnContextMenuActionSelected(Vector2I hoveredTilePosition, ContextMenuAction action)
 	{
 		if (action == ContextMenuAction.Use)
 		{
-			GD.Print($"Use clicked {structures.Count()}");
-			var hoveredTileGlobalPosition = GetMouseLocalPositionWithMagicOffset();//TileMapLocalToWorld(hoveredTile);
 			var hoveredTile = tileData[new TileKey(hoveredTilePosition)];
 			var selectedStructure = hoveredTile.Structure;
-			// var selectedObject = structures.Find(structure =>
-			// {
-			// 	var objectPosition = structure.GlobalPosition;
-			// 	var difference = (objectPosition - hoveredTileGlobalPosition).Abs();
-			// 	var epsilon = tileSize / 2f;
-			// 	GD.Print($"Abs({objectPosition} - {hoveredTileGlobalPosition}) = {difference} <= {epsilon}");
-			// 	return difference <= new Vector2(epsilon, epsilon);
-			// });
-			GD.Print($"Selected: {selectedStructure}");
 
 			if (selectedStructure is Lever)
 			{
@@ -320,6 +292,24 @@ public partial class Game : Node2D
 	private Vector2I GetTileIndices(TileKey tileKey)
 	{
 		return new Vector2I(tileKey.X, tileKey.Y);
+	}
+
+	// It seems magic offset is required only when mouse position is somehow involved
+	private Vector2 GlobalToLocalWithMagicOffset(Vector2 position)
+	{
+		var magicOffset = subViewport.GetCamera2D().GetScreenCenterPosition() - new Vector2(200, 120);
+		return WorldToViewportLocal(position) + magicOffset;
+	}
+
+	private Vector2 LocalToGlobalWithMagicOffset(Vector2 localPosition)
+	{
+		var localWithMagicOffset = localPosition - CalculateMagicOffset();
+		return ViewportLocalToWorld(localWithMagicOffset);
+	}
+
+	private Vector2 CalculateMagicOffset()
+	{
+		return subViewport.GetCamera2D().GetScreenCenterPosition() - new Vector2(200, 120);
 	}
 }
 

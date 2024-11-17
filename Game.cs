@@ -137,7 +137,7 @@ public partial class Game : Node2D
 	{
 		var mousePosition = GlobalToLocalWithMagicOffset(GetGlobalMousePosition());
 		var hoveredTile = tileMap.LocalToMap(tileMap.ToLocal(mousePosition));
-		if (hoveredTile != null)
+		if (hoveredTile != null && !ui.isContextMenuShown)
 		{
 			var final2 = (mousePosition - Vector2.One * tileSize / 2).Snapped(Vector2.One * tileSize);
 
@@ -146,7 +146,7 @@ public partial class Game : Node2D
 			tileHighlight.Position = final2;
 			tileHighlight.Visible = true;
 		}
-		else
+		else if (!ui.isContextMenuShown)
 		{
 			tileHighlight.Visible = false;
 		}

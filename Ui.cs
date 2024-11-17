@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 
 public partial class Ui : CanvasLayer
@@ -22,6 +23,7 @@ public partial class Ui : CanvasLayer
 
 	public void ShowContextMenu(
 	Vector2 newPosition,
+	Vector2 tileSizeInGlobalCoordinates,
 	List<ContextMenuAction> actions,
 	Action<ContextMenuAction> onActionSelected
 	)
@@ -40,6 +42,8 @@ public partial class Ui : CanvasLayer
 			button.Text = action.ToString();
 			button.Name = action.ToString();
 			button.FocusMode = Control.FocusModeEnum.None;
+			button.CustomMinimumSize = Vector2.One * tileSizeInGlobalCoordinates;
+
 			contextMenu.AddChild(button);
 			button.Pressed += () => { onActionSelected(action); };
 		});

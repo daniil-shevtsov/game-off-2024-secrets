@@ -109,12 +109,15 @@ public partial class Game : Node2D
 			return;
 		}
 		var highlightedTileTopLeft = GetPositionBy(hoveredTileKey) - Vector2.One * tileSize / 2;
+		var highlightedTileBottomRight = highlightedTileTopLeft + Vector2.One * tileSize;
 		var positionToSpawnContextMenu = LocalToGlobalWithMagicOffset(highlightedTileTopLeft);
 
 		if (!ui.isContextMenuShown && obtainedActions.Count > 0)
 		{
+			var tileSizeInGlobalCoordinates = LocalToGlobalWithMagicOffset(highlightedTileBottomRight) - LocalToGlobalWithMagicOffset(highlightedTileTopLeft);
 			ui.ShowContextMenu(
-				positionToSpawnContextMenu,
+				newPosition: positionToSpawnContextMenu,
+				tileSizeInGlobalCoordinates: tileSizeInGlobalCoordinates,
 				obtainedActions,
 				(action) => OnContextMenuActionSelected(action)
 			);

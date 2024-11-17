@@ -74,29 +74,19 @@ public partial class Game : Node2D
 
 	private void UpdateLogic(double delta)
 	{
-		// var contextMenuArea = ui.GetContextMenuArea();
-		// var localTopLeft = GlobalToLocalWithMagicOffset(contextMenuArea.Position);
-		// var localBottomRight = GlobalToLocalWithMagicOffset(contextMenuArea.End);
-		// var localSize = localBottomRight - localTopLeft;
-		// var topLeftTileKey = GetTileKeyByPosition(localTopLeft + Vector2.One * 2f);
-		// var bottomRightTileKey = GetTileKeyByPosition(localBottomRight - Vector2.One * 2f);
-		// if (topLeftTileKey == bottomRightTileKey)
-		// {
-		// 	var tile = GetTileBy(topLeftTileKey);
-		// 	if (tile != null && tile.Structure == null)
-		// 	{
-		// 		var genericStructure = new GenericStructure();
-		// 		genericStructure.TraitsToRemoveNotActivated = new() { TileTrait.Fall };
-		// 		ModifyTile(topLeftTileKey, tile with { Structure = genericStructure });
-		// 	}
-		// }
 		if (contextMenuTopLeftTileKey != null)
 		{
 			var tile = GetTileBy(contextMenuTopLeftTileKey);
 
 			ui.MoveContextMenu(LocalToGlobalWithMagicOffset(GetPositionBy(contextMenuTopLeftTileKey) - Vector2.One * tileSize / 2));
+			var contextMenuArea = ui.GetContextMenuArea();
+			var localTopLeft = GlobalToLocalWithMagicOffset(contextMenuArea.Position);
+			var localBottomRight = GlobalToLocalWithMagicOffset(contextMenuArea.End);
+			var localSize = localBottomRight - localTopLeft;
+			var topLeftTileKey = GetTileKeyByPosition(localTopLeft + Vector2.One * 2f);
+			var bottomRightTileKey = GetTileKeyByPosition(localBottomRight - Vector2.One * 2f);
 
-			if (ui.isContextMenuShown && tile.Structure == null)
+			if (ui.isContextMenuShown && tile.Structure == null && localSize.Y >= tileSize)
 			{
 				var genericStructure = new GenericStructure();
 				genericStructure.TraitsToRemoveNotActivated = new() { TileTrait.Fall };
@@ -157,43 +147,9 @@ public partial class Game : Node2D
 				obtainedActions,
 				(action) => OnContextMenuActionSelected(action)
 			);
-
-			// var contextMenuArea = ui.GetContextMenuArea();
-			// var localTopLeft = GlobalToLocalWithMagicOffset(contextMenuArea.Position);
-			// var localBottomRight = GlobalToLocalWithMagicOffset(contextMenuArea.End);
-			// var localSize = localBottomRight - localTopLeft;
-			// var topLeftTileKey = GetTileKeyByPosition(localTopLeft + Vector2.One * 2f);
-			// var bottomRightTileKey = GetTileKeyByPosition(localBottomRight - Vector2.One * 2f);
-			// if (topLeftTileKey == bottomRightTileKey)
-			// {
-			// 	var tile = GetTileBy(topLeftTileKey);
-			// 	if (tile != null && tile.Structure == null)
-			// 	{
-			// 		var genericStructure = new GenericStructure();
-			// 		genericStructure.TraitsToRemoveNotActivated = new() { TileTrait.Fall };
-			// 		ModifyTile(topLeftTileKey, tile with { Structure = genericStructure });
-			// 	}
-			// }
 		}
 		else
 		{
-			// var contextMenuArea = ui.GetContextMenuArea();
-			// var localTopLeft = GlobalToLocalWithMagicOffset(contextMenuArea.Position);
-			// var localBottomRight = GlobalToLocalWithMagicOffset(contextMenuArea.End);
-			// var localSize = localBottomRight - localTopLeft;
-			// var topLeftTileKey = GetTileKeyByPosition(localTopLeft + Vector2.One * 2f);
-			// var bottomRightTileKey = GetTileKeyByPosition(localBottomRight - Vector2.One * 2f);
-			// if (topLeftTileKey == bottomRightTileKey)
-			// {
-			// 	var tile = GetTileBy(topLeftTileKey);
-			// 	if (tile != null)
-			// 	{
-			// 		var genericStructure = new GenericStructure();
-			// 		genericStructure.TraitsToRemoveNotActivated = new() { TileTrait.Fall };
-			// 		ModifyTile(topLeftTileKey, tile with { Structure = null });
-			// 	}
-			// }
-
 			ui.HideContextMenu();
 		}
 	}

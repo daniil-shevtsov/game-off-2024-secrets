@@ -39,63 +39,40 @@ public partial class Game : Node2D
 
 	private TileKey hoveredTileKey = null;
 
-	// Called when the node enters the scene tree for the first time.
-	public override void _Ready()
+	private void InitLogic()
 	{
-		player = (Player)FindChild("Player");
-		tileMap = (TileMap)FindChild("TileMap");
-		respawnPoint = (Marker2D)FindChild("RespawnPoint");
-		ui = (Ui)FindChild("Ui");
-		tileHighlight = (ColorRect)FindChild("TileHighlight");
-		spriteHighlight = (Sprite2D)FindChild("SpriteHighlight");
-		subViewportContainer = (SubViewportContainer)FindChild("SubViewportContainer");
-		subViewport = (SubViewport)FindChild("SubViewport");
-		debugDraw = ((DebugOverlay)FindChild("DebugOverlay")).debugDraw;
-		viewportDebugDraw = ((DebugOverlay)FindChild("ViewportDebugOverlay")).debugDraw;
-		camera = (Camera2D)FindChild("Camera2D");
-
-		var allCoords = tileMap.GetUsedCells(tileLayer);
-		allCoords.ToList().ForEach(tileIndices =>
-		{
-			var tileType = ParseTileType(tileIndices);
-			if (tileType != null)
-			{
-				var key = new TileKey(tileIndices);
-
-				var type = (TileType)tileType;
-				var data = new TileData(
-					type: type,
-					Traits: new TileTraits(
-						IsWalkable: type != TileType.Wall,
-						isDeath: type == TileType.Water
-					),
-					item: null,
-					Structure: null
-					);
-				tileData.Add(key, data);
-			}
-		});
-
-		upgrades.Add((Upgrade)FindChild("Upgrade"));
-		upgrades.Add((Upgrade)FindChild("Upgrade2"));
-		upgrades.ForEach(upgrade =>
-		{
-			var key = new TileKey(tileMap.LocalToMap(upgrade.GlobalPosition));
-			var upgradeTileData = tileData[key];
-			ModifyTileItem(key, upgrade);
-		});
-
-		bridge = (Bridge)FindChild("Bridge");
-		structures.Add((Lever)FindChild("Lever"));
-		structures.Add(bridge);
-		structures.ForEach(structure =>
-		{
-			var key = new TileKey(tileMap.LocalToMap(((Node2D)structure).GlobalPosition));
-			var upgradeTileData = tileData[key];
-			tileData[key] = tileData[key] with { Structure = structure };
-		});
+		InitTileData();
+		InitItems();
+		InitStructures();
 
 		Respawn();
+	}
+
+	private HashSet<TileTrait> GetAllTileTraits(TileData tileData)
+	{
+		var tileTypeTraits = new HashSet<TileTrait>();
+		if (tileData.type == TileType.Water)
+		{
+			tileTypeTraits.Add(TileTrait.Fall);
+		}
+		else if (tileData.type == TileType.Wall)
+		{
+			tileTypeTraits.Add(TileTrait.Wall);
+		}
+
+		if (tileData.Structure != null)
+		{
+			tileData.Structure.GetTraitsToRemove().ToList().ForEach(trait =>
+			{
+				tileTypeTraits.Remove(trait);
+			});
+			tileData.Structure.GetTraitsToAdd().ToList().ForEach(trait =>
+			{
+				tileTypeTraits.Add(trait);
+			});
+		}
+
+		return tileTypeTraits;
 	}
 
 	private void ModifyTileItem(TileKey key, Item item)
@@ -117,8 +94,7 @@ public partial class Game : Node2D
 		}
 	}
 
-	// Called every frame. 'delta' is the elapsed time since the previous frame.
-	public override void _Process(double delta)
+	private void UpdateLogic(double delta)
 	{
 		var playerTile = tileMap.LocalToMap(player.GlobalPosition);
 		var data = tileData[new TileKey(playerTile)];
@@ -128,20 +104,6 @@ public partial class Game : Node2D
 		{
 			KillPlayer();
 		}
-	}
-
-	private Vector2 TileMapLocalToWorld(Vector2I position)
-	{
-		return ViewportLocalToWorld(tileMap.MapToLocal(position));
-	}
-	private Vector2 ViewportLocalToWorld(Vector2 position)
-	{
-		return subViewport.GetViewport().GetScreenTransform() * GetGlobalTransformWithCanvas() * position;
-	}
-
-	private Vector2 WorldToViewportLocal(Vector2 position)
-	{
-		return subViewport.GetViewport().GetScreenTransform().AffineInverse() * GetGlobalTransformWithCanvas().AffineInverse() * position;
 	}
 
 	public override void _UnhandledInput(InputEvent @event)
@@ -156,59 +118,59 @@ public partial class Game : Node2D
 
 		if (@event is InputEventMouseMotion eventMouseMotion)
 		{
-			var mousePosition = GlobalToLocalWithMagicOffset(GetGlobalMousePosition());
-			var hoveredTile = tileMap.LocalToMap(tileMap.ToLocal(mousePosition));
-			if (hoveredTile != null)
-			{
-				var tileGlobalPosition = tileMap.ToGlobal(tileMap.MapToLocal(hoveredTile));
-
-				var tileWorldCoordinates = TileMapLocalToWorld(hoveredTile);
-				var hoverPosition = WorldToViewportLocal(tileWorldCoordinates);
-				var logical = ViewportLocalToWorld(mousePosition);
-
-				var newHighlightPosition = WorldToViewportLocal(tileWorldCoordinates);
-
-				var snapped = mousePosition.Snapped(Vector2.One * tileSize);
-				var final = snapped + Vector2.One * tileSize / 2;
-				var final2 = (mousePosition - Vector2.One * tileSize / 2).Snapped(Vector2.One * tileSize);
-
-				//TODO: Set hoverkey Here
-				hoveredTileKey = new TileKey(hoveredTile);
-
-				tileHighlight.Position = final2;
-				tileHighlight.Visible = true;
-			}
-			else
-			{
-				tileHighlight.Visible = false;
-			}
+			OnMouseMovement();
 		}
 
 		if (@event is InputEventMouseButton eventMouseButton && eventMouseButton.IsReleased())
 		{
-			if (hoveredTileKey == null)
-			{
-				return;
-			}
-			var hoveredTile = GetTileIndices(hoveredTileKey);
-			var hoveredTileLocalPosition = tileMap.MapToLocal(hoveredTile);
-			var positionToSpawnContextMenu = LocalToGlobalWithMagicOffset(hoveredTileLocalPosition);
+			OnMouseClick();
+		}
+	}
 
-			if (!ui.isContextMenuShown && obtainedActions.Count > 0)
-			{
+	private void OnMouseMovement()
+	{
+		var mousePosition = GlobalToLocalWithMagicOffset(GetGlobalMousePosition());
+		var hoveredTile = tileMap.LocalToMap(tileMap.ToLocal(mousePosition));
+		if (hoveredTile != null)
+		{
+			var final2 = (mousePosition - Vector2.One * tileSize / 2).Snapped(Vector2.One * tileSize);
 
-				GD.Print("Show menu");
-				ui.ShowContextMenu(
-					positionToSpawnContextMenu,
-					obtainedActions,
-					(action) => OnContextMenuActionSelected(hoveredTile, action)
-					);
-			}
-			else
-			{
-				GD.Print("Hide menu");
-				ui.HideContextMenu();
-			}
+			//TODO: Set hoverkey Here
+			hoveredTileKey = new TileKey(hoveredTile);
+
+			tileHighlight.Position = final2;
+			tileHighlight.Visible = true;
+		}
+		else
+		{
+			tileHighlight.Visible = false;
+		}
+	}
+
+	private void OnMouseClick()
+	{
+		if (hoveredTileKey == null)
+		{
+			return;
+		}
+		var hoveredTile = GetTileIndices(hoveredTileKey);
+		var hoveredTileLocalPosition = tileMap.MapToLocal(hoveredTile);
+		var positionToSpawnContextMenu = LocalToGlobalWithMagicOffset(hoveredTileLocalPosition);
+
+		if (!ui.isContextMenuShown && obtainedActions.Count > 0)
+		{
+
+			GD.Print("Show menu");
+			ui.ShowContextMenu(
+				positionToSpawnContextMenu,
+				obtainedActions,
+				(action) => OnContextMenuActionSelected(hoveredTile, action)
+				);
+		}
+		else
+		{
+			GD.Print("Hide menu");
+			ui.HideContextMenu();
 		}
 	}
 
@@ -232,8 +194,6 @@ public partial class Game : Node2D
 		var potentialNewPosition = player.GlobalPosition + potentialMove;
 		var potentialNewTilePosition = tileMap.LocalToMap(potentialNewPosition);
 
-		var currentPosition = player.GlobalPosition;
-
 		var shouldMove = IsTileWalkable(potentialMove, potentialNewPosition, potentialNewTilePosition);
 
 		if (shouldMove)
@@ -249,10 +209,6 @@ public partial class Game : Node2D
 			if (finalTile.item != null)
 			{
 				OnPickup(key, finalTile.item);
-			}
-			if (finalTile.type == TileType.Water && (finalTile.Structure == null || (finalTile.Structure is Bridge && ((Bridge)finalTile.Structure).IsExpanded() == false)))
-			{
-				KillPlayer();
 			}
 		}
 	}
@@ -301,9 +257,99 @@ public partial class Game : Node2D
 		player.GlobalPosition = respawnPoint.GlobalPosition;
 	}
 
+	private void InitNodeReferences()
+	{
+		player = (Player)FindChild("Player");
+		tileMap = (TileMap)FindChild("TileMap");
+		respawnPoint = (Marker2D)FindChild("RespawnPoint");
+		ui = (Ui)FindChild("Ui");
+		tileHighlight = (ColorRect)FindChild("TileHighlight");
+		spriteHighlight = (Sprite2D)FindChild("SpriteHighlight");
+		subViewportContainer = (SubViewportContainer)FindChild("SubViewportContainer");
+		subViewport = (SubViewport)FindChild("SubViewport");
+		debugDraw = ((DebugOverlay)FindChild("DebugOverlay")).debugDraw;
+		viewportDebugDraw = ((DebugOverlay)FindChild("ViewportDebugOverlay")).debugDraw;
+		camera = (Camera2D)FindChild("Camera2D");
+	}
+
+	private void InitTileData()
+	{
+		var allCoords = tileMap.GetUsedCells(tileLayer);
+		allCoords.ToList().ForEach(tileIndices =>
+		{
+			var tileType = ParseTileType(tileIndices);
+			if (tileType != null)
+			{
+				var key = new TileKey(tileIndices);
+
+				var type = (TileType)tileType;
+				var data = new TileData(
+					type: type,
+					Traits: new TileTraits(
+						IsWalkable: type != TileType.Wall,
+						isDeath: type == TileType.Water
+					),
+					item: null,
+					Structure: null
+					);
+				tileData.Add(key, data);
+			}
+		});
+	}
+
+	private void InitStructures()
+	{
+		bridge = (Bridge)FindChild("Bridge");
+		structures.Add((Lever)FindChild("Lever"));
+		structures.Add(bridge);
+		structures.ForEach(structure =>
+		{
+			var key = new TileKey(tileMap.LocalToMap(((Node2D)structure).GlobalPosition));
+			var upgradeTileData = tileData[key];
+			tileData[key] = tileData[key] with { Structure = structure };
+		});
+	}
+
+	private void InitItems()
+	{
+		upgrades.Add((Upgrade)FindChild("Upgrade"));
+		upgrades.Add((Upgrade)FindChild("Upgrade2"));
+		upgrades.ForEach(upgrade =>
+		{
+			var key = new TileKey(tileMap.LocalToMap(upgrade.GlobalPosition));
+			var upgradeTileData = tileData[key];
+			ModifyTileItem(key, upgrade);
+		});
+	}
+
+	public override void _Ready()
+	{
+		InitNodeReferences();
+		InitLogic();
+	}
+
+	public override void _Process(double delta)
+	{
+		UpdateLogic(delta);
+	}
+
 	private Vector2I GetTileIndices(TileKey tileKey)
 	{
 		return new Vector2I(tileKey.X, tileKey.Y);
+	}
+
+	private Vector2 TileMapLocalToWorld(Vector2I position)
+	{
+		return ViewportLocalToWorld(tileMap.MapToLocal(position));
+	}
+	private Vector2 ViewportLocalToWorld(Vector2 position)
+	{
+		return subViewport.GetViewport().GetScreenTransform() * GetGlobalTransformWithCanvas() * position;
+	}
+
+	private Vector2 WorldToViewportLocal(Vector2 position)
+	{
+		return subViewport.GetViewport().GetScreenTransform().AffineInverse() * GetGlobalTransformWithCanvas().AffineInverse() * position;
 	}
 
 	// It seems magic offset is required only when mouse position is somehow involved
@@ -323,32 +369,6 @@ public partial class Game : Node2D
 	{
 		return subViewport.GetCamera2D().GetScreenCenterPosition() - new Vector2(200, 120);
 	}
-
-	private HashSet<TileTrait> GetAllTileTraits(TileData tileData)
-	{
-		var tileTypeTraits = new HashSet<TileTrait>();
-		if (tileData.type == TileType.Water)
-		{
-			tileTypeTraits.Add(TileTrait.Fall);
-		}
-		else if (tileData.type == TileType.Wall)
-		{
-			tileTypeTraits.Add(TileTrait.Wall);
-		}
-		if (tileData.Structure != null)
-		{
-			tileData.Structure.GetTraitsToRemove().ToList().ForEach(trait =>
-			{
-				tileTypeTraits.Remove(trait);
-			});
-			tileData.Structure.GetTraitsToAdd().ToList().ForEach(trait =>
-			{
-				tileTypeTraits.Add(trait);
-			});
-		}
-
-		return tileTypeTraits;
-	}
 }
 
 public record TileKey(int X, int Y)
@@ -360,7 +380,6 @@ public record TileData(
 	TileTraits Traits,
 	Item item,
 	Structure Structure
-// object content
 );
 
 public record TileTraits(

@@ -9,7 +9,7 @@ public partial class Game : Node2D
 
 	private List<Upgrade> upgrades = new();
 
-	private List<ContextMenuAction> obtainedActions = new() { ContextMenuAction.Use };
+	private List<ContextMenuAction> obtainedActions = new() { ContextMenuAction.Use, ContextMenuAction.Use, ContextMenuAction.Use, ContextMenuAction.Use };
 
 	private List<Structure> structures = new();
 
@@ -76,8 +76,6 @@ public partial class Game : Node2D
 	{
 		if (contextMenuTopLeftTileKey != null)
 		{
-			var tile = GetTileBy(contextMenuTopLeftTileKey);
-
 			ui.MoveContextMenu(LocalToGlobalWithMagicOffset(GetPositionBy(contextMenuTopLeftTileKey) - Vector2.One * tileSize / 2));
 			var contextMenuArea = ui.GetContextMenuArea();
 			var localTopLeft = GlobalToLocalWithMagicOffset(contextMenuArea.Position);
@@ -86,16 +84,25 @@ public partial class Game : Node2D
 			var topLeftTileKey = GetTileKeyByPosition(localTopLeft + Vector2.One * 2f);
 			var bottomRightTileKey = GetTileKeyByPosition(localBottomRight - Vector2.One * 2f);
 
-			if (ui.isContextMenuShown && tile.Structure == null && localSize.Y >= tileSize)
+			var tilesUnderMenu = tileData.ToList().Where(entry =>
 			{
-				var genericStructure = new GenericStructure();
-				genericStructure.TraitsToRemoveNotActivated = new() { TileTrait.Fall };
-				ModifyTile(contextMenuTopLeftTileKey, tile with { Structure = genericStructure });
-			}
-			else if (!ui.isContextMenuShown && tile.Structure is GenericStructure)
+				return entry.Key.X == bottomRightTileKey.X && entry.Key.Y >= topLeftTileKey.Y && entry.Key.Y <= bottomRightTileKey.Y;
+			});
+			tilesUnderMenu.ToList().ForEach(entry =>
 			{
-				ModifyTile(contextMenuTopLeftTileKey, tile with { Structure = null });
-			}
+				var key = entry.Key;
+				var tile = entry.Value;
+				if (ui.isContextMenuShown && tile.Structure == null && localSize.Y >= tileSize)
+				{
+					var genericStructure = new GenericStructure();
+					genericStructure.TraitsToRemoveNotActivated = new() { TileTrait.Fall };
+					ModifyTile(key, tile with { Structure = genericStructure });
+				}
+				else if (!ui.isContextMenuShown && tile.Structure is GenericStructure)
+				{
+					ModifyTile(key, tile with { Structure = null });
+				}
+			});
 		}
 
 		var playerTile = tileMap.LocalToMap(player.GlobalPosition);

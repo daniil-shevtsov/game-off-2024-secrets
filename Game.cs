@@ -53,11 +53,12 @@ public partial class Game : Node2D
 
 	private void ModifyTileItem(TileKey key, Item item)
 	{
+		var currentTile = GetTileBy(key);
 		if (item == null)
 		{
-			((Node2D)tileData[key].item).Visible = false;
+			((Node2D)currentTile.item).Visible = false;
 		}
-		tileData[key] = tileData[key] with { item = item };
+		ModifyTile(key, tileData[key] with { item = item });
 	}
 
 	public void OnPickup(TileKey tileKey, Item body)
@@ -107,7 +108,7 @@ public partial class Game : Node2D
 		{
 			return;
 		}
-		var positionToSpawnContextMenu = LocalToGlobalWithMagicOffset(GetPositionBy(hoveredTileKey));
+		var positionToSpawnContextMenu = LocalToGlobalWithMagicOffset(GetPositionBy(hoveredTileKey) - Vector2.One * tileSize / 2);
 
 		if (!ui.isContextMenuShown && obtainedActions.Count > 0)
 		{
@@ -149,8 +150,7 @@ public partial class Game : Node2D
 		{
 			GD.Print("MOVE");
 			var finalPosition = potentialNewPosition;
-			var finalTilePosition = potentialNewTilePosition;
-			var key = new TileKey(finalTilePosition);
+			var key = KeyFromPosition(potentialNewPosition);
 			var finalTile = tileData[key];
 
 			player.GlobalPosition = finalPosition;
@@ -251,7 +251,7 @@ public partial class Game : Node2D
 		upgrades.Add((Upgrade)FindChild("Upgrade2"));
 		upgrades.ForEach(upgrade =>
 		{
-			var key = new TileKey(tileMap.LocalToMap(upgrade.GlobalPosition));
+			var key = KeyFromPosition(upgrade.GlobalPosition);
 			var upgradeTileData = tileData[key];
 			ModifyTileItem(key, upgrade);
 		});

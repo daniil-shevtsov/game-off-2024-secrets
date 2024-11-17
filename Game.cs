@@ -2,7 +2,6 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 public partial class Game : Node2D
 {
@@ -121,6 +120,14 @@ public partial class Game : Node2D
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
+		var playerTile = tileMap.LocalToMap(player.GlobalPosition);
+		var data = tileData[new TileKey(playerTile)];
+
+		var traits = GetAllTileTraits(data);
+		if (traits.Contains(TileTrait.Fall))
+		{
+			KillPlayer();
+		}
 	}
 
 	private Vector2 TileMapLocalToWorld(Vector2I position)
@@ -316,6 +323,32 @@ public partial class Game : Node2D
 	{
 		return subViewport.GetCamera2D().GetScreenCenterPosition() - new Vector2(200, 120);
 	}
+
+	private HashSet<TileTrait> GetAllTileTraits(TileData tileData)
+	{
+		var tileTypeTraits = new HashSet<TileTrait>();
+		if (tileData.type == TileType.Water)
+		{
+			tileTypeTraits.Add(TileTrait.Fall);
+		}
+		else if (tileData.type == TileType.Wall)
+		{
+			tileTypeTraits.Add(TileTrait.Wall);
+		}
+		if (tileData.Structure != null)
+		{
+			tileData.Structure.GetTraitsToRemove().ToList().ForEach(trait =>
+			{
+				tileTypeTraits.Remove(trait);
+			});
+			tileData.Structure.GetTraitsToAdd().ToList().ForEach(trait =>
+			{
+				tileTypeTraits.Add(trait);
+			});
+		}
+
+		return tileTypeTraits;
+	}
 }
 
 public record TileKey(int X, int Y)
@@ -335,10 +368,17 @@ public record TileTraits(
 	bool isDeath
 );
 
+public enum TileTrait
+{
+	Wall,
+	Fall
+}
+
 
 public interface Structure
 {
-
+	public HashSet<TileTrait> GetTraitsToAdd();
+	public HashSet<TileTrait> GetTraitsToRemove();
 }
 
 public interface Item

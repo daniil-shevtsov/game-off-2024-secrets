@@ -1,10 +1,28 @@
 using Godot;
 using System;
+using System.Collections.Generic;
 
 public partial class Bridge : Node2D, Structure
 {
 	private Sprite2D retractedSprite;
 	private Sprite2D expandedSprite;
+
+	public HashSet<TileTrait> GetTraitsToAdd()
+	{
+		return new();
+	}
+	public HashSet<TileTrait> GetTraitsToRemove()
+	{
+		if (isExpanded)
+		{
+			return new HashSet<TileTrait>() { TileTrait.Fall };
+		}
+		else
+		{
+			return new HashSet<TileTrait>() { };
+		}
+
+	}
 
 	private bool isExpanded = false;
 

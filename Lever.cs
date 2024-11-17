@@ -1,8 +1,18 @@
 using Godot;
 using System;
+using System.Collections.Generic;
 
 public partial class Lever : Node2D, Structure
 {
+	public HashSet<TileTrait> GetTraitsToAdd()
+	{
+		return new();
+	}
+	public HashSet<TileTrait> GetTraitsToRemove()
+	{
+		return new();
+	}
+
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{

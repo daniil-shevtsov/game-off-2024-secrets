@@ -15,6 +15,7 @@ public partial class Game : Node2D
 
 	private TileKey hoveredTileKey = null;
 	private TileKey contextMenuTopLeftTileKey = null;
+	private bool inProcessOfDying = false;
 
 	private void InitLogic()
 	{
@@ -126,7 +127,7 @@ public partial class Game : Node2D
 		var playerTileData = tileData[new TileKey(playerTile)];
 
 		var playerTileTraits = GetAllTileTraits(playerTileData);
-		if (playerTileTraits.Contains(TileTrait.Fall))
+		if (!inProcessOfDying && playerTileTraits.Contains(TileTrait.Fall))
 		{
 			KillPlayer();
 		}
@@ -228,11 +229,16 @@ public partial class Game : Node2D
 
 	private async void KillPlayer()
 	{
+		inProcessOfDying = true;
+		var previousScale = globalPlayerSprite.Scale;
 		var tween = CreateTween();
-		tween.TweenProperty(player, "scale", Vector2.Zero, 0.5f).SetTrans(Tween.TransitionType.Quad);
+		tween.TweenProperty(globalPlayerSprite, "scale", Vector2.Zero, 0.5f).SetTrans(Tween.TransitionType.Quad);
+		GD.Print("STARTED");
 		await ToSignal(tween, Tween.SignalName.Finished);
-		player.Scale = Vector2.One;
+		GD.Print("FINISHED");
+		globalPlayerSprite.Scale = previousScale;
 		Respawn();
+		inProcessOfDying = false;
 	}
 
 	private void Respawn()

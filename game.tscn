@@ -36,9 +36,9 @@ render_target_update_mode = 4
 
 [node name="DebugOverlay" parent="." instance=ExtResource("6_n8lvi")]
 
-[node name="CanvasLayer" type="CanvasLayer" parent="."]
+[node name="CanvasLayerForHacksInFront" type="CanvasLayer" parent="."]
 
-[node name="GlobalPlayerSprite" type="Sprite2D" parent="CanvasLayer"]
+[node name="GlobalPlayerSprite" type="Sprite2D" parent="CanvasLayerForHacksInFront"]
 texture_filter = 1
 position = Vector2(2, 5)
 texture = ExtResource("5_a3ajj")

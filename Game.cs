@@ -5,31 +5,7 @@ using System.Linq;
 
 public partial class Game : Node2D
 {
-	private Player player;
-	private TileMap tileMap;
-	private Marker2D respawnPoint;
-	private Ui ui;
-	private ColorRect tileHighlight;
-	private Sprite2D spriteHighlight;
-	private SubViewportContainer subViewportContainer;
-	private SubViewport subViewport;
-	private DebugDraw debugDraw;
-	private DebugDraw viewportDebugDraw;
-	private Camera2D camera;
-
 	private Dictionary<TileKey, TileData> tileData = new();
-
-	private int tileLayer = 0;
-
-	public const int tileSize = 16;
-	private Dictionary<String, Vector2> inputs = new() {
-		{"left", Vector2.Left},
-		{"up", Vector2.Up},
-		{"down", Vector2.Down},
-		{"right", Vector2.Right},
-	};
-
-	private Bridge bridge;
 
 	private List<Upgrade> upgrades = new();
 
@@ -106,27 +82,6 @@ public partial class Game : Node2D
 		}
 	}
 
-	public override void _UnhandledInput(InputEvent @event)
-	{
-		inputs.Keys.ToList().ForEach(direction =>
-		{
-			if (@event.IsActionPressed(direction))
-			{
-				Move(direction);
-			}
-		});
-
-		if (@event is InputEventMouseMotion eventMouseMotion)
-		{
-			OnMouseMovement();
-		}
-
-		if (@event is InputEventMouseButton eventMouseButton && eventMouseButton.IsReleased())
-		{
-			OnMouseClick();
-		}
-	}
-
 	private void OnMouseMovement()
 	{
 		var mousePosition = GlobalToLocalWithMagicOffset(GetGlobalMousePosition());
@@ -194,7 +149,7 @@ public partial class Game : Node2D
 		var potentialNewPosition = player.GlobalPosition + potentialMove;
 		var potentialNewTilePosition = tileMap.LocalToMap(potentialNewPosition);
 
-		var shouldMove = IsTileWalkable(potentialMove, potentialNewPosition, potentialNewTilePosition);
+		var shouldMove = IsTileWalkable(potentialNewTilePosition);
 
 		if (shouldMove)
 		{
@@ -213,19 +168,12 @@ public partial class Game : Node2D
 		}
 	}
 
-	private bool IsTileWalkable(Vector2 potentialMove, Vector2 potentialNewPosition, Vector2I potentialNewTilePosition)
+	private bool IsTileWalkable(Vector2I potentialNewTilePosition)
 	{
 		var potentialNewTile = tileData[new TileKey(potentialNewTilePosition)];
+		var traits = GetAllTileTraits(potentialNewTile);
 
-		Bridge bridge = null;
-		if (potentialNewTile.Structure is Bridge)
-		{
-			bridge = (Bridge)potentialNewTile.Structure;
-		}
-		var isBridgeExpanded = bridge?.IsExpanded();
-
-		var shouldMove = potentialNewTile.Traits.IsWalkable || isBridgeExpanded == true;
-		GD.Print($"Bridge: {bridge} {isBridgeExpanded} {shouldMove}");
+		var shouldMove = !traits.Contains(TileTrait.Wall);
 		return shouldMove;
 	}
 
@@ -333,6 +281,27 @@ public partial class Game : Node2D
 		UpdateLogic(delta);
 	}
 
+	public override void _UnhandledInput(InputEvent @event)
+	{
+		inputs.Keys.ToList().ForEach(direction =>
+		{
+			if (@event.IsActionPressed(direction))
+			{
+				Move(direction);
+			}
+		});
+
+		if (@event is InputEventMouseMotion eventMouseMotion)
+		{
+			OnMouseMovement();
+		}
+
+		if (@event is InputEventMouseButton eventMouseButton && eventMouseButton.IsReleased())
+		{
+			OnMouseClick();
+		}
+	}
+
 	private Vector2I GetTileIndices(TileKey tileKey)
 	{
 		return new Vector2I(tileKey.X, tileKey.Y);
@@ -369,6 +338,31 @@ public partial class Game : Node2D
 	{
 		return subViewport.GetCamera2D().GetScreenCenterPosition() - new Vector2(200, 120);
 	}
+
+	private Player player;
+	private TileMap tileMap;
+	private Marker2D respawnPoint;
+	private Ui ui;
+	private ColorRect tileHighlight;
+	private Sprite2D spriteHighlight;
+	private SubViewportContainer subViewportContainer;
+	private SubViewport subViewport;
+	private DebugDraw debugDraw;
+	private DebugDraw viewportDebugDraw;
+	private Camera2D camera;
+
+	private Dictionary<String, Vector2> inputs = new() {
+		{"left", Vector2.Left},
+		{"up", Vector2.Up},
+		{"down", Vector2.Down},
+		{"right", Vector2.Right},
+	};
+
+	private int tileLayer = 0;
+
+	public const int tileSize = 16;
+
+	private Bridge bridge;
 }
 
 public record TileKey(int X, int Y)

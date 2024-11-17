@@ -39,6 +39,7 @@ public partial class Ui : CanvasLayer
 			var button = new Button();
 			button.Text = action.ToString();
 			button.Name = action.ToString();
+			button.FocusMode = Control.FocusModeEnum.None;
 			contextMenu.AddChild(button);
 			button.Pressed += () => { onActionSelected(action); };
 		});

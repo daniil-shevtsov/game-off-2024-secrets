@@ -108,7 +108,8 @@ public partial class Game : Node2D
 		{
 			return;
 		}
-		var positionToSpawnContextMenu = LocalToGlobalWithMagicOffset(GetPositionBy(hoveredTileKey) - Vector2.One * tileSize / 2);
+		var highlightedTileTopLeft = GetPositionBy(hoveredTileKey) - Vector2.One * tileSize / 2;
+		var positionToSpawnContextMenu = LocalToGlobalWithMagicOffset(highlightedTileTopLeft);
 
 		if (!ui.isContextMenuShown && obtainedActions.Count > 0)
 		{

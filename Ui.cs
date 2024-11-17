@@ -22,10 +22,10 @@ public partial class Ui : CanvasLayer
 	}
 
 	public void ShowContextMenu(
-	Vector2 newPosition,
-	Vector2 tileSizeInGlobalCoordinates,
-	List<ContextMenuAction> actions,
-	Action<ContextMenuAction> onActionSelected
+		Vector2 newPosition,
+		Vector2 tileSizeInGlobalCoordinates,
+		List<ContextMenuAction> actions,
+		Action<ContextMenuAction> onActionSelected
 	)
 	{
 		contextMenu.GlobalPosition = newPosition;
@@ -50,6 +50,11 @@ public partial class Ui : CanvasLayer
 			contextMenu.AddChild(button);
 			button.Pressed += () => { onActionSelected(action); };
 		});
+	}
+
+	public void MoveContextMenu(Vector2 newPosition)
+	{
+		contextMenu.GlobalPosition = newPosition;
 	}
 
 	public Rect2 GetContextMenuArea()

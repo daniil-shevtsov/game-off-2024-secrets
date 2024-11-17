@@ -107,8 +107,7 @@ public partial class Game : Node2D
 		{
 			return;
 		}
-		var hoveredTileLocalPosition = GetPositionBy(hoveredTileKey);
-		var positionToSpawnContextMenu = LocalToGlobalWithMagicOffset(hoveredTileLocalPosition);
+		var positionToSpawnContextMenu = LocalToGlobalWithMagicOffset(GetPositionBy(hoveredTileKey));
 
 		if (!ui.isContextMenuShown && obtainedActions.Count > 0)
 		{
@@ -116,7 +115,7 @@ public partial class Game : Node2D
 				positionToSpawnContextMenu,
 				obtainedActions,
 				(action) => OnContextMenuActionSelected(action)
-				);
+			);
 		}
 		else
 		{
@@ -215,10 +214,6 @@ public partial class Game : Node2D
 				var type = (TileType)tileType;
 				var data = new TileData(
 					type: type,
-					Traits: new TileTraits(
-						IsWalkable: type != TileType.Wall,
-						isDeath: type == TileType.Water
-					),
 					item: null,
 					Structure: null
 					);
@@ -234,10 +229,20 @@ public partial class Game : Node2D
 		structures.Add(bridge);
 		structures.ForEach(structure =>
 		{
-			var key = new TileKey(tileMap.LocalToMap(((Node2D)structure).GlobalPosition));
-			var upgradeTileData = tileData[key];
-			tileData[key] = tileData[key] with { Structure = structure };
+			var key = KeyFromPosition(((Node2D)structure).GlobalPosition);
+			var upgradeTileData = GetTileBy(key);
+			ModifyTile(key, upgradeTileData with { Structure = structure });
 		});
+	}
+
+	private void ModifyTile(TileKey key, TileData newTileData)
+	{
+		tileData[key] = newTileData;
+	}
+
+	private TileKey KeyFromPosition(Vector2 position)
+	{
+		return new TileKey(tileMap.LocalToMap(position));
 	}
 
 	private void InitItems()
@@ -372,14 +377,8 @@ public record TileKey(int X, int Y)
 }
 public record TileData(
 	TileType type,
-	TileTraits Traits,
 	Item item,
 	Structure Structure
-);
-
-public record TileTraits(
-	bool IsWalkable,
-	bool isDeath
 );
 
 public enum TileTrait

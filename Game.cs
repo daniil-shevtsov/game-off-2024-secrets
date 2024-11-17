@@ -21,6 +21,7 @@ public partial class Game : Node2D
 		InitTileData();
 		InitItems();
 		InitStructures();
+		InitRandomStuff();
 
 		Respawn();
 	}
@@ -207,7 +208,7 @@ public partial class Game : Node2D
 			var finalTile = tileData[key];
 
 			player.GlobalPosition = finalPosition;
-			SyncSpriteToPlayer();
+			// SyncSpriteToPlayer();
 
 			if (finalTile.item != null)
 			{
@@ -238,7 +239,6 @@ public partial class Game : Node2D
 	{
 		GD.Print("RESPAWN");
 		player.GlobalPosition = respawnPoint.GlobalPosition;
-		SyncSpriteToPlayer();
 	}
 
 	private void InitGlobalPlayerSpriteSize()
@@ -302,6 +302,12 @@ public partial class Game : Node2D
 			var upgradeTileData = GetTileBy(key);
 			ModifyTile(key, upgradeTileData with { Structure = structure });
 		});
+	}
+
+	private void InitRandomStuff()
+	{
+		InitGlobalPlayerSpriteSize();
+		SyncSpriteToPlayer();
 	}
 
 	private void InitItems()

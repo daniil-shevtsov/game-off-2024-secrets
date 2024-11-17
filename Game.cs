@@ -72,6 +72,22 @@ public partial class Game : Node2D
 		}
 	}
 
+	private Rect2 GlobalAreaToLocal(Rect2 globalRect)
+	{
+		return new Rect2(
+			position: GlobalToLocalWithMagicOffset(globalRect.Position),
+			size: GlobalToLocalWithMagicOffset(globalRect.End) - GlobalToLocalWithMagicOffset(globalRect.Position)
+		);
+	}
+
+	private Rect2 LocalAreaToGlobal(Rect2 globalRect)
+	{
+		return new Rect2(
+			position: LocalToGlobalWithMagicOffset(globalRect.Position),
+			size: LocalToGlobalWithMagicOffset(globalRect.End) - LocalToGlobalWithMagicOffset(globalRect.Position)
+		);
+	}
+
 	private void UpdateLogic(double delta)
 	{
 		if (contextMenuTopLeftTileKey != null)
@@ -191,6 +207,7 @@ public partial class Game : Node2D
 			var finalTile = tileData[key];
 
 			player.GlobalPosition = finalPosition;
+			SyncSpriteToPlayer();
 
 			if (finalTile.item != null)
 			{
@@ -221,11 +238,24 @@ public partial class Game : Node2D
 	{
 		GD.Print("RESPAWN");
 		player.GlobalPosition = respawnPoint.GlobalPosition;
+		SyncSpriteToPlayer();
+	}
+
+	private void InitGlobalPlayerSpriteSize()
+	{
+		var playerSizeInGlobalCoordinates = LocalToGlobalWithMagicOffset(player.GlobalPosition + Vector2.One * tileSize / 2f) - LocalToGlobalWithMagicOffset(player.GlobalPosition - Vector2.One * tileSize / 2f);
+		globalPlayerSprite.Scale = playerSizeInGlobalCoordinates / (Vector2.One * tileSize);
+	}
+
+	private void SyncSpriteToPlayer()
+	{
+		globalPlayerSprite.GlobalPosition = LocalToGlobalWithMagicOffset(player.GlobalPosition);
 	}
 
 	private void InitNodeReferences()
 	{
 		player = (Player)FindChild("Player");
+		globalPlayerSprite = (Sprite2D)FindChild("GlobalPlayerSprite");
 		tileMap = (TileMap)FindChild("TileMap");
 		respawnPoint = (Marker2D)FindChild("RespawnPoint");
 		ui = (Ui)FindChild("Ui");
@@ -236,6 +266,8 @@ public partial class Game : Node2D
 		debugDraw = ((DebugOverlay)FindChild("DebugOverlay")).debugDraw;
 		viewportDebugDraw = ((DebugOverlay)FindChild("ViewportDebugOverlay")).debugDraw;
 		camera = (Camera2D)FindChild("Camera2D");
+
+		InitGlobalPlayerSpriteSize();
 	}
 
 	private void InitTileData()
@@ -383,6 +415,7 @@ public partial class Game : Node2D
 	}
 
 	private Player player;
+	private Sprite2D globalPlayerSprite;
 	private TileMap tileMap;
 	private Marker2D respawnPoint;
 	private Ui ui;

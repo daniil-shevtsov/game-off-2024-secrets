@@ -90,7 +90,6 @@ public partial class Game : Node2D
 		{
 			var final2 = (mousePosition - Vector2.One * tileSize / 2).Snapped(Vector2.One * tileSize);
 
-			//TODO: Set hoverkey Here
 			hoveredTileKey = new TileKey(hoveredTile);
 
 			tileHighlight.Position = final2;
@@ -108,32 +107,28 @@ public partial class Game : Node2D
 		{
 			return;
 		}
-		var hoveredTile = GetTileIndices(hoveredTileKey);
-		var hoveredTileLocalPosition = tileMap.MapToLocal(hoveredTile);
+		var hoveredTileLocalPosition = GetPositionBy(hoveredTileKey);
 		var positionToSpawnContextMenu = LocalToGlobalWithMagicOffset(hoveredTileLocalPosition);
 
 		if (!ui.isContextMenuShown && obtainedActions.Count > 0)
 		{
-
-			GD.Print("Show menu");
 			ui.ShowContextMenu(
 				positionToSpawnContextMenu,
 				obtainedActions,
-				(action) => OnContextMenuActionSelected(hoveredTile, action)
+				(action) => OnContextMenuActionSelected(action)
 				);
 		}
 		else
 		{
-			GD.Print("Hide menu");
 			ui.HideContextMenu();
 		}
 	}
 
-	private void OnContextMenuActionSelected(Vector2I hoveredTilePosition, ContextMenuAction action)
+	private void OnContextMenuActionSelected(ContextMenuAction action)
 	{
-		if (action == ContextMenuAction.Use)
+		if (action == ContextMenuAction.Use && hoveredTileKey != null)
 		{
-			var hoveredTile = tileData[new TileKey(hoveredTilePosition)];
+			var hoveredTile = GetTileBy(hoveredTileKey);
 			var selectedStructure = hoveredTile.Structure;
 
 			if (selectedStructure is Lever)
@@ -175,19 +170,6 @@ public partial class Game : Node2D
 
 		var shouldMove = !traits.Contains(TileTrait.Wall);
 		return shouldMove;
-	}
-
-	private TileType? ParseTileType(Vector2I tileCoords)
-	{
-		var data = tileMap.GetCellTileData(tileLayer, tileCoords);
-		if (data != null)
-		{
-			return (TileType)Enum.Parse(typeof(TileType), (String)data.GetCustomData("type"), true);
-		}
-		else
-		{
-			return null;
-		}
 	}
 
 	private async void KillPlayer()
@@ -302,9 +284,15 @@ public partial class Game : Node2D
 		}
 	}
 
-	private Vector2I GetTileIndices(TileKey tileKey)
+	private TileData GetTileBy(TileKey hoveredTileKey)
 	{
-		return new Vector2I(tileKey.X, tileKey.Y);
+		return tileData[hoveredTileKey];
+	}
+
+	private Vector2 GetPositionBy(TileKey tileKey)
+	{
+		var hoveredTile = new Vector2I(tileKey.X, tileKey.Y);
+		return tileMap.MapToLocal(hoveredTile);
 	}
 
 	private Vector2 TileMapLocalToWorld(Vector2I position)
@@ -337,6 +325,19 @@ public partial class Game : Node2D
 	private Vector2 CalculateMagicOffset()
 	{
 		return subViewport.GetCamera2D().GetScreenCenterPosition() - new Vector2(200, 120);
+	}
+
+	private TileType? ParseTileType(Vector2I tileCoords)
+	{
+		var data = tileMap.GetCellTileData(tileLayer, tileCoords);
+		if (data != null)
+		{
+			return (TileType)Enum.Parse(typeof(TileType), (String)data.GetCustomData("type"), true);
+		}
+		else
+		{
+			return null;
+		}
 	}
 
 	private Player player;

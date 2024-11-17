@@ -121,9 +121,45 @@ public partial class Game : Node2D
 				obtainedActions,
 				(action) => OnContextMenuActionSelected(action)
 			);
+
+			var contextMenuArea = ui.GetContextMenuArea();
+			var localTopLeft = GlobalToLocalWithMagicOffset(contextMenuArea.Position);
+			var localBottomRight = GlobalToLocalWithMagicOffset(contextMenuArea.End);
+			var localSize = localBottomRight - localTopLeft;
+			var topLeftTileKey = GetTileKeyByPosition(localTopLeft + Vector2.One * 2f);
+			var bottomRightTileKey = GetTileKeyByPosition(localBottomRight - Vector2.One * 2f);
+			if (topLeftTileKey == bottomRightTileKey)
+			{
+				var tile = GetTileBy(topLeftTileKey);
+				if (tile != null && tile.Structure == null)
+				{
+					var genericStructure = new GenericStructure();
+					genericStructure.TraitsToRemoveNotActivated = new() { TileTrait.Fall };
+					ModifyTile(topLeftTileKey, tile with { Structure = genericStructure });
+				}
+			}
 		}
 		else
 		{
+
+
+			var contextMenuArea = ui.GetContextMenuArea();
+			var localTopLeft = GlobalToLocalWithMagicOffset(contextMenuArea.Position);
+			var localBottomRight = GlobalToLocalWithMagicOffset(contextMenuArea.End);
+			var localSize = localBottomRight - localTopLeft;
+			var topLeftTileKey = GetTileKeyByPosition(localTopLeft + Vector2.One * 2f);
+			var bottomRightTileKey = GetTileKeyByPosition(localBottomRight - Vector2.One * 2f);
+			if (topLeftTileKey == bottomRightTileKey)
+			{
+				var tile = GetTileBy(topLeftTileKey);
+				if (tile != null)
+				{
+					var genericStructure = new GenericStructure();
+					genericStructure.TraitsToRemoveNotActivated = new() { TileTrait.Fall };
+					ModifyTile(topLeftTileKey, tile with { Structure = null });
+				}
+			}
+
 			ui.HideContextMenu();
 		}
 	}
@@ -154,7 +190,7 @@ public partial class Game : Node2D
 		{
 			GD.Print("MOVE");
 			var finalPosition = potentialNewPosition;
-			var key = KeyFromPosition(potentialNewPosition);
+			var key = GetTileKeyByPosition(potentialNewPosition);
 			var finalTile = tileData[key];
 
 			player.GlobalPosition = finalPosition;
@@ -233,20 +269,10 @@ public partial class Game : Node2D
 		structures.Add(bridge);
 		structures.ForEach(structure =>
 		{
-			var key = KeyFromPosition(((Node2D)structure).GlobalPosition);
+			var key = GetTileKeyByPosition(((Node2D)structure).GlobalPosition);
 			var upgradeTileData = GetTileBy(key);
 			ModifyTile(key, upgradeTileData with { Structure = structure });
 		});
-	}
-
-	private void ModifyTile(TileKey key, TileData newTileData)
-	{
-		tileData[key] = newTileData;
-	}
-
-	private TileKey KeyFromPosition(Vector2 position)
-	{
-		return new TileKey(tileMap.LocalToMap(position));
 	}
 
 	private void InitItems()
@@ -255,7 +281,7 @@ public partial class Game : Node2D
 		upgrades.Add((Upgrade)FindChild("Upgrade2"));
 		upgrades.ForEach(upgrade =>
 		{
-			var key = KeyFromPosition(upgrade.GlobalPosition);
+			var key = GetTileKeyByPosition(upgrade.GlobalPosition);
 			var upgradeTileData = tileData[key];
 			ModifyTileItem(key, upgrade);
 		});
@@ -296,6 +322,16 @@ public partial class Game : Node2D
 	private TileData GetTileBy(TileKey hoveredTileKey)
 	{
 		return tileData[hoveredTileKey];
+	}
+
+	private TileKey GetTileKeyByPosition(Vector2 position)
+	{
+		return new TileKey(tileMap.LocalToMap(position));
+	}
+
+	private void ModifyTile(TileKey key, TileData newTileData)
+	{
+		tileData[key] = newTileData;
 	}
 
 	private Vector2 GetPositionBy(TileKey tileKey)

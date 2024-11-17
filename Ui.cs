@@ -42,11 +42,19 @@ public partial class Ui : CanvasLayer
 			button.Text = action.ToString();
 			button.Name = action.ToString();
 			button.FocusMode = Control.FocusModeEnum.None;
-			button.CustomMinimumSize = Vector2.One * tileSizeInGlobalCoordinates;
+			button.CustomMinimumSize = new Vector2(
+				tileSizeInGlobalCoordinates.X,
+				tileSizeInGlobalCoordinates.Y / 2f
+			);
 
 			contextMenu.AddChild(button);
 			button.Pressed += () => { onActionSelected(action); };
 		});
+	}
+
+	public Rect2 GetContextMenuArea()
+	{
+		return contextMenu.GetGlobalRect();
 	}
 
 	public void HideContextMenu()

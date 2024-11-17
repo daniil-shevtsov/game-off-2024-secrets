@@ -92,7 +92,7 @@ public partial class Game : Node2D
 				genericStructure.TraitsToRemoveNotActivated = new() { TileTrait.Fall };
 				ModifyTile(contextMenuTopLeftTileKey, tile with { Structure = genericStructure });
 			}
-			else if (!ui.isContextMenuShown)
+			else if (!ui.isContextMenuShown && tile.Structure is GenericStructure)
 			{
 				ModifyTile(contextMenuTopLeftTileKey, tile with { Structure = null });
 			}

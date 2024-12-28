@@ -453,22 +453,6 @@ public partial class Game : Node2D
 	private Bridge bridge;
 }
 
-public record TileKey(int X, int Y)
-{
-	public TileKey(Vector2I tilePosition) : this(tilePosition.X, tilePosition.Y) { }
-}
-public record TileData(
-	TileType type,
-	Item item,
-	Structure Structure
-);
-
-public enum TileTrait
-{
-	Wall,
-	Fall
-}
-
 
 public interface Structure
 {

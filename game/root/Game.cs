@@ -452,15 +452,3 @@ public partial class Game : Node2D
 
 	private Bridge bridge;
 }
-
-
-public interface Structure
-{
-	public HashSet<TileTrait> GetTraitsToAdd();
-	public HashSet<TileTrait> GetTraitsToRemove();
-}
-
-public interface Item
-{
-
-}

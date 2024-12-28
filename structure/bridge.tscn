@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://b87u5rqx00c0i"]
 
 [ext_resource type="Texture2D" uid="uid://cqg57vd5m2mhm" path="res://assets/bridge_retracted.png" id="1_37m5m"]
-[ext_resource type="Script" path="res://Bridge.cs" id="1_732a8"]
+[ext_resource type="Script" path="res://structure/Bridge.cs" id="1_732a8"]
 [ext_resource type="Texture2D" uid="uid://bd57lud5yp8yx" path="res://assets/bridge_expanded.png" id="2_533qk"]
 
 [node name="Bridge" type="Node2D"]

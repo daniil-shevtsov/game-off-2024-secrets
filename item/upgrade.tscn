@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://de50mccme8u7u"]
 
-[ext_resource type="Script" path="res://Upgrade.cs" id="1_hs2dc"]
+[ext_resource type="Script" path="res://item/Upgrade.cs" id="1_hs2dc"]
 [ext_resource type="Texture2D" uid="uid://bekwwvawj06me" path="res://assets/untitled.png" id="1_i68vs"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_x3jra"]

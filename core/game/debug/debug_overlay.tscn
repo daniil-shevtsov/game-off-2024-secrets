@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://urt8sm7qnymf"]
 
-[ext_resource type="Script" path="res://DebugOverlay.cs" id="1_5hhkg"]
-[ext_resource type="Script" path="res://DebugDraw.cs" id="1_johxp"]
+[ext_resource type="Script" path="res://core/game/debug/DebugOverlay.cs" id="1_5hhkg"]
+[ext_resource type="Script" path="res://core/game/debug/DebugDraw.cs" id="1_johxp"]
 
 [node name="DebugOverlay" type="CanvasLayer"]
 script = ExtResource("1_5hhkg")

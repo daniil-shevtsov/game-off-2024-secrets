@@ -1,13 +1,13 @@
 [gd_scene load_steps=11 format=3 uid="uid://b3v30t0d0vnvp"]
 
-[ext_resource type="PackedScene" uid="uid://bindx8eepy7ug" path="res://core/level/map.tscn" id="1_1d5xd"]
+[ext_resource type="PackedScene" uid="uid://bindx8eepy7ug" path="res://game/level/map.tscn" id="1_1d5xd"]
 [ext_resource type="Texture2D" uid="uid://d3qch0c4pa6lh" path="res://assets/tile_set.png" id="2_lxgo6"]
-[ext_resource type="PackedScene" uid="uid://djcwo0jwf5ex0" path="res://player/player.tscn" id="3_0uujt"]
-[ext_resource type="PackedScene" uid="uid://de50mccme8u7u" path="res://item/upgrade.tscn" id="4_trdr7"]
+[ext_resource type="PackedScene" uid="uid://djcwo0jwf5ex0" path="res://game/player/player.tscn" id="3_0uujt"]
+[ext_resource type="PackedScene" uid="uid://de50mccme8u7u" path="res://game/item/upgrade.tscn" id="4_trdr7"]
 [ext_resource type="Texture2D" uid="uid://bekwwvawj06me" path="res://assets/untitled.png" id="5_1urmc"]
-[ext_resource type="PackedScene" uid="uid://b87u5rqx00c0i" path="res://structure/bridge.tscn" id="6_c88t5"]
-[ext_resource type="PackedScene" uid="uid://cmmitmbomgpoy" path="res://structure/lever.tscn" id="7_3plig"]
-[ext_resource type="Script" path="res://structure/Lever.cs" id="8_22e4t"]
+[ext_resource type="PackedScene" uid="uid://b87u5rqx00c0i" path="res://game/structure/bridge.tscn" id="6_c88t5"]
+[ext_resource type="PackedScene" uid="uid://cmmitmbomgpoy" path="res://game/structure/lever.tscn" id="7_3plig"]
+[ext_resource type="Script" path="res://game/structure/Lever.cs" id="8_22e4t"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_ogd8j"]
 texture = ExtResource("2_lxgo6")

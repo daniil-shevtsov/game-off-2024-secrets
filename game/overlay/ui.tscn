@@ -1,6 +1,6 @@
 [gd_scene load_steps=9 format=3 uid="uid://cwi4e18c87bbn"]
 
-[ext_resource type="Script" path="res://Ui.cs" id="1_dl6wn"]
+[ext_resource type="Script" path="res://game/overlay/Ui.cs" id="1_dl6wn"]
 
 [sub_resource type="FontFile" id="FontFile_v7gn2"]
 subpixel_positioning = 0

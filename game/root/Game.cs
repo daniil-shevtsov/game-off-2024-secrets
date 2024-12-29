@@ -198,10 +198,6 @@ public partial class Game : Node2D
 					{
 						(targetStructure as Bridge).ToggleExpanded();
 					}
-					else if (targetStructure is Gate)
-					{
-						(targetStructure as Gate).ToggleExpanded();
-					}
 					else if (targetStructure is GenericStructure)
 					{
 						var kek = targetStructure as GenericStructure;
@@ -334,7 +330,7 @@ public partial class Game : Node2D
 		});
 
 		var togglableStructureDistances = structures
-		.Where(structure => structure is Bridge || structure is Gate || structure is GenericStructure)
+		.Where(structure => structure is Bridge || structure is GenericStructure)
 		.ToDictionary(s => s.Id, s => (s as Node2D).GlobalPosition);
 
 		structures.Select(structure => structure as Lever)

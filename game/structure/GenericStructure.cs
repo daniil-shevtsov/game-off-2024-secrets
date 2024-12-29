@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 public partial class GenericStructure : Node2D, Structure
 {
@@ -18,21 +19,22 @@ public partial class GenericStructure : Node2D, Structure
 
 	public Sprite2D sprite;
 
-
-	public HashSet<TileTrait> TraitsToAddNotActivated = new();
+	[Export]
+	public Godot.Collections.Array<TileTrait> TraitsToAddNotActivated = new();
 	public HashSet<TileTrait> TraitsToRemoveNotActivated = new();
-	public HashSet<TileTrait> TraitsToAddActivated = new();
+	[Export]
+	public Godot.Collections.Array<TileTrait> TraitsToAddActivated = new();
 	public HashSet<TileTrait> TraitsToRemoveActivated = new();
 
 	public HashSet<TileTrait> GetTraitsToAdd()
 	{
 		if (isActivated)
 		{
-			return TraitsToAddActivated;
+			return TraitsToAddActivated.ToHashSet();
 		}
 		else
 		{
-			return TraitsToAddNotActivated;
+			return TraitsToAddNotActivated.ToHashSet();
 		}
 	}
 	public HashSet<TileTrait> GetTraitsToRemove()

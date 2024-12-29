@@ -5,6 +5,7 @@
 [ext_resource type="Texture2D" uid="uid://bl3nxqm0n06yy" path="res://assets/door_closed.png" id="3_7h221"]
 
 [node name="Structure" type="Node2D"]
+texture_filter = 1
 script = ExtResource("1_wtqld")
 SpriteActivated = ExtResource("2_dp6y8")
 SpriteDeactivated = ExtResource("3_7h221")

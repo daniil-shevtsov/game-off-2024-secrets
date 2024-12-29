@@ -149,5 +149,6 @@ position = Vector2(168, 88)
 [node name="Lever2" parent="." instance=ExtResource("7_3plig")]
 position = Vector2(296, 88)
 
-[node name="Structure" parent="." instance=ExtResource("8_tb5d8")]
+[node name="Gate" parent="." instance=ExtResource("8_tb5d8")]
 position = Vector2(280, 88)
+TraitsToAddNotActivated = [0]

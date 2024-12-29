@@ -9,13 +9,15 @@ public partial class Game : Node2D
 
 	private List<Upgrade> upgrades = new();
 
-	private List<ContextMenuAction> obtainedActions = new() { ContextMenuAction.Use, ContextMenuAction.Use, ContextMenuAction.Use, ContextMenuAction.Use };
+	private List<ContextMenuAction> obtainedActions = new() { ContextMenuAction.Use, ContextMenuAction.Connect };
 
 	private List<Structure> structures = new();
 
 	private TileKey hoveredTileKey = null;
 	private TileKey contextMenuTopLeftTileKey = null;
 	private bool inProcessOfDying = false;
+
+	private string leverToConnectId = null;
 
 	private void InitLogic()
 	{
@@ -206,6 +208,22 @@ public partial class Game : Node2D
 					}
 
 				}
+			}
+		}
+		else if (action == ContextMenuAction.Connect && hoveredTileKey != null)
+		{
+			var hoveredTile = GetTileBy(hoveredTileKey);
+			var selectedStructure = hoveredTile.Structure;
+
+			var lever = selectedStructure as Lever;
+			if (lever != null && leverToConnectId == null)
+			{
+				leverToConnectId = lever.Id;
+			}
+			else if (leverToConnectId != null)
+			{
+				var leverToConnect = structures.Find(structure => structure.Id == leverToConnectId) as Lever;
+				leverToConnect.TargetId = selectedStructure.Id;
 			}
 		}
 	}

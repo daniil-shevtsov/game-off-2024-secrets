@@ -152,3 +152,7 @@ position = Vector2(296, 88)
 [node name="Gate" parent="." instance=ExtResource("8_tb5d8")]
 position = Vector2(280, 88)
 TraitsToAddNotActivated = [0]
+
+[node name="Gate2" parent="." instance=ExtResource("8_tb5d8")]
+position = Vector2(312, 88)
+TraitsToAddNotActivated = [0]

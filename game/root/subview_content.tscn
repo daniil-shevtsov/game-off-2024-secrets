@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://b3v30t0d0vnvp"]
+[gd_scene load_steps=12 format=3 uid="uid://b3v30t0d0vnvp"]
 
 [ext_resource type="PackedScene" uid="uid://bindx8eepy7ug" path="res://game/level/map.tscn" id="1_1d5xd"]
 [ext_resource type="Texture2D" uid="uid://d3qch0c4pa6lh" path="res://assets/tile_set.png" id="2_lxgo6"]
@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://b87u5rqx00c0i" path="res://game/structure/bridge.tscn" id="6_c88t5"]
 [ext_resource type="PackedScene" uid="uid://cmmitmbomgpoy" path="res://game/structure/lever.tscn" id="7_3plig"]
 [ext_resource type="Script" path="res://game/structure/Lever.cs" id="8_22e4t"]
+[ext_resource type="PackedScene" uid="uid://cxm824agty3m" path="res://game/structure/gate.tscn" id="9_bng5e"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_ogd8j"]
 texture = ExtResource("2_lxgo6")
@@ -112,7 +113,7 @@ layer_0/tile_data = PackedInt32Array(65546, 65536, 1, 327688, 65536, 0, 327689, 
 metadata/_edit_lock_ = true
 
 [node name="RespawnPoint" type="Marker2D" parent="."]
-position = Vector2(344, -344)
+position = Vector2(280, 104)
 
 [node name="TileHighlight" type="ColorRect" parent="."]
 offset_right = 16.0
@@ -146,3 +147,6 @@ script = ExtResource("8_22e4t")
 position = Vector2(168, 88)
 
 [node name="Camera2D" type="Camera2D" parent="Player"]
+
+[node name="Gate" parent="." instance=ExtResource("9_bng5e")]
+position = Vector2(280, 88)

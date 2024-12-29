@@ -203,7 +203,6 @@ public partial class Game : Node2D
 
 		if (shouldMove)
 		{
-			GD.Print("MOVE");
 			var finalPosition = potentialNewPosition;
 			var key = GetTileKeyByPosition(potentialNewPosition);
 			var finalTile = tileData[key];
@@ -308,6 +307,12 @@ public partial class Game : Node2D
 			var upgradeTileData = GetTileBy(key);
 			ModifyTile(key, upgradeTileData with { Structure = structure });
 		});
+
+		structures = subViewport.GetNode<Node2D>("SubviewContent").GetChildren()
+		.Where(node => node is Structure)
+		.Select(structure => structure as Structure)
+		.ToList();
+		GD.Print($"structures {structures.Count}");
 	}
 
 	private void InitRandomStuff()

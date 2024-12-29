@@ -322,7 +322,20 @@ public partial class Game : Node2D
 			structure.Id = $"{index++}";
 		});
 
-		lever.TargetId = bridge.Id;
+		// lever.TargetId = bridge.Id;
+
+		var togglableStructureDistances = structures
+		.Where(structure => structure is Bridge || structure is Gate)
+		.ToDictionary(s => s.Id, s => (s as Node2D).GlobalPosition);
+
+		structures.Select(structure => structure as Lever)
+		.Where(lever => lever != null)
+		.ToList()
+		.ForEach(lever =>
+		{
+			var nearestTogglableId = togglableStructureDistances.MinBy(structure => lever.GlobalPosition.DistanceTo(structure.Value)).Key;
+			lever.TargetId = nearestTogglableId;
+		});
 
 		// set structures to all tiles
 		structures.ForEach(structure =>

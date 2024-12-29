@@ -307,10 +307,8 @@ public partial class Game : Node2D
 
 	private void InitStructures()
 	{
-		bridge = (Bridge)FindChild("Bridge");
+		var bridge = (Bridge)FindChild("Bridge");
 		var lever = (Lever)FindChild("Lever");
-		structures.Add(lever);
-		structures.Add(bridge);
 
 		structures = subViewport.GetNode<Node2D>("SubviewContent").GetChildren()
 		.Where(node => node is Structure)
@@ -475,5 +473,4 @@ public partial class Game : Node2D
 
 	public const int tileSize = 16;
 
-	private Bridge bridge;
 }

@@ -41,6 +41,8 @@ public partial class Game : Node2D
 
 		if (tileData.Structure != null)
 		{
+			GD.Print($"structure {tileData.Structure} has traits to remove {tileData.Structure.GetTraitsToRemove()} and tiles to add {tileData.Structure.GetTraitsToAdd()}");
+
 			tileData.Structure.GetTraitsToRemove().ToList().ForEach(trait =>
 			{
 				tileTypeTraits.Remove(trait);
@@ -223,6 +225,8 @@ public partial class Game : Node2D
 		var traits = GetAllTileTraits(potentialNewTile);
 
 		var shouldMove = !traits.Contains(TileTrait.Wall);
+
+		GD.Print($"tile {potentialNewTilePosition} has traits {traits} should move {shouldMove}");
 		return shouldMove;
 	}
 
@@ -301,18 +305,20 @@ public partial class Game : Node2D
 		bridge = (Bridge)FindChild("Bridge");
 		structures.Add((Lever)FindChild("Lever"));
 		structures.Add(bridge);
-		structures.ForEach(structure =>
-		{
-			var key = GetTileKeyByPosition(((Node2D)structure).GlobalPosition);
-			var upgradeTileData = GetTileBy(key);
-			ModifyTile(key, upgradeTileData with { Structure = structure });
-		});
 
 		structures = subViewport.GetNode<Node2D>("SubviewContent").GetChildren()
 		.Where(node => node is Structure)
 		.Select(structure => structure as Structure)
 		.ToList();
 		GD.Print($"structures {structures.Count}");
+
+		// set structures to all tiles
+		structures.ForEach(structure =>
+		{
+			var key = GetTileKeyByPosition(((Node2D)structure).GlobalPosition);
+			var upgradeTileData = GetTileBy(key);
+			ModifyTile(key, upgradeTileData with { Structure = structure });
+		});
 	}
 
 	private void InitRandomStuff()

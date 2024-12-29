@@ -7,8 +7,16 @@ public partial class GenericStructure : Node, Structure
 	public string Id { get; set; }
 	[Export]
 	public bool isActivated = false;
+
+	//TODO: Use resource path instead of sprite nodes
 	[Export]
-	public Sprite2D Sprite2D { get; set; }
+	public Texture2D SpriteActivated { get; set; }
+
+
+	[Export]
+	public Texture2D SpriteDeactivated { get; set; }
+
+	public Sprite2D sprite;
 
 	public HashSet<TileTrait> TraitsToAddNotActivated = new();
 	public HashSet<TileTrait> TraitsToRemoveNotActivated = new();
@@ -42,10 +50,25 @@ public partial class GenericStructure : Node, Structure
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
+		sprite = GetNode<Sprite2D>("Sprite2D");
+		UpdateActivated();
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
+	}
+
+	public void UpdateActivated()
+	{
+		if (isActivated)
+		{
+			sprite.Visible = true;
+			sprite.Texture = SpriteActivated;
+		}
+		else
+		{
+			sprite.Visible = false;
+		}
 	}
 }

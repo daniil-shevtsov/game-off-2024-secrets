@@ -4,6 +4,11 @@ using System.Collections.Generic;
 
 public partial class Lever : Node2D, Structure
 {
+
+	public string Id { get; set; }
+
+	public string TargetId { get; set; }
+
 	public HashSet<TileTrait> GetTraitsToAdd()
 	{
 		return new();

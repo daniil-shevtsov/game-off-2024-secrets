@@ -7,6 +7,9 @@ public partial class Bridge : Node2D, Structure
 	private Sprite2D retractedSprite;
 	private Sprite2D expandedSprite;
 
+	public string Id { get; set; }
+
+
 	public HashSet<TileTrait> GetTraitsToAdd()
 	{
 		return new();

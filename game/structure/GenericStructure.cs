@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public partial class GenericStructure : Node, Structure
 {
-	public string id;
+	public string Id { get; set; }
 	[Export]
 	public bool isActivated = false;
 	[Export]

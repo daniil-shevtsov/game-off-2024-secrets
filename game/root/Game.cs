@@ -188,9 +188,14 @@ public partial class Game : Node2D
 			var hoveredTile = GetTileBy(hoveredTileKey);
 			var selectedStructure = hoveredTile.Structure;
 
-			if (selectedStructure is Lever)
+			var lever = selectedStructure as Lever;
+			if (lever != null)
 			{
-				bridge.ToggleExpanded();
+				var targetStructure = structures.Find(structure => structure.Id == lever.TargetId) as Bridge;
+				if (targetStructure != null)
+				{
+					targetStructure.ToggleExpanded();
+				}
 			}
 		}
 	}
@@ -303,7 +308,8 @@ public partial class Game : Node2D
 	private void InitStructures()
 	{
 		bridge = (Bridge)FindChild("Bridge");
-		structures.Add((Lever)FindChild("Lever"));
+		var lever = (Lever)FindChild("Lever");
+		structures.Add(lever);
 		structures.Add(bridge);
 
 		structures = subViewport.GetNode<Node2D>("SubviewContent").GetChildren()
@@ -311,6 +317,14 @@ public partial class Game : Node2D
 		.Select(structure => structure as Structure)
 		.ToList();
 		GD.Print($"structures {structures.Count}");
+
+		var index = 0;
+		structures.ForEach(structure =>
+		{
+			structure.Id = $"{index++}";
+		});
+
+		lever.TargetId = bridge.Id;
 
 		// set structures to all tiles
 		structures.ForEach(structure =>

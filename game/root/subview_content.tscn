@@ -7,7 +7,7 @@
 [ext_resource type="Texture2D" uid="uid://bekwwvawj06me" path="res://assets/untitled.png" id="5_1urmc"]
 [ext_resource type="PackedScene" uid="uid://b87u5rqx00c0i" path="res://game/structure/bridge.tscn" id="6_c88t5"]
 [ext_resource type="PackedScene" uid="uid://cmmitmbomgpoy" path="res://game/structure/lever.tscn" id="7_3plig"]
-[ext_resource type="PackedScene" uid="uid://cxm824agty3m" path="res://game/structure/gate.tscn" id="9_bng5e"]
+[ext_resource type="PackedScene" uid="uid://csdx1m5pews5h" path="res://game/structure/generic_structure.tscn" id="8_tb5d8"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_ogd8j"]
 texture = ExtResource("2_lxgo6")
@@ -146,8 +146,8 @@ position = Vector2(168, 88)
 
 [node name="Camera2D" type="Camera2D" parent="Player"]
 
-[node name="Gate" parent="." instance=ExtResource("9_bng5e")]
-position = Vector2(280, 88)
-
 [node name="Lever2" parent="." instance=ExtResource("7_3plig")]
 position = Vector2(296, 88)
+
+[node name="Structure" parent="." instance=ExtResource("8_tb5d8")]
+position = Vector2(280, 88)

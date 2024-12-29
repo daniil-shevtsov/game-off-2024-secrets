@@ -2,7 +2,7 @@ using Godot;
 using System;
 using System.Collections.Generic;
 
-public partial class GenericStructure : Node, Structure
+public partial class GenericStructure : Node2D, Structure
 {
 	public string Id { get; set; }
 	[Export]
@@ -17,6 +17,7 @@ public partial class GenericStructure : Node, Structure
 	public Texture2D SpriteDeactivated { get; set; }
 
 	public Sprite2D sprite;
+
 
 	public HashSet<TileTrait> TraitsToAddNotActivated = new();
 	public HashSet<TileTrait> TraitsToRemoveNotActivated = new();
@@ -63,12 +64,11 @@ public partial class GenericStructure : Node, Structure
 	{
 		if (isActivated)
 		{
-			sprite.Visible = true;
 			sprite.Texture = SpriteActivated;
 		}
 		else
 		{
-			sprite.Visible = false;
+			sprite.Texture = SpriteDeactivated;
 		}
 	}
 }

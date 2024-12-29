@@ -191,10 +191,18 @@ public partial class Game : Node2D
 			var lever = selectedStructure as Lever;
 			if (lever != null)
 			{
-				var targetStructure = structures.Find(structure => structure.Id == lever.TargetId) as Bridge;
+				var targetStructure = structures.Find(structure => structure.Id == lever.TargetId);
 				if (targetStructure != null)
 				{
-					targetStructure.ToggleExpanded();
+					if (targetStructure is Bridge)
+					{
+						(targetStructure as Bridge).ToggleExpanded();
+					}
+					else if (targetStructure is Gate)
+					{
+						(targetStructure as Gate).ToggleExpanded();
+					}
+
 				}
 			}
 		}
@@ -307,9 +315,6 @@ public partial class Game : Node2D
 
 	private void InitStructures()
 	{
-		var bridge = (Bridge)FindChild("Bridge");
-		var lever = (Lever)FindChild("Lever");
-
 		structures = subViewport.GetNode<Node2D>("SubviewContent").GetChildren()
 		.Where(node => node is Structure)
 		.Select(structure => structure as Structure)
@@ -321,8 +326,6 @@ public partial class Game : Node2D
 		{
 			structure.Id = $"{index++}";
 		});
-
-		// lever.TargetId = bridge.Id;
 
 		var togglableStructureDistances = structures
 		.Where(structure => structure is Bridge || structure is Gate)

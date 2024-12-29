@@ -1,8 +1,10 @@
-[gd_scene load_steps=2 format=3 uid="uid://cmmitmbomgpoy"]
+[gd_scene load_steps=3 format=3 uid="uid://cmmitmbomgpoy"]
 
+[ext_resource type="Script" path="res://game/structure/Lever.cs" id="1_cqco6"]
 [ext_resource type="Texture2D" uid="uid://bqh5ff6tgkgrj" path="res://assets/lever.png" id="1_pgq8q"]
 
 [node name="Lever" type="Node2D"]
+script = ExtResource("1_cqco6")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 texture_filter = 1

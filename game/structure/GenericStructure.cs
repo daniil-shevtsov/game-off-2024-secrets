@@ -6,6 +6,9 @@ using System.Linq;
 public partial class GenericStructure : Node2D, Structure
 {
 	public string Id { get; set; }
+
+	public bool isTemporary = false;
+
 	[Export]
 	public bool isActivated = false;
 

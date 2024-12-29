@@ -117,10 +117,12 @@ public partial class Game : Node2D
 				if (ui.isContextMenuShown && tile.Structure == null && localSize.Y >= tileSize)
 				{
 					var genericStructure = new GenericStructure();
+					genericStructure.Id = $"CONTEXT_BRIDGE-{key}";
+					genericStructure.isTemporary = true;
 					genericStructure.TraitsToRemoveNotActivated = new() { TileTrait.Fall };
 					ModifyTile(key, tile with { Structure = genericStructure });
 				}
-				else if (!ui.isContextMenuShown && tile.Structure is GenericStructure)
+				else if (!ui.isContextMenuShown && tile.Structure is GenericStructure && (tile.Structure as GenericStructure).isTemporary == true)
 				{
 					ModifyTile(key, tile with { Structure = null });
 				}
@@ -204,6 +206,7 @@ public partial class Game : Node2D
 					{
 						var kek = targetStructure as GenericStructure;
 						kek.isActivated = !kek.isActivated;
+						GD.Print($"Set {kek.Id} to {kek.isActivated}");
 						kek.UpdateActivated();
 					}
 
@@ -215,15 +218,21 @@ public partial class Game : Node2D
 			var hoveredTile = GetTileBy(hoveredTileKey);
 			var selectedStructure = hoveredTile.Structure;
 
+			GD.Print($"Connect clicked when hovered over {selectedStructure.Id} at {hoveredTileKey}");
+
 			var lever = selectedStructure as Lever;
 			if (lever != null && leverToConnectId == null)
 			{
+				GD.Print($"set Lever to connect from {leverToConnectId} to {lever.Id}");
+
 				leverToConnectId = lever.Id;
 			}
 			else if (leverToConnectId != null)
 			{
 				var leverToConnect = structures.Find(structure => structure.Id == leverToConnectId) as Lever;
 				leverToConnect.TargetId = selectedStructure.Id;
+				GD.Print($"connect {leverToConnect.Id} to {selectedStructure.Id}");
+				leverToConnectId = null;
 			}
 		}
 	}
@@ -344,7 +353,8 @@ public partial class Game : Node2D
 		var index = 0;
 		structures.ForEach(structure =>
 		{
-			structure.Id = $"{index++}";
+			structure.Id = $"{structure.GetType().Name}-{index++}";
+			GD.Print($"{structure.Id}");
 		});
 
 		var togglableStructureDistances = structures

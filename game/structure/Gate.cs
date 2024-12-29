@@ -32,8 +32,8 @@ public partial class Gate : Node2D, Structure
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
-		retractedSprite = GetNode<Sprite2D>("Open");
-		expandedSprite = GetNode<Sprite2D>("Closed");
+		retractedSprite = GetNode<Sprite2D>("Closed");
+		expandedSprite = GetNode<Sprite2D>("Open");
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.

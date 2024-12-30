@@ -3,6 +3,6 @@ public enum ContextMenuAction
 
     Use,
     Connect,
-    Copy,
+    Cut,
     Paste,
 }

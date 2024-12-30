@@ -9,7 +9,12 @@ public partial class Game : Node2D
 
 	private List<Upgrade> upgrades = new();
 
-	private List<ContextMenuAction> obtainedActions = new() { ContextMenuAction.Use, ContextMenuAction.Connect };
+	private List<ContextMenuAction> obtainedActions = new() {
+		 ContextMenuAction.Use,
+		 ContextMenuAction.Connect,
+		 ContextMenuAction.Cut,
+		 ContextMenuAction.Paste
+	};
 
 	private List<Structure> structures = new();
 
@@ -18,6 +23,8 @@ public partial class Game : Node2D
 	private bool inProcessOfDying = false;
 
 	private string leverToConnectId = null;
+
+	private string clipboardStructureId = null;
 
 	private void InitLogic()
 	{
@@ -235,6 +242,23 @@ public partial class Game : Node2D
 				leverToConnectId = null;
 			}
 		}
+		else if (action == ContextMenuAction.Cut && hoveredTileKey != null)
+		{
+			var hoveredTile = GetTileBy(hoveredTileKey);
+			var selectedStructure = hoveredTile.Structure;
+
+			if (selectedStructure != null)
+			{
+				clipboardStructureId = selectedStructure.Id;
+			}
+		}
+		else if (action == ContextMenuAction.Paste && hoveredTileKey != null && clipboardStructureId != null)
+		{
+			var hoveredTile = GetTileBy(hoveredTileKey);
+			var clipboardStructure = structures.Find(structure => structure.Id == clipboardStructureId);
+			ModifyTile(hoveredTileKey, hoveredTile with { Structure = clipboardStructure });
+			(clipboardStructure as Node2D).GlobalPosition = GetPositionBy(hoveredTileKey);
+		}
 	}
 
 	private void Move(string direction)
@@ -358,17 +382,19 @@ public partial class Game : Node2D
 		});
 
 		var togglableStructureDistances = structures
-		.Where(structure => structure is Bridge || structure is GenericStructure)
-		.ToDictionary(s => s.Id, s => (s as Node2D).GlobalPosition);
+			.Where(structure => structure is Bridge || structure is GenericStructure)
+			.ToDictionary(s => s.Id, s => (s as Node2D).GlobalPosition);
 
-		structures.Select(structure => structure as Lever)
-		.Where(lever => lever != null)
-		.ToList()
-		.ForEach(lever =>
-		{
-			var nearestTogglableId = togglableStructureDistances.MinBy(structure => lever.GlobalPosition.DistanceTo(structure.Value)).Key;
-			lever.TargetId = nearestTogglableId;
-		});
+		structures
+			.Select(structure => structure as Lever)
+			.Where(lever => lever != null)
+			.ToList()
+			.ForEach(lever =>
+			{
+				var nearestTogglableId = togglableStructureDistances
+					.MinBy(structure => lever.GlobalPosition.DistanceTo(structure.Value)).Key;
+				lever.TargetId = nearestTogglableId;
+			});
 
 		// set structures to all tiles
 		structures.ForEach(structure =>

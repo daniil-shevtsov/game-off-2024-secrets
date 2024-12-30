@@ -250,6 +250,7 @@ public partial class Game : Node2D
 			if (selectedStructure != null)
 			{
 				clipboardStructureId = selectedStructure.Id;
+				ModifyTile(hoveredTileKey, hoveredTile with { Structure = null });
 			}
 		}
 		else if (action == ContextMenuAction.Paste && hoveredTileKey != null && clipboardStructureId != null)

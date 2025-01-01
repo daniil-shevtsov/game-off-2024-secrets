@@ -8,12 +8,17 @@ public partial class Ui : CanvasLayer
 {
 	private VBoxContainer contextMenu;
 
+	private Panel clipboardPanel;
+	private TextureRect clipboardItem;
+
 	public bool isContextMenuShown { get { return contextMenu.Visible; } }
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
 		contextMenu = (VBoxContainer)FindChild("ContextMenu");
+		clipboardPanel = GetNode<Panel>("ClipboardPanel");
+		clipboardItem = clipboardPanel.GetNode<TextureRect>("ClipboardItem");
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -65,5 +70,10 @@ public partial class Ui : CanvasLayer
 	public void HideContextMenu()
 	{
 		contextMenu.Visible = false;
+	}
+
+	public void UpdateClipboardItem(Texture2D icon)
+	{
+		clipboardItem.Texture = icon;
 	}
 }

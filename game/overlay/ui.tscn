@@ -1,6 +1,7 @@
-[gd_scene load_steps=9 format=3 uid="uid://cwi4e18c87bbn"]
+[gd_scene load_steps=10 format=3 uid="uid://cwi4e18c87bbn"]
 
 [ext_resource type="Script" path="res://game/overlay/Ui.cs" id="1_dl6wn"]
+[ext_resource type="Texture2D" uid="uid://coj7xraxiegp4" path="res://icon.svg" id="2_rrjj7"]
 
 [sub_resource type="FontFile" id="FontFile_v7gn2"]
 subpixel_positioning = 0
@@ -64,3 +65,22 @@ theme = SubResource("Theme_h05ed")
 offset_right = 40.0
 offset_bottom = 23.0
 text = "TEST LABEL FOR RESULTION"
+
+[node name="ClipboardPanel" type="Panel" parent="."]
+texture_filter = 1
+custom_minimum_size = Vector2(64, 64)
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -64.0
+offset_right = 64.0
+grow_vertical = 0
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="ClipboardItem" type="TextureRect" parent="ClipboardPanel"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+texture = ExtResource("2_rrjj7")
+expand_mode = 1

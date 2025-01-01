@@ -130,16 +130,10 @@ public partial class Game : Node2D
 				var tile = entry.Value;
 				if (ui.isContextMenuShown && tile.AdditionalTraitsToRemove.Count == 0 && localSize.Y >= tileSize)
 				{
-					// var genericStructure = new GenericStructure();
-					// genericStructure.Id = $"CONTEXT_BRIDGE-{key}";
-					// genericStructure.isTemporary = true;
-					// genericStructure.TraitsToRemoveNotActivated = new() { TileTrait.Fall };
-					// ModifyTile(key, tile with { AdditionalTraitsToRemove = new() { TileTrait.Fall } });
 					tile.AdditionalTraitsToRemove.Add(TileTrait.Fall);
 				}
 				else if (!ui.isContextMenuShown && tile.AdditionalTraitsToRemove.Contains(TileTrait.Fall))
 				{
-					// ModifyTile(key, tile with { Structure = null });
 					tile.AdditionalTraitsToRemove.Remove(TileTrait.Fall);
 				}
 			});
@@ -260,6 +254,11 @@ public partial class Game : Node2D
 			{
 				clipboardStructureId = selectedStructure.Id;
 				ModifyTile(hoveredTileKey, hoveredTile with { Structure = null });
+
+				if (selectedStructure is GenericStructure)
+				{
+					ui.UpdateClipboardItem(((GenericStructure)selectedStructure).sprite.Texture);
+				}
 			}
 		}
 		else if (action == ContextMenuAction.Paste && hoveredTileKey != null && clipboardStructureId != null)
@@ -270,6 +269,7 @@ public partial class Game : Node2D
 			{
 				ModifyTile(hoveredTileKey, hoveredTile with { Structure = clipboardStructure });
 				(clipboardStructure as Node2D).GlobalPosition = GetPositionBy(hoveredTileKey);
+				ui.UpdateClipboardItem(null);
 			}
 			else
 			{

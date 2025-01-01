@@ -206,20 +206,12 @@ public partial class Game : Node2D
 			if (lever != null)
 			{
 				var targetStructure = structures.Find(structure => structure.Id == lever.TargetId);
-				if (targetStructure != null)
+				if (targetStructure != null && targetStructure is GenericStructure)
 				{
-					if (targetStructure is Bridge)
-					{
-						(targetStructure as Bridge).ToggleExpanded();
-					}
-					else if (targetStructure is GenericStructure)
-					{
-						var kek = targetStructure as GenericStructure;
-						kek.isActivated = !kek.isActivated;
-						GD.Print($"Set {kek.Id} to {kek.isActivated}");
-						kek.UpdateActivated();
-					}
-
+					var kek = targetStructure as GenericStructure;
+					kek.isActivated = !kek.isActivated;
+					GD.Print($"Set {kek.Id} to {kek.isActivated}");
+					kek.UpdateActivated();
 				}
 			}
 		}
@@ -401,7 +393,7 @@ public partial class Game : Node2D
 		});
 
 		var togglableStructureDistances = structures
-			.Where(structure => structure is Bridge || structure is GenericStructure)
+			.Where(structure => structure is GenericStructure)
 			.ToDictionary(s => s.Id, s => (s as Node2D).GlobalPosition);
 
 		structures

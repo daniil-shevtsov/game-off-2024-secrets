@@ -1,13 +1,14 @@
-[gd_scene load_steps=11 format=3 uid="uid://b3v30t0d0vnvp"]
+[gd_scene load_steps=12 format=3 uid="uid://b3v30t0d0vnvp"]
 
 [ext_resource type="PackedScene" uid="uid://bindx8eepy7ug" path="res://game/level/map.tscn" id="1_1d5xd"]
 [ext_resource type="Texture2D" uid="uid://d3qch0c4pa6lh" path="res://assets/tile_set.png" id="2_lxgo6"]
 [ext_resource type="PackedScene" uid="uid://djcwo0jwf5ex0" path="res://game/player/player.tscn" id="3_0uujt"]
 [ext_resource type="PackedScene" uid="uid://de50mccme8u7u" path="res://game/item/upgrade.tscn" id="4_trdr7"]
 [ext_resource type="Texture2D" uid="uid://bekwwvawj06me" path="res://assets/untitled.png" id="5_1urmc"]
-[ext_resource type="PackedScene" uid="uid://b87u5rqx00c0i" path="res://game/structure/bridge.tscn" id="6_c88t5"]
 [ext_resource type="PackedScene" uid="uid://cmmitmbomgpoy" path="res://game/structure/lever.tscn" id="7_3plig"]
+[ext_resource type="Texture2D" uid="uid://bd57lud5yp8yx" path="res://assets/bridge_expanded.png" id="8_qd0gu"]
 [ext_resource type="PackedScene" uid="uid://csdx1m5pews5h" path="res://game/structure/generic_structure.tscn" id="8_tb5d8"]
+[ext_resource type="Texture2D" uid="uid://cqg57vd5m2mhm" path="res://assets/bridge_retracted.png" id="9_t5aif"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_ogd8j"]
 texture = ExtResource("2_lxgo6")
@@ -112,7 +113,7 @@ layer_0/tile_data = PackedInt32Array(65546, 65536, 1, 327688, 65536, 0, 327689, 
 metadata/_edit_lock_ = true
 
 [node name="RespawnPoint" type="Marker2D" parent="."]
-position = Vector2(296, 104)
+position = Vector2(168, -392)
 
 [node name="TileHighlight" type="ColorRect" parent="."]
 offset_right = 16.0
@@ -135,9 +136,6 @@ position = Vector2(8, -280)
 [node name="Upgrade3" parent="." instance=ExtResource("4_trdr7")]
 position = Vector2(312, -472)
 
-[node name="Bridge" parent="." instance=ExtResource("6_c88t5")]
-position = Vector2(168, -408)
-
 [node name="Lever" parent="." instance=ExtResource("7_3plig")]
 position = Vector2(152, -392)
 
@@ -156,3 +154,9 @@ TraitsToAddNotActivated = [0]
 [node name="Gate2" parent="." instance=ExtResource("8_tb5d8")]
 position = Vector2(312, 88)
 TraitsToAddNotActivated = [0]
+
+[node name="Bridge" parent="." instance=ExtResource("8_tb5d8")]
+position = Vector2(168, -408)
+SpriteActivated = ExtResource("8_qd0gu")
+SpriteDeactivated = ExtResource("9_t5aif")
+TraitsToRemoveActivated = [1]

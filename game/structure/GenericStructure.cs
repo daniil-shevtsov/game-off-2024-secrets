@@ -24,10 +24,12 @@ public partial class GenericStructure : Node2D, Structure
 
 	[Export]
 	public Godot.Collections.Array<TileTrait> TraitsToAddNotActivated = new();
-	public HashSet<TileTrait> TraitsToRemoveNotActivated = new();
+	[Export]
+	public Godot.Collections.Array<TileTrait> TraitsToRemoveNotActivated = new();
 	[Export]
 	public Godot.Collections.Array<TileTrait> TraitsToAddActivated = new();
-	public HashSet<TileTrait> TraitsToRemoveActivated = new();
+	[Export]
+	public Godot.Collections.Array<TileTrait> TraitsToRemoveActivated = new();
 
 	public HashSet<TileTrait> GetTraitsToAdd()
 	{
@@ -44,11 +46,11 @@ public partial class GenericStructure : Node2D, Structure
 	{
 		if (isActivated)
 		{
-			return TraitsToRemoveActivated;
+			return TraitsToRemoveActivated.ToHashSet();
 		}
 		else
 		{
-			return TraitsToRemoveNotActivated;
+			return TraitsToRemoveNotActivated.ToHashSet();
 		}
 
 	}

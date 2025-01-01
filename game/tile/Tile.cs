@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Godot;
 
 public enum TileType
@@ -14,7 +15,8 @@ public partial record TileKey(int X, int Y)
 public partial record TileData(
     TileType type,
     Item item,
-    Structure Structure
+    Structure Structure,
+    List<TileTrait> AdditionalTraitsToRemove
 );
 
 public enum TileTrait

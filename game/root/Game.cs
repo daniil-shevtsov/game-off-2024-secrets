@@ -48,19 +48,25 @@ public partial class Game : Node2D
 			tileTypeTraits.Add(TileTrait.Wall);
 		}
 
-		if (tileData.Structure != null)
-		{
-			GD.Print($"structure {tileData.Structure} has traits to remove {tileData.Structure.GetTraitsToRemove()} and tiles to add {tileData.Structure.GetTraitsToAdd()}");
 
-			tileData.Structure.GetTraitsToRemove().ToList().ForEach(trait =>
-			{
-				tileTypeTraits.Remove(trait);
-			});
-			tileData.Structure.GetTraitsToAdd().ToList().ForEach(trait =>
-			{
-				tileTypeTraits.Add(trait);
-			});
-		}
+		var structureTraitsToRemove = tileData.Structure?.GetTraitsToRemove() ?? new();
+		var structureTraitsToAdd = tileData.Structure?.GetTraitsToAdd() ?? new();
+
+		var tileTraitsToRemove = tileData.AdditionalTraitsToRemove;
+		List<TileTrait> tileTraitsToAdd = new();
+
+
+		var totalTraitsToRemove = structureTraitsToRemove.Concat(tileTraitsToRemove);
+		var totalTraitsToAdd = structureTraitsToAdd.Concat(tileTraitsToAdd);
+
+		totalTraitsToRemove.ToList().ForEach(trait =>
+		{
+			tileTypeTraits.Remove(trait);
+		});
+		totalTraitsToAdd.ToList().ForEach(trait =>
+		{
+			tileTypeTraits.Add(trait);
+		});
 
 		return tileTypeTraits;
 	}
@@ -117,21 +123,24 @@ public partial class Game : Node2D
 			{
 				return entry.Key.X == bottomRightTileKey.X && entry.Key.Y >= topLeftTileKey.Y && entry.Key.Y <= bottomRightTileKey.Y;
 			});
+
 			tilesUnderMenu.ToList().ForEach(entry =>
 			{
 				var key = entry.Key;
 				var tile = entry.Value;
-				if (ui.isContextMenuShown && tile.Structure == null && localSize.Y >= tileSize)
+				if (ui.isContextMenuShown && tile.AdditionalTraitsToRemove.Count == 0 && localSize.Y >= tileSize)
 				{
-					var genericStructure = new GenericStructure();
-					genericStructure.Id = $"CONTEXT_BRIDGE-{key}";
-					genericStructure.isTemporary = true;
-					genericStructure.TraitsToRemoveNotActivated = new() { TileTrait.Fall };
-					ModifyTile(key, tile with { Structure = genericStructure });
+					// var genericStructure = new GenericStructure();
+					// genericStructure.Id = $"CONTEXT_BRIDGE-{key}";
+					// genericStructure.isTemporary = true;
+					// genericStructure.TraitsToRemoveNotActivated = new() { TileTrait.Fall };
+					// ModifyTile(key, tile with { AdditionalTraitsToRemove = new() { TileTrait.Fall } });
+					tile.AdditionalTraitsToRemove.Add(TileTrait.Fall);
 				}
-				else if (!ui.isContextMenuShown && tile.Structure is GenericStructure && (tile.Structure as GenericStructure).isTemporary == true)
+				else if (!ui.isContextMenuShown && tile.AdditionalTraitsToRemove.Contains(TileTrait.Fall))
 				{
-					ModifyTile(key, tile with { Structure = null });
+					// ModifyTile(key, tile with { Structure = null });
+					tile.AdditionalTraitsToRemove.Remove(TileTrait.Fall);
 				}
 			});
 		}
@@ -257,8 +266,16 @@ public partial class Game : Node2D
 		{
 			var hoveredTile = GetTileBy(hoveredTileKey);
 			var clipboardStructure = structures.Find(structure => structure.Id == clipboardStructureId);
-			ModifyTile(hoveredTileKey, hoveredTile with { Structure = clipboardStructure });
-			(clipboardStructure as Node2D).GlobalPosition = GetPositionBy(hoveredTileKey);
+			if (clipboardStructure != null)
+			{
+				ModifyTile(hoveredTileKey, hoveredTile with { Structure = clipboardStructure });
+				(clipboardStructure as Node2D).GlobalPosition = GetPositionBy(hoveredTileKey);
+			}
+			else
+			{
+				GD.Print($"Could not find structure by id {clipboardStructureId} in list of cound {structures.Count}");
+			}
+
 		}
 	}
 
@@ -360,7 +377,8 @@ public partial class Game : Node2D
 				var data = new TileData(
 					type: type,
 					item: null,
-					Structure: null
+					Structure: null,
+					AdditionalTraitsToRemove: new()
 					);
 				tileData.Add(key, data);
 			}

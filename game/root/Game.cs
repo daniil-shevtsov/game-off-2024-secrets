@@ -26,6 +26,23 @@ public partial class Game : Node2D
 
 	private string clipboardStructureId = null;
 
+	private Color[] debugColors = new Color[]
+		{
+			new Color(1f, 0f, 0f), // Red
+			new Color(0f, 1f, 0f), // Green
+			new Color(0f, 0f, 1f), // Blue
+			new Color(1f, 1f, 0f), // Yellow
+			new Color(0f, 1f, 1f), // Cyan
+			new Color(1f, 0f, 1f), // Magenta
+			new Color(1f, 1f, 1f), // White
+			new Color(1f, 0.5f, 0f), // Orange
+			new Color(0.5f, 0f, 1f), // Violet
+			new Color(0f, 0.5f, 1f), // Light Blue
+			new Color(1f, 0f, 0.5f), // Pink
+			new Color(0.25f, 1f, 0.75f), // Mint
+			new Color(1f, 0.25f, 0.75f)  // Rose
+        };
+
 	private void InitLogic()
 	{
 		InitTileData();
@@ -296,6 +313,19 @@ public partial class Game : Node2D
 		}
 	}
 
+	public static Color GetColorById(int id)
+	{
+		// Ensure the ID wraps around the valid range of 3-bit binary combinations (0 to 7)
+		int wrappedId = id % 8;
+
+		// Decompose the wrapped ID into binary representation for R, G, B
+		int r = (wrappedId & 1) > 0 ? 1 : 0; // Red bit (least significant bit)
+		int g = (wrappedId & 2) > 0 ? 1 : 0; // Green bit
+		int b = (wrappedId & 4) > 0 ? 1 : 0; // Blue bit
+
+		return new Color(r, g, b);
+	}
+
 	private void DisplayLeverConnections()
 	{
 		structures.ForEach(structure =>
@@ -311,12 +341,21 @@ public partial class Game : Node2D
 					// var multiplier = subViewport.Size / subViewport.Size2DOverride;
 					// var a = lever.Position;
 					// var b = ((Node2D)targetStructure).Position * multiplier;
-					GD.Print($"Draw vector {a} to {b}");
+					var dashIndex = lever.Id.IndexOf('-');
+					var numberText = lever.Id.Substring(dashIndex + 1);
+					var parsedNumber = int.Parse(numberText);
+
+					var leverNumber = structures.Count / (parsedNumber + 1);
+					float hue = (leverNumber * 0.6180339887f) % 1; // Golden ratio conjugate ensures uniform distribution
+
+					var color = debugColors[parsedNumber % debugColors.Length];
+					GD.Print($"LEVER {lever.Id} {color.ToString()}");
+
 					debugDraw.UpdateVectorToDraw(
-											$"{lever.Id}-{lever.TargetId}",
+											$"{lever.Id}",
 											a,
 											b,
-											new Color(1, 0, 0)
+											color
 										);
 				}
 			}

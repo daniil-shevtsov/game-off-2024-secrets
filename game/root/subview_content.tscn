@@ -155,8 +155,25 @@ TraitsToAddNotActivated = [0]
 position = Vector2(312, 88)
 TraitsToAddNotActivated = [0]
 
+[node name="Gate3" parent="." instance=ExtResource("8_tb5d8")]
+position = Vector2(312, 40)
+TraitsToAddNotActivated = [0]
+
+[node name="Gate4" parent="." instance=ExtResource("8_tb5d8")]
+position = Vector2(312, 0)
+TraitsToAddNotActivated = [0]
+
 [node name="Bridge" parent="." instance=ExtResource("8_tb5d8")]
 position = Vector2(168, -408)
 SpriteActivated = ExtResource("8_qd0gu")
 SpriteDeactivated = ExtResource("9_t5aif")
 TraitsToRemoveActivated = [1]
+
+[node name="Lever3" parent="." instance=ExtResource("7_3plig")]
+position = Vector2(296, 72)
+
+[node name="Lever4" parent="." instance=ExtResource("7_3plig")]
+position = Vector2(288, -8)
+
+[node name="Lever5" parent="." instance=ExtResource("7_3plig")]
+position = Vector2(280, 32)

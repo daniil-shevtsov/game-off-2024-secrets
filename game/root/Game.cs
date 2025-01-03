@@ -26,6 +26,8 @@ public partial class Game : Node2D
 
 	private string clipboardStructureId = null;
 
+	private bool isDebugEnabled = false;
+
 	private Color[] debugColors = new Color[]
 		{
 			new Color(1f, 0f, 0f), // Red
@@ -164,7 +166,6 @@ public partial class Game : Node2D
 		{
 			KillPlayer();
 		}
-		DisplayLeverConnections();
 	}
 
 	private void OnMouseMovement()
@@ -510,6 +511,15 @@ public partial class Game : Node2D
 	public override void _Process(double delta)
 	{
 		UpdateLogic(delta);
+		if (isDebugEnabled)
+		{
+			UpdateDebugDisplay(delta);
+		}
+	}
+
+	private void UpdateDebugDisplay(double delta)
+	{
+		DisplayLeverConnections();
 	}
 
 	public override void _UnhandledInput(InputEvent @event)
@@ -530,6 +540,12 @@ public partial class Game : Node2D
 		if (@event is InputEventMouseButton eventMouseButton && eventMouseButton.IsReleased())
 		{
 			OnMouseClick();
+		}
+
+		if (Input.IsActionJustReleased("toggle_debug_display"))
+		{
+			isDebugEnabled = !isDebugEnabled;
+			debugDraw.Visible = isDebugEnabled;
 		}
 	}
 

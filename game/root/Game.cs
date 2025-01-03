@@ -147,6 +147,7 @@ public partial class Game : Node2D
 		{
 			KillPlayer();
 		}
+		DisplayLeverConnections();
 	}
 
 	private void OnMouseMovement()
@@ -293,6 +294,33 @@ public partial class Game : Node2D
 				OnPickup(key, finalTile.item);
 			}
 		}
+	}
+
+	private void DisplayLeverConnections()
+	{
+		structures.ForEach(structure =>
+		{
+			if (structure is Lever)
+			{
+				var lever = structure as Lever;
+				var targetStructure = structures.Find(structure => structure.Id == lever.TargetId);
+				if (targetStructure != null)
+				{
+					var a = LocalToGlobalWithMagicOffset(lever.GlobalPosition);
+					var b = LocalToGlobalWithMagicOffset(((Node2D)targetStructure).GlobalPosition);
+					// var multiplier = subViewport.Size / subViewport.Size2DOverride;
+					// var a = lever.Position;
+					// var b = ((Node2D)targetStructure).Position * multiplier;
+					GD.Print($"Draw vector {a} to {b}");
+					debugDraw.UpdateVectorToDraw(
+											$"{lever.Id}-{lever.TargetId}",
+											a,
+											b,
+											new Color(1, 0, 0)
+										);
+				}
+			}
+		});
 	}
 
 	private bool IsTileWalkable(Vector2I potentialNewTilePosition)

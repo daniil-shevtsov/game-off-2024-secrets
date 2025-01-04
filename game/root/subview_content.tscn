@@ -113,7 +113,7 @@ layer_0/tile_data = PackedInt32Array(65546, 65536, 1, 327688, 65536, 0, 327689, 
 metadata/_edit_lock_ = true
 
 [node name="RespawnPoint" type="Marker2D" parent="."]
-position = Vector2(296, 48)
+position = Vector2(296, 56)
 
 [node name="TileHighlight" type="ColorRect" parent="."]
 offset_right = 16.0
@@ -173,7 +173,7 @@ TraitsToRemoveActivated = [1]
 position = Vector2(296, 72)
 
 [node name="Lever4" parent="." instance=ExtResource("7_3plig")]
-position = Vector2(288, -8)
+position = Vector2(280, -8)
 
 [node name="Lever5" parent="." instance=ExtResource("7_3plig")]
-position = Vector2(280, 32)
+position = Vector2(280, 40)

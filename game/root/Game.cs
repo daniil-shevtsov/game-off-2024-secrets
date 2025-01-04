@@ -2,6 +2,7 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 public partial class Game : Node2D
 {
@@ -27,6 +28,22 @@ public partial class Game : Node2D
 	private string clipboardStructureId = null;
 
 	private bool isDebugEnabled = false;
+
+	private bool isMoving = false;
+
+	//TODO: Add direction enum
+	private Dictionary<String, Vector2> inputs = new() {
+		{"left", Vector2.Left},
+		{"up", Vector2.Up},
+		{"down", Vector2.Down},
+		{"right", Vector2.Right},
+	};
+	private Dictionary<String, ulong> lastMovementTimes = new() {
+		{"left", 0},
+		{"up", 0},
+		{"down", 0},
+		{"right", 0},
+	};
 
 	private Color[] debugColors = new Color[]
 		{
@@ -419,6 +436,7 @@ public partial class Game : Node2D
 		debugDraw = ((DebugOverlay)FindChild("DebugOverlay")).debugDraw;
 		viewportDebugDraw = ((DebugOverlay)FindChild("ViewportDebugOverlay")).debugDraw;
 		camera = (Camera2D)FindChild("Camera2D");
+		timer = GetNode<Godot.Timer>("Timer");
 
 		InitGlobalPlayerSpriteSize();
 	}
@@ -510,6 +528,21 @@ public partial class Game : Node2D
 
 	public override void _Process(double delta)
 	{
+		inputs.Keys.ToList().ForEach(direction =>
+				{
+					if (Input.IsActionPressed(direction))
+					{
+						var currentMoveTime = Time.GetTicksMsec();
+						var difference = currentMoveTime - lastMovementTimes[direction];
+						GD.Print($"{direction} difference {difference}");
+						if (difference >= 100)
+						{
+							Move(direction);
+							lastMovementTimes[direction] = Time.GetTicksMsec();
+						}
+					}
+				});
+
 		UpdateLogic(delta);
 		if (isDebugEnabled)
 		{
@@ -524,13 +557,7 @@ public partial class Game : Node2D
 
 	public override void _UnhandledInput(InputEvent @event)
 	{
-		inputs.Keys.ToList().ForEach(direction =>
-		{
-			if (@event.IsActionPressed(direction))
-			{
-				Move(direction);
-			}
-		});
+
 
 		if (@event is InputEventMouseMotion eventMouseMotion)
 		{
@@ -628,12 +655,7 @@ public partial class Game : Node2D
 	private DebugDraw viewportDebugDraw;
 	private Camera2D camera;
 
-	private Dictionary<String, Vector2> inputs = new() {
-		{"left", Vector2.Left},
-		{"up", Vector2.Up},
-		{"down", Vector2.Down},
-		{"right", Vector2.Right},
-	};
+	private Godot.Timer timer;
 
 	private int tileLayer = 0;
 

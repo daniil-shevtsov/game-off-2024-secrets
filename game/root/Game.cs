@@ -141,7 +141,7 @@ public partial class Game : Node2D
 		return new TileKey(potentialNewTilePosition);
 	}
 
-	private void HandlePlayerLogic()
+	private async void HandlePlayerLogic()
 	{
 		// because Input.GetVector normalizes vector into 0.123123 and I want just -1 0 1
 		var inputDirection = new Vector2(
@@ -153,13 +153,18 @@ public partial class Game : Node2D
 
 		var potentialNewTile = GetTileByMovementDirection(inputDirection);
 
-		var shouldMove = IsTileWalkable(potentialNewTile) && elapsedSinceLastMove >= 100;
+		ulong movementTimeout = 150;
+		var shouldMove = IsTileWalkable(potentialNewTile) && elapsedSinceLastMove >= movementTimeout;
 		if (shouldMove)
 		{
 			lastMovementTime = Time.GetTicksMsec();
-
 			var finalPosition = GetPositionBy(potentialNewTile);
-			player.GlobalPosition = finalPosition;
+
+			movementTween?.Stop();
+			movementTween = CreateTween();
+
+			movementTween.TweenProperty(player, "global_position", finalPosition, movementTimeout / 1000f);
+			await ToSignal(movementTween, Tween.SignalName.Finished);
 		}
 
 		var playerTile = tileMap.LocalToMap(player.GlobalPosition);

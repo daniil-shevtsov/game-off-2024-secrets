@@ -31,6 +31,8 @@ public partial class Game : Node2D
 
 	private bool isMoving = false;
 
+	private Tween movementTween = null;
+
 	//TODO: Add direction enum
 	private Dictionary<String, Vector2> inputs = new() {
 		{"left", Vector2.Left},
@@ -321,8 +323,8 @@ public partial class Game : Node2D
 			var key = GetTileKeyByPosition(potentialNewPosition);
 			var finalTile = tileData[key];
 
+
 			player.GlobalPosition = finalPosition;
-			// SyncSpriteToPlayer();
 
 			if (finalTile.item != null)
 			{

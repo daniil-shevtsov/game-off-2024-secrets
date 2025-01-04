@@ -133,6 +133,14 @@ public partial class Game : Node2D
 		);
 	}
 
+	private TileKey GetTileByMovementDirection(Vector2 direction)
+	{
+		var potentialMove = direction * tileSize;
+		var potentialNewPosition = player.GlobalPosition + potentialMove;
+		var potentialNewTilePosition = tileMap.LocalToMap(potentialNewPosition);
+		return new TileKey(potentialNewTilePosition);
+	}
+
 	private void HandlePlayerLogic()
 	{
 		// because Input.GetVector normalizes vector into 0.123123 and I want just -1 0 1
@@ -143,24 +151,15 @@ public partial class Game : Node2D
 		var currentMoveTime = Time.GetTicksMsec();
 		var elapsedSinceLastMove = currentMoveTime - lastMovementTime;
 
+		var potentialNewTile = GetTileByMovementDirection(inputDirection);
 
-		if (elapsedSinceLastMove >= 100)
+		var shouldMove = IsTileWalkable(potentialNewTile) && elapsedSinceLastMove >= 100;
+		if (shouldMove)
 		{
-			var potentialMove = inputDirection * tileSize;
-			var potentialNewPosition = player.GlobalPosition + potentialMove;
-			var potentialNewTilePosition = tileMap.LocalToMap(potentialNewPosition);
-
-			var shouldMove = IsTileWalkable(potentialNewTilePosition);
-
-			if (shouldMove)
-			{
-				var finalPosition = potentialNewPosition;
-				var key = GetTileKeyByPosition(potentialNewPosition);
-				var finalTile = tileData[key];
-
-				player.GlobalPosition = finalPosition;
-			}
 			lastMovementTime = Time.GetTicksMsec();
+
+			var finalPosition = GetPositionBy(potentialNewTile);
+			player.GlobalPosition = finalPosition;
 		}
 
 		var playerTile = tileMap.LocalToMap(player.GlobalPosition);
@@ -389,14 +388,14 @@ public partial class Game : Node2D
 		});
 	}
 
-	private bool IsTileWalkable(Vector2I potentialNewTilePosition)
+	private bool IsTileWalkable(TileKey tileKey)
 	{
-		var potentialNewTile = tileData[new TileKey(potentialNewTilePosition)];
+		var potentialNewTile = tileData[tileKey];
 		var traits = GetAllTileTraits(potentialNewTile);
 
 		var shouldMove = !traits.Contains(TileTrait.Wall);
 
-		GD.Print($"tile {potentialNewTilePosition} has traits {traits} should move {shouldMove}");
+		GD.Print($"tile {tileKey} has traits {traits} should move {shouldMove}");
 		return shouldMove;
 	}
 

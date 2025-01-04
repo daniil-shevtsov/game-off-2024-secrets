@@ -33,19 +33,7 @@ public partial class Game : Node2D
 
 	private Tween movementTween = null;
 
-	//TODO: Add direction enum
-	private Dictionary<String, Vector2> inputs = new() {
-		{"left", Vector2.Left},
-		{"up", Vector2.Up},
-		{"down", Vector2.Down},
-		{"right", Vector2.Right},
-	};
-	private Dictionary<String, ulong> lastMovementTimes = new() {
-		{"left", 0},
-		{"up", 0},
-		{"down", 0},
-		{"right", 0},
-	};
+	private ulong lastMovementTime = 0;
 
 	private Color[] debugColors = new Color[]
 		{
@@ -145,7 +133,53 @@ public partial class Game : Node2D
 		);
 	}
 
-	private void UpdateLogic(double delta)
+	private void HandlePlayerLogic()
+	{
+		// because Input.GetVector normalizes vector into 0.123123 and I want just -1 0 1
+		var inputDirection = new Vector2(
+			Input.GetAxis("left", "right"),
+			Input.GetAxis("up", "down")
+		);
+		var currentMoveTime = Time.GetTicksMsec();
+		var elapsedSinceLastMove = currentMoveTime - lastMovementTime;
+
+
+		if (elapsedSinceLastMove >= 100)
+		{
+			var potentialMove = inputDirection * tileSize;
+			var potentialNewPosition = player.GlobalPosition + potentialMove;
+			var potentialNewTilePosition = tileMap.LocalToMap(potentialNewPosition);
+
+			var shouldMove = IsTileWalkable(potentialNewTilePosition);
+
+			if (shouldMove)
+			{
+				var finalPosition = potentialNewPosition;
+				var key = GetTileKeyByPosition(potentialNewPosition);
+				var finalTile = tileData[key];
+
+				player.GlobalPosition = finalPosition;
+			}
+			lastMovementTime = Time.GetTicksMsec();
+		}
+
+		var playerTile = tileMap.LocalToMap(player.GlobalPosition);
+		var playerTileKey = new TileKey(playerTile);
+		var playerTileData = tileData[playerTileKey];
+
+		if (playerTileData.item != null)
+		{
+			OnPickup(playerTileKey, playerTileData.item);
+		}
+
+		var playerTileTraits = GetAllTileTraits(playerTileData);
+		if (!inProcessOfDying && playerTileTraits.Contains(TileTrait.Fall))
+		{
+			KillPlayer();
+		}
+	}
+
+	private void HandleContextMenu()
 	{
 		if (contextMenuTopLeftTileKey != null)
 		{
@@ -176,15 +210,12 @@ public partial class Game : Node2D
 				}
 			});
 		}
+	}
 
-		var playerTile = tileMap.LocalToMap(player.GlobalPosition);
-		var playerTileData = tileData[new TileKey(playerTile)];
-
-		var playerTileTraits = GetAllTileTraits(playerTileData);
-		if (!inProcessOfDying && playerTileTraits.Contains(TileTrait.Fall))
-		{
-			KillPlayer();
-		}
+	private void UpdateLogic(double delta)
+	{
+		HandleContextMenu();
+		HandlePlayerLogic();
 	}
 
 	private void OnMouseMovement()
@@ -306,30 +337,6 @@ public partial class Game : Node2D
 				GD.Print($"Could not find structure by id {clipboardStructureId} in list of cound {structures.Count}");
 			}
 
-		}
-	}
-
-	private void Move(Vector2 direction)
-	{
-		var potentialMove = direction * tileSize;
-		var potentialNewPosition = player.GlobalPosition + potentialMove;
-		var potentialNewTilePosition = tileMap.LocalToMap(potentialNewPosition);
-
-		var shouldMove = IsTileWalkable(potentialNewTilePosition);
-
-		if (shouldMove)
-		{
-			var finalPosition = potentialNewPosition;
-			var key = GetTileKeyByPosition(potentialNewPosition);
-			var finalTile = tileData[key];
-
-
-			player.GlobalPosition = finalPosition;
-
-			if (finalTile.item != null)
-			{
-				OnPickup(key, finalTile.item);
-			}
 		}
 	}
 
@@ -530,21 +537,8 @@ public partial class Game : Node2D
 
 	public override void _Process(double delta)
 	{
-		// because Input.GetVector normalizes vector into 0.123123 and I want just -1 0 1
-		var inputDirection = new Vector2(
-			Input.GetAxis("left", "right"),
-			Input.GetAxis("up", "down")
-		);
-		var currentMoveTime = Time.GetTicksMsec();
-		var difference = currentMoveTime - lastMovementTimes["left"];
-		GD.Print($"direction {inputDirection}");
-		if (difference >= 100)
-		{
-			Move(inputDirection);
-			lastMovementTimes["left"] = Time.GetTicksMsec();
-		}
-
 		UpdateLogic(delta);
+
 		if (isDebugEnabled)
 		{
 			UpdateDebugDisplay(delta);

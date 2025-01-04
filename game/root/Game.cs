@@ -148,23 +148,30 @@ public partial class Game : Node2D
 			Input.GetAxis("left", "right"),
 			Input.GetAxis("up", "down")
 		);
-		var currentMoveTime = Time.GetTicksMsec();
-		var elapsedSinceLastMove = currentMoveTime - lastMovementTime;
-
-		var potentialNewTile = GetTileByMovementDirection(inputDirection);
-
-		ulong movementTimeout = 150;
-		var shouldMove = IsTileWalkable(potentialNewTile) && elapsedSinceLastMove >= movementTimeout;
-		if (shouldMove)
+		if (inputDirection == Vector2.Zero)
 		{
-			lastMovementTime = Time.GetTicksMsec();
-			var finalPosition = GetPositionBy(potentialNewTile);
+			lastMovementTime = 0;
+		}
+		else
+		{
+			var currentMoveTime = Time.GetTicksMsec();
+			var elapsedSinceLastMove = currentMoveTime - lastMovementTime;
 
-			movementTween?.Stop();
-			movementTween = CreateTween();
+			var potentialNewTile = GetTileByMovementDirection(inputDirection);
 
-			movementTween.TweenProperty(player, "global_position", finalPosition, movementTimeout / 1000f);
-			await ToSignal(movementTween, Tween.SignalName.Finished);
+			ulong movementTimeout = 150;
+			var shouldMove = IsTileWalkable(potentialNewTile) && elapsedSinceLastMove >= movementTimeout;
+			if (shouldMove)
+			{
+				lastMovementTime = Time.GetTicksMsec();
+				var finalPosition = GetPositionBy(potentialNewTile);
+
+				movementTween?.Stop();
+				movementTween = CreateTween();
+
+				movementTween.TweenProperty(player, "global_position", finalPosition, movementTimeout / 1000f);
+				await ToSignal(movementTween, Tween.SignalName.Finished);
+			}
 		}
 
 		var playerTile = tileMap.LocalToMap(player.GlobalPosition);

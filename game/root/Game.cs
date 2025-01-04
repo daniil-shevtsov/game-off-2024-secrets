@@ -309,9 +309,9 @@ public partial class Game : Node2D
 		}
 	}
 
-	private void Move(string direction)
+	private void Move(Vector2 direction)
 	{
-		var potentialMove = inputs[direction] * tileSize;
+		var potentialMove = direction * tileSize;
 		var potentialNewPosition = player.GlobalPosition + potentialMove;
 		var potentialNewTilePosition = tileMap.LocalToMap(potentialNewPosition);
 
@@ -530,20 +530,19 @@ public partial class Game : Node2D
 
 	public override void _Process(double delta)
 	{
-		inputs.Keys.ToList().ForEach(direction =>
-				{
-					if (Input.IsActionPressed(direction))
-					{
-						var currentMoveTime = Time.GetTicksMsec();
-						var difference = currentMoveTime - lastMovementTimes[direction];
-						GD.Print($"{direction} difference {difference}");
-						if (difference >= 100)
-						{
-							Move(direction);
-							lastMovementTimes[direction] = Time.GetTicksMsec();
-						}
-					}
-				});
+		// because Input.GetVector normalizes vector into 0.123123 and I want just -1 0 1
+		var inputDirection = new Vector2(
+			Input.GetAxis("left", "right"),
+			Input.GetAxis("up", "down")
+		);
+		var currentMoveTime = Time.GetTicksMsec();
+		var difference = currentMoveTime - lastMovementTimes["left"];
+		GD.Print($"direction {inputDirection}");
+		if (difference >= 100)
+		{
+			Move(inputDirection);
+			lastMovementTimes["left"] = Time.GetTicksMsec();
+		}
 
 		UpdateLogic(delta);
 		if (isDebugEnabled)

@@ -173,7 +173,6 @@ public partial class Game : Node2D
 				await ToSignal(movementTween, Tween.SignalName.Finished);
 			}
 		}
-
 		var playerTile = tileMap.LocalToMap(player.GlobalPosition);
 		var playerTileKey = new TileKey(playerTile);
 		var playerTileData = tileData[playerTileKey];
@@ -226,7 +225,9 @@ public partial class Game : Node2D
 	private void UpdateLogic(double delta)
 	{
 		HandleContextMenu();
+
 		HandlePlayerLogic();
+
 	}
 
 	private void OnMouseMovement()
@@ -387,7 +388,6 @@ public partial class Game : Node2D
 					float hue = (leverNumber * 0.6180339887f) % 1; // Golden ratio conjugate ensures uniform distribution
 
 					var color = debugColors[parsedNumber % debugColors.Length];
-					GD.Print($"LEVER {lever.Id} {color.ToString()}");
 
 					debugDraw.UpdateVectorToDraw(
 											$"{lever.Id}",
@@ -407,7 +407,6 @@ public partial class Game : Node2D
 
 		var shouldMove = !traits.Contains(TileTrait.Wall);
 
-		GD.Print($"tile {tileKey} has traits {traits} should move {shouldMove}");
 		return shouldMove;
 	}
 
@@ -417,9 +416,7 @@ public partial class Game : Node2D
 		var previousScale = globalPlayerSprite.Scale;
 		var tween = CreateTween();
 		tween.TweenProperty(globalPlayerSprite, "scale", Vector2.Zero, 0.5f).SetTrans(Tween.TransitionType.Quad);
-		GD.Print("STARTED");
 		await ToSignal(tween, Tween.SignalName.Finished);
-		GD.Print("FINISHED");
 		globalPlayerSprite.Scale = previousScale;
 		Respawn();
 		inProcessOfDying = false;
@@ -427,7 +424,6 @@ public partial class Game : Node2D
 
 	private void Respawn()
 	{
-		GD.Print("RESPAWN");
 		player.GlobalPosition = respawnPoint.GlobalPosition;
 	}
 
@@ -548,6 +544,7 @@ public partial class Game : Node2D
 
 	public override void _Process(double delta)
 	{
+		GD.Print("_Process");
 		UpdateLogic(delta);
 
 		if (isDebugEnabled)

@@ -9,6 +9,18 @@ public partial class Lever : Node2D, Structure
 
 	public string TargetId { get; set; }
 
+	[Export]
+	public bool isActivated = false;
+
+	[Export]
+	public Texture2D SpriteActivated { get; set; }
+
+
+	[Export]
+	public Texture2D SpriteDeactivated { get; set; }
+
+	public Sprite2D sprite;
+
 	public HashSet<TileTrait> GetTraitsToAdd()
 	{
 		return new();
@@ -21,10 +33,24 @@ public partial class Lever : Node2D, Structure
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
+		sprite = GetNode<Sprite2D>("Sprite2D");
+		UpdateActivated();
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
+	}
+
+	public void UpdateActivated()
+	{
+		if (isActivated)
+		{
+			sprite.Texture = SpriteActivated;
+		}
+		else
+		{
+			sprite.Texture = SpriteDeactivated;
+		}
 	}
 }

@@ -283,7 +283,7 @@ public partial class Game : Node2D
 			var hoveredTile = GetTileBy(hoveredTileKey);
 			var selectedStructure = hoveredTile.Structure;
 
-			var lever = selectedStructure as Lever;
+			var lever = selectedStructure as Activator;
 			if (lever != null)
 			{
 				var targetStructure = structures.Find(structure => structure.Id == lever.TargetId);
@@ -303,7 +303,7 @@ public partial class Game : Node2D
 
 			GD.Print($"Connect clicked when hovered over {selectedStructure.Id} at {hoveredTileKey}");
 
-			var lever = selectedStructure as Lever;
+			var lever = selectedStructure as Activator;
 			if (lever != null && leverToConnectId == null)
 			{
 				GD.Print($"set Lever to connect from {leverToConnectId} to {lever.Id}");
@@ -312,7 +312,7 @@ public partial class Game : Node2D
 			}
 			else if (leverToConnectId != null)
 			{
-				var leverToConnect = structures.Find(structure => structure.Id == leverToConnectId) as Lever;
+				var leverToConnect = structures.Find(structure => structure.Id == leverToConnectId) as Activator;
 				leverToConnect.TargetId = selectedStructure.Id;
 				GD.Print($"connect {leverToConnect.Id} to {selectedStructure.Id}");
 				leverToConnectId = null;
@@ -365,17 +365,17 @@ public partial class Game : Node2D
 		return new Color(r, g, b);
 	}
 
-	private void DisplayLeverConnections()
+	private void DisplayActivatorConnections()
 	{
 		structures.ForEach(structure =>
 		{
-			if (structure is Lever)
+			if (structure is Activator)
 			{
-				var lever = structure as Lever;
+				var lever = structure as Activator;
 				var targetStructure = structures.Find(structure => structure.Id == lever.TargetId);
 				if (targetStructure != null)
 				{
-					var a = LocalToGlobalWithMagicOffset(lever.GlobalPosition);
+					var a = LocalToGlobalWithMagicOffset(((Node2D)lever).GlobalPosition);
 					var b = LocalToGlobalWithMagicOffset(((Node2D)targetStructure).GlobalPosition);
 					// var multiplier = subViewport.Size / subViewport.Size2DOverride;
 					// var a = lever.Position;
@@ -555,7 +555,7 @@ public partial class Game : Node2D
 
 	private void UpdateDebugDisplay(double delta)
 	{
-		DisplayLeverConnections();
+		DisplayActivatorConnections();
 	}
 
 	public override void _UnhandledInput(InputEvent @event)

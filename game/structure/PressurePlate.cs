@@ -2,7 +2,7 @@ using Godot;
 using System;
 using System.Collections.Generic;
 
-public partial class Lever : Node2D, Structure, Activator
+public partial class PressurePlate : Node2D, Structure, Activator
 {
 
 	public string Id { get; set; }
@@ -53,4 +53,5 @@ public partial class Lever : Node2D, Structure, Activator
 			sprite.Texture = SpriteDeactivated;
 		}
 	}
+
 }

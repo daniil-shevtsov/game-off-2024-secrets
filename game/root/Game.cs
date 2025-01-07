@@ -276,6 +276,33 @@ public partial class Game : Node2D
 		}
 	}
 
+	//TODO: Activatable instead of GenericStructure in future
+	private void ToggleTargetActivation(Activator activator)
+	{
+		var targetStructure = structures.Find(structure => structure.Id == activator.TargetId) as GenericStructure;
+		if (targetStructure != null)
+		{
+			ToggleActivation(targetStructure);
+		}
+	}
+
+	private void ToggleActivation(GenericStructure structure)
+	{
+		structure.isActivated = !structure.isActivated;
+		GD.Print($"Set {structure.Id} to {structure.isActivated}");
+		structure.UpdateActivated();
+	}
+
+	private void RememberActivatorToConnect(Activator activator)
+	{
+		leverToConnectId = activator.Id;
+	}
+
+	private void ClearActivatorToConnect()
+	{
+		leverToConnectId = null;
+	}
+
 	private void OnContextMenuActionSelected(ContextMenuAction action)
 	{
 		if (action == ContextMenuAction.Use && hoveredTileKey != null)
@@ -283,17 +310,10 @@ public partial class Game : Node2D
 			var hoveredTile = GetTileBy(hoveredTileKey);
 			var selectedStructure = hoveredTile.Structure;
 
-			var lever = selectedStructure as Activator;
-			if (lever != null)
+			var activator = selectedStructure as Activator;
+			if (activator != null)
 			{
-				var targetStructure = structures.Find(structure => structure.Id == lever.TargetId);
-				if (targetStructure != null && targetStructure is GenericStructure)
-				{
-					var kek = targetStructure as GenericStructure;
-					kek.isActivated = !kek.isActivated;
-					GD.Print($"Set {kek.Id} to {kek.isActivated}");
-					kek.UpdateActivated();
-				}
+				ToggleTargetActivation(activator);
 			}
 		}
 		else if (action == ContextMenuAction.Connect && hoveredTileKey != null)
@@ -303,19 +323,19 @@ public partial class Game : Node2D
 
 			GD.Print($"Connect clicked when hovered over {selectedStructure.Id} at {hoveredTileKey}");
 
-			var lever = selectedStructure as Activator;
-			if (lever != null && leverToConnectId == null)
+			var currentRememberedLeverToConnect = leverToConnectId;
+			var isActivatorCurrentlyRemembered = currentRememberedLeverToConnect != null;
+			var activatorToConnect = selectedStructure as Activator;
+			if (activatorToConnect != null && !isActivatorCurrentlyRemembered)
 			{
-				GD.Print($"set Lever to connect from {leverToConnectId} to {lever.Id}");
+				GD.Print($"set lever to connect from {currentRememberedLeverToConnect} to {activatorToConnect.Id}");
 
-				leverToConnectId = lever.Id;
+				RememberActivatorToConnect(activatorToConnect);
 			}
-			else if (leverToConnectId != null)
+			else if (isActivatorCurrentlyRemembered)
 			{
-				var leverToConnect = structures.Find(structure => structure.Id == leverToConnectId) as Activator;
-				leverToConnect.TargetId = selectedStructure.Id;
-				GD.Print($"connect {leverToConnect.Id} to {selectedStructure.Id}");
-				leverToConnectId = null;
+				ConnectActivatorToStructure(currentRememberedLeverToConnect, selectedStructure.Id);
+				ClearActivatorToConnect();
 			}
 		}
 		else if (action == ContextMenuAction.Cut && hoveredTileKey != null)
@@ -350,6 +370,16 @@ public partial class Game : Node2D
 			}
 
 		}
+	}
+
+	private void ConnectActivatorToStructure(
+		string activatorId,
+		string structureId
+	)
+	{
+		var activator = structures.Find(structure => structure.Id == activatorId) as Activator;
+		activator.TargetId = structureId;
+		GD.Print($"connect {activator.Id} to {structureId}");
 	}
 
 	public static Color GetColorById(int id)
@@ -499,13 +529,13 @@ public partial class Game : Node2D
 			.ToDictionary(s => s.Id, s => (s as Node2D).GlobalPosition);
 
 		structures
-			.Select(structure => structure as Lever)
+			.Select(structure => structure as Activator)
 			.Where(lever => lever != null)
 			.ToList()
 			.ForEach(lever =>
 			{
 				var nearestTogglableId = togglableStructureDistances
-					.MinBy(structure => lever.GlobalPosition.DistanceTo(structure.Value)).Key;
+					.MinBy(structure => ((Node2D)lever).GlobalPosition.DistanceTo(structure.Value)).Key;
 				lever.TargetId = nearestTogglableId;
 			});
 

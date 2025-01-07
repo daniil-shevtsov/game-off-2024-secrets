@@ -24,6 +24,7 @@ public partial class Game : Node2D
 	private bool inProcessOfDying = false;
 
 	private string activatorToConnectId = null;
+	private string activatorStandingOnId = null;
 
 	private string clipboardStructureId = null;
 
@@ -186,6 +187,18 @@ public partial class Game : Node2D
 		if (!inProcessOfDying && playerTileTraits.Contains(TileTrait.Fall))
 		{
 			KillPlayer();
+		}
+		else
+		{
+			var activator = playerTileData.Structure as Activator;
+			if (activator != null && activator.GetTriggerType() == TriggerType.Walk)
+			{
+				if (activatorStandingOnId == null)
+				{
+					ToggleTargetActivation(activator);
+					activatorStandingOnId = activator.Id;
+				}
+			}
 		}
 	}
 

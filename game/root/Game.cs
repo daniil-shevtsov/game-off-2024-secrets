@@ -23,7 +23,7 @@ public partial class Game : Node2D
 	private TileKey contextMenuTopLeftTileKey = null;
 	private bool inProcessOfDying = false;
 
-	private string leverToConnectId = null;
+	private string activatorToConnectId = null;
 
 	private string clipboardStructureId = null;
 
@@ -295,12 +295,12 @@ public partial class Game : Node2D
 
 	private void RememberActivatorToConnect(Activator activator)
 	{
-		leverToConnectId = activator.Id;
+		activatorToConnectId = activator.Id;
 	}
 
-	private void ClearActivatorToConnect()
+	private void ForgetActivatorToConnect()
 	{
-		leverToConnectId = null;
+		activatorToConnectId = null;
 	}
 
 	private void OnContextMenuActionSelected(ContextMenuAction action)
@@ -311,7 +311,7 @@ public partial class Game : Node2D
 			var selectedStructure = hoveredTile.Structure;
 
 			var activator = selectedStructure as Activator;
-			if (activator != null)
+			if (activator != null && activator.GetTriggerType() == TriggerType.Use)
 			{
 				ToggleTargetActivation(activator);
 			}
@@ -323,19 +323,19 @@ public partial class Game : Node2D
 
 			GD.Print($"Connect clicked when hovered over {selectedStructure.Id} at {hoveredTileKey}");
 
-			var currentRememberedLeverToConnect = leverToConnectId;
-			var isActivatorCurrentlyRemembered = currentRememberedLeverToConnect != null;
+			var currentRememberedActivatorToConnect = activatorToConnectId;
+			var isActivatorCurrentlyRemembered = currentRememberedActivatorToConnect != null;
 			var activatorToConnect = selectedStructure as Activator;
 			if (activatorToConnect != null && !isActivatorCurrentlyRemembered)
 			{
-				GD.Print($"set lever to connect from {currentRememberedLeverToConnect} to {activatorToConnect.Id}");
+				GD.Print($"set activator to connect from {currentRememberedActivatorToConnect} to {activatorToConnect.Id}");
 
 				RememberActivatorToConnect(activatorToConnect);
 			}
 			else if (isActivatorCurrentlyRemembered)
 			{
-				ConnectActivatorToStructure(currentRememberedLeverToConnect, selectedStructure.Id);
-				ClearActivatorToConnect();
+				ConnectActivatorToStructure(currentRememberedActivatorToConnect, selectedStructure.Id);
+				ForgetActivatorToConnect();
 			}
 		}
 		else if (action == ContextMenuAction.Cut && hoveredTileKey != null)
@@ -401,26 +401,24 @@ public partial class Game : Node2D
 		{
 			if (structure is Activator)
 			{
-				var lever = structure as Activator;
-				var targetStructure = structures.Find(structure => structure.Id == lever.TargetId);
+				var activator = structure as Activator;
+				var targetStructure = structures.Find(structure => structure.Id == activator.TargetId);
 				if (targetStructure != null)
 				{
-					var a = LocalToGlobalWithMagicOffset(((Node2D)lever).GlobalPosition);
+					var a = LocalToGlobalWithMagicOffset(((Node2D)activator).GlobalPosition);
 					var b = LocalToGlobalWithMagicOffset(((Node2D)targetStructure).GlobalPosition);
-					// var multiplier = subViewport.Size / subViewport.Size2DOverride;
-					// var a = lever.Position;
-					// var b = ((Node2D)targetStructure).Position * multiplier;
-					var dashIndex = lever.Id.IndexOf('-');
-					var numberText = lever.Id.Substring(dashIndex + 1);
+
+					var dashIndex = activator.Id.IndexOf('-');
+					var numberText = activator.Id.Substring(dashIndex + 1);
 					var parsedNumber = int.Parse(numberText);
 
-					var leverNumber = structures.Count / (parsedNumber + 1);
-					float hue = (leverNumber * 0.6180339887f) % 1; // Golden ratio conjugate ensures uniform distribution
+					var activatorNumber = structures.Count / (parsedNumber + 1);
+					float hue = (activatorNumber * 0.6180339887f) % 1; // Golden ratio conjugate ensures uniform distribution
 
 					var color = debugColors[parsedNumber % debugColors.Length];
 
 					debugDraw.UpdateVectorToDraw(
-											$"{lever.Id}",
+											$"{activator.Id}",
 											a,
 											b,
 											color
@@ -530,13 +528,13 @@ public partial class Game : Node2D
 
 		structures
 			.Select(structure => structure as Activator)
-			.Where(lever => lever != null)
+			.Where(activator => activator != null)
 			.ToList()
-			.ForEach(lever =>
+			.ForEach(activator =>
 			{
 				var nearestTogglableId = togglableStructureDistances
-					.MinBy(structure => ((Node2D)lever).GlobalPosition.DistanceTo(structure.Value)).Key;
-				lever.TargetId = nearestTogglableId;
+					.MinBy(structure => ((Node2D)activator).GlobalPosition.DistanceTo(structure.Value)).Key;
+				activator.TargetId = nearestTogglableId;
 			});
 
 		// set structures to all tiles

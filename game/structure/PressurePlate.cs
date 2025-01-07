@@ -34,7 +34,7 @@ public partial class PressurePlate : Node2D, Structure, Activator
 	public override void _Ready()
 	{
 		sprite = GetNode<Sprite2D>("Sprite2D");
-		UpdateActivated();
+		ToggleActivation();
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -42,7 +42,7 @@ public partial class PressurePlate : Node2D, Structure, Activator
 	{
 	}
 
-	public void UpdateActivated()
+	public void ToggleActivation()
 	{
 		if (isActivated)
 		{
@@ -52,6 +52,11 @@ public partial class PressurePlate : Node2D, Structure, Activator
 		{
 			sprite.Texture = SpriteDeactivated;
 		}
+	}
+
+	public TriggerType GetTriggerType()
+	{
+		return TriggerType.Walk;
 	}
 
 }

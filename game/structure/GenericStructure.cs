@@ -3,14 +3,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public partial class GenericStructure : Node2D, Structure
+public partial class GenericStructure : Node2D, Structure, Activatable
 {
 	public string Id { get; set; }
 
 	public bool isTemporary = false;
 
 	[Export]
-	public bool isActivated = false;
+	public bool isActivated { get; set; }
 
 	//TODO: Use resource path instead of sprite nodes
 	[Export]
@@ -59,7 +59,8 @@ public partial class GenericStructure : Node2D, Structure
 	public override void _Ready()
 	{
 		sprite = GetNode<Sprite2D>("Sprite2D");
-		UpdateActivated();
+		isActivated = false;
+		UpdateSprite();
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -67,7 +68,15 @@ public partial class GenericStructure : Node2D, Structure
 	{
 	}
 
-	public void UpdateActivated()
+	public void ToggleActivation()
+	{
+		isActivated = !isActivated;
+		GD.Print($"Set {Id} to {isActivated}");
+
+		UpdateSprite();
+	}
+
+	private void UpdateSprite()
 	{
 		if (isActivated)
 		{

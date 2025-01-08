@@ -2,7 +2,7 @@ using Godot;
 using System;
 using System.Collections.Generic;
 
-public partial class Lever : Node2D, Structure, Activator
+public partial class Lever : Node2D, Structure, Activator, Activatable
 {
 
 	public string Id { get; set; }
@@ -10,7 +10,7 @@ public partial class Lever : Node2D, Structure, Activator
 	public string TargetId { get; set; }
 
 	[Export]
-	public bool isActivated = false;
+	public bool isActivated { get; set; }
 
 	[Export]
 	public Texture2D SpriteActivated { get; set; }
@@ -34,7 +34,8 @@ public partial class Lever : Node2D, Structure, Activator
 	public override void _Ready()
 	{
 		sprite = GetNode<Sprite2D>("Sprite2D");
-		ToggleActivation();
+		isActivated = false;
+		UpdateSprite();
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -43,6 +44,12 @@ public partial class Lever : Node2D, Structure, Activator
 	}
 
 	public void ToggleActivation()
+	{
+		isActivated = !isActivated;
+		UpdateSprite();
+	}
+
+	public void UpdateSprite()
 	{
 		if (isActivated)
 		{

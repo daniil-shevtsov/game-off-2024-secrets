@@ -296,14 +296,13 @@ public partial class Game : Node2D
 		if (targetStructure != null)
 		{
 			ToggleActivation(targetStructure);
+			ToggleActivation(activator as Activatable);
 		}
 	}
 
-	private void ToggleActivation(GenericStructure structure)
+	private void ToggleActivation(Activatable structure)
 	{
-		structure.isActivated = !structure.isActivated;
-		GD.Print($"Set {structure.Id} to {structure.isActivated}");
-		structure.UpdateActivated();
+		structure.ToggleActivation();
 	}
 
 	private void RememberActivatorToConnect(Activator activator)

@@ -191,7 +191,20 @@ public partial class Game : Node2D
 		else
 		{
 			var activator = playerTileData.Structure as Activator;
-			if (activator != null && activator.GetTriggerType() == TriggerType.Walk)
+			var standingOnWalkActivator = activator != null && activator.GetTriggerType() == TriggerType.Walk;
+
+			if (activatorStandingOnId != null && activator?.Id != activatorStandingOnId)
+			{
+				var oldActivator = structures.Find(structure => structure.Id == activatorStandingOnId) as Activator;
+				// var oldActivatorTile = GetTileBy(GetTileKeyByPosition(((Node2D)activator).GlobalPosition));
+				if (oldActivator != null)
+				{
+					ToggleTargetActivation(oldActivator);
+				}
+				activatorStandingOnId = null;
+			}
+
+			if (standingOnWalkActivator)
 			{
 				if (activatorStandingOnId == null)
 				{
@@ -292,7 +305,7 @@ public partial class Game : Node2D
 	//TODO: Activatable instead of GenericStructure in future
 	private void ToggleTargetActivation(Activator activator)
 	{
-		var targetStructure = structures.Find(structure => structure.Id == activator.TargetId) as GenericStructure;
+		var targetStructure = structures.Find(structure => structure.Id == activator.TargetId) as Activatable;
 		if (targetStructure != null)
 		{
 			ToggleActivation(targetStructure);

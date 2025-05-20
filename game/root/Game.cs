@@ -438,8 +438,6 @@ public partial class Game : Node2D
 					var parsedNumber = int.Parse(numberText);
 
 					var activatorNumber = structures.Count / (parsedNumber + 1);
-					float hue = (activatorNumber * 0.6180339887f) % 1; // Golden ratio conjugate ensures uniform distribution
-
 					var color = debugColors[parsedNumber % debugColors.Length];
 
 					debugDraw.UpdateVectorToDraw(

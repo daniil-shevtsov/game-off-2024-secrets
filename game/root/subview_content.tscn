@@ -200,5 +200,8 @@ position = Vector2(-24, -392)
 
 [node name="LaserBase" parent="." instance=ExtResource("8_tb5d8")]
 position = Vector2(8, -392)
+type = 2
 SpriteActivated = ExtResource("12_pypf2")
 SpriteDeactivated = ExtResource("13_84wrk")
+TraitsToAddNotActivated = [0]
+TraitsToAddActivated = [0]

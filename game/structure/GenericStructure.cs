@@ -7,6 +7,9 @@ public partial class GenericStructure : Node2D, Structure, Activatable
 {
     public string Id { get; set; }
 
+    [Export]
+    public StructureType type;
+
     public bool isTemporary = false;
 
     [Export]

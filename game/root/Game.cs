@@ -360,17 +360,23 @@ public partial class Game : Node2D
         }
     }
 
-    private void ToggleActivation(Activatable structure)
+    private void ToggleActivation(Activatable activatable)
     {
-        structure.ToggleActivation();
-        if (((Node2D)structure).Name.ToString().Contains("LaserBase"))
+        activatable.ToggleActivation();
+
+        if (activatable is not GenericStructure)
         {
-            var laser = (GenericStructure)structure;
+            return;
+        }
+
+        var structure = (GenericStructure)activatable;
+        if (structure != null && structure.type == StructureType.LaserBase)
+        {
             // var a = LocalToGlobalWithMagicOffset(laser.GlobalPosition);
             // var b = LocalToGlobalWithMagicOffset(laser.marker2D.GlobalPosition);
             // var direction = (b - a).Normalized;
 
-            var laserTileKey = GetTileKeyByPosition(laser.GlobalPosition);
+            var laserTileKey = GetTileKeyByPosition(structure.GlobalPosition);
             // var laserPointerKey = GetTileKeyByPosition(laser.marker2D.GlobalPosition);
 
             var direction = new Vector2I(0, -1);
@@ -394,26 +400,13 @@ public partial class Game : Node2D
             laserSprites.ForEach(node => node.Free());
             laserSprites.Clear();
 
-            if (laser.isActivated)
+            if (structure.isActivated)
             {
                 GD.Print("KUK activate laser");
                 laserTiles
                     .ToList()
                     .ForEach(laserTile =>
                     {
-                        var c = LocalToGlobalWithMagicOffset(
-                            GetPositionBy(laserTile.Key) - Vector2.One * tileSize / 2
-                        );
-                        var d = LocalToGlobalWithMagicOffset(
-                            GetPositionBy(laserTile.Key) + Vector2.One * tileSize / 2
-                        );
-                        debugDraw.UpdateVectorToDraw(
-                            $"laser-tile-{laserTile.Key}",
-                            c,
-                            d,
-                            new Color(1, 0, 0)
-                        );
-                        // var laserSprite = (LaserSprite)FindChild("LaserSprite").Duplicate();
                         var laserSprite = (LaserSprite)
                             laserSpriteResource.Instantiate().Duplicate();
                         laserSprite.Position = GetPositionBy(laserTile.Key);
@@ -545,14 +538,6 @@ public partial class Game : Node2D
     {
         structures.ForEach(structure =>
         {
-            // if (structure.I)
-            // {
-            //     var laser = (Laser)structure;
-            //     var a = LocalToGlobalWithMagicOffset(laser.GlobalPosition);
-            //     var b = LocalToGlobalWithMagicOffset(laser.marker2D.GlobalPosition);
-            //     debugDraw.UpdateVectorToDraw($"laser-{structure.Id}", a, b, new Color(1, 0, 0));
-            // }
-
             if (structure is Activator)
             {
                 var activator = structure as Activator;

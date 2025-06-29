@@ -234,7 +234,13 @@ public partial class Game : Node2D
 
     private async void HandleStructureLogic()
     {
-        structures.ForEach(structure => { });
+        structures.ForEach(structure =>
+        {
+            if (structure is GenericStructure)
+            {
+                UpdateLaserLogic((GenericStructure)structure);
+            }
+        });
     }
 
     private void HandleContextMenu()
@@ -360,16 +366,8 @@ public partial class Game : Node2D
         }
     }
 
-    private void ToggleActivation(Activatable activatable)
+    private void UpdateLaserLogic(GenericStructure structure)
     {
-        activatable.ToggleActivation();
-
-        if (activatable is not GenericStructure)
-        {
-            return;
-        }
-
-        var structure = (GenericStructure)activatable;
         if (structure != null && structure.type == StructureType.LaserBase)
         {
             // var a = LocalToGlobalWithMagicOffset(laser.GlobalPosition);
@@ -385,7 +383,11 @@ public partial class Game : Node2D
                 .ToList()
                 .Where(entry => entry.Key.X == laserTileKey.X && entry.Key.Y < laserTileKey.Y);
             var firstWallAheadTile = tilesHigherLaser
-                .Where(entry => entry.Value.type == TileType.Wall)
+                .Where(
+                    entry =>
+                        entry.Value.type == TileType.Wall
+                        || entry.Key == GetTileKeyByPosition(player.Position)
+                )
                 .MaxBy(entry => entry.Key.Y);
 
             var laserTiles = tileData
@@ -428,6 +430,19 @@ public partial class Game : Node2D
                     }
                 });
         }
+    }
+
+    private void ToggleActivation(Activatable activatable)
+    {
+        activatable.ToggleActivation();
+
+        if (activatable is not GenericStructure)
+        {
+            return;
+        }
+
+        var structure = (GenericStructure)activatable;
+        UpdateLaserLogic(structure);
     }
 
     private void RememberActivatorToConnect(Activator activator)

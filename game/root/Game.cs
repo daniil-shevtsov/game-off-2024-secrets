@@ -477,6 +477,14 @@ public partial class Game : Node2D
     {
         structures.ForEach(structure =>
         {
+            if (structure is Laser)
+            {
+                var laser = (Laser)structure;
+                var a = LocalToGlobalWithMagicOffset(laser.GlobalPosition);
+                var b = LocalToGlobalWithMagicOffset(laser.marker2D.GlobalPosition);
+                debugDraw.UpdateVectorToDraw($"laser-{structure.Id}", a, b, new Color(1, 0, 0));
+            }
+
             if (structure is Activator)
             {
                 var activator = structure as Activator;

@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3 uid="uid://ma64if1u122n"]
+
+[ext_resource type="Script" path="res://game/structure/Laser.cs" id="1_cdm7d"]
+
+[node name="Laser" type="Node2D"]
+position = Vector2(8, -392)
+script = ExtResource("1_cdm7d")
+
+[node name="Marker2D" type="Marker2D" parent="."]
+position = Vector2(0, -16)

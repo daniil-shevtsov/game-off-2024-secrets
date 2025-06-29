@@ -83,7 +83,7 @@ public partial class Game : Node2D
         var structureTraitsToAdd = tileData.Structure?.GetTraitsToAdd() ?? new();
 
         var tileTraitsToRemove = tileData.AdditionalTraitsToRemove;
-        List<TileTrait> tileTraitsToAdd = new();
+        var tileTraitsToAdd = tileData.AdditionalTraitsToAdd;
 
         var totalTraitsToRemove = structureTraitsToRemove.Concat(tileTraitsToRemove);
         var totalTraitsToAdd = structureTraitsToAdd.Concat(tileTraitsToAdd);
@@ -400,20 +400,33 @@ public partial class Game : Node2D
             laserSprites.ForEach(node => node.Free());
             laserSprites.Clear();
 
-            if (structure.isActivated)
-            {
-                GD.Print("KUK activate laser");
-                laserTiles
-                    .ToList()
-                    .ForEach(laserTile =>
+            laserTiles
+                .ToList()
+                .ForEach(laserTile =>
+                {
+                    var tile = laserTile.Value;
+
+                    if (structure.isActivated)
                     {
                         var laserSprite = (LaserSprite)
                             laserSpriteResource.Instantiate().Duplicate();
                         laserSprite.Position = GetPositionBy(laserTile.Key);
                         subviewContent.AddChild(laserSprite);
                         laserSprites.Add(laserSprite);
-                    });
-            }
+
+                        if (tile.AdditionalTraitsToAdd.Count == 0)
+                        {
+                            tile.AdditionalTraitsToAdd.Add(TileTrait.Fall);
+                        }
+                    }
+                    else
+                    {
+                        if (tile.AdditionalTraitsToAdd.Count > 0)
+                        {
+                            tile.AdditionalTraitsToAdd.Remove(TileTrait.Fall);
+                        }
+                    }
+                });
         }
     }
 
@@ -643,7 +656,8 @@ public partial class Game : Node2D
                         type: type,
                         item: null,
                         Structure: null,
-                        AdditionalTraitsToRemove: new()
+                        AdditionalTraitsToRemove: new(),
+                        AdditionalTraitsToAdd: new()
                     );
                     tileData.Add(key, data);
                 }

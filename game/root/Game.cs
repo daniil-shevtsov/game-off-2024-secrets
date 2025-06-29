@@ -234,67 +234,7 @@ public partial class Game : Node2D
 
     private async void HandleStructureLogic()
     {
-        structures.ForEach(structure =>
-        {
-            if (structure is Laser)
-            {
-                var laser = (Laser)structure;
-                var a = LocalToGlobalWithMagicOffset(laser.GlobalPosition);
-                var b = LocalToGlobalWithMagicOffset(laser.marker2D.GlobalPosition);
-                // var direction = (b - a).Normalized;
-
-                var laserTileKey = GetTileKeyByPosition(laser.GlobalPosition);
-                var laserPointerKey = GetTileKeyByPosition(laser.marker2D.GlobalPosition);
-
-                var direction = new Vector2I(0, -1);
-
-                var tilesHigherLaser = tileData
-                    .ToList()
-                    .Where(entry => entry.Key.X == laserTileKey.X && entry.Key.Y < laserTileKey.Y);
-                var firstWallAheadTile = tilesHigherLaser
-                    .Where(entry => entry.Value.type == TileType.Wall)
-                    .MaxBy(entry => entry.Key.Y);
-
-                var laserTiles = tileData
-                    .ToList()
-                    .Where(entry =>
-                    {
-                        return entry.Key.X == laserTileKey.X
-                            && entry.Key.Y > firstWallAheadTile.Key.Y
-                            && entry.Key.Y < laserTileKey.Y;
-                    });
-
-                laserSprites.ForEach(node => node.Free());
-                laserSprites.Clear();
-
-                laserTiles
-                    .ToList()
-                    .ForEach(laserTile =>
-                    {
-                        var c = LocalToGlobalWithMagicOffset(
-                            GetPositionBy(laserTile.Key) - Vector2.One * tileSize / 2
-                        );
-                        var d = LocalToGlobalWithMagicOffset(
-                            GetPositionBy(laserTile.Key) + Vector2.One * tileSize / 2
-                        );
-                        debugDraw.UpdateVectorToDraw(
-                            $"laser-tile-{laserTile.Key}",
-                            c,
-                            d,
-                            new Color(1, 0, 0)
-                        );
-                        // var laserSprite = (LaserSprite)FindChild("LaserSprite").Duplicate();
-                        var laserSprite = (LaserSprite)
-                            laserSpriteResource.Instantiate().Duplicate();
-                        laserSprite.Position = GetPositionBy(laserTile.Key);
-                        subviewContent.AddChild(laserSprite);
-                        laserSprites.Add(laserSprite);
-                        GD.Print(
-                            $"KUK {laserSprite.Position == player.Position} Move ${laserSprite} to ${laserSprite.Position}"
-                        );
-                    });
-            }
-        });
+        structures.ForEach(structure => { });
     }
 
     private void HandleContextMenu()
@@ -423,6 +363,65 @@ public partial class Game : Node2D
     private void ToggleActivation(Activatable structure)
     {
         structure.ToggleActivation();
+        if (structure is Laser)
+        {
+            var laser = (Laser)structure;
+            var a = LocalToGlobalWithMagicOffset(laser.GlobalPosition);
+            var b = LocalToGlobalWithMagicOffset(laser.marker2D.GlobalPosition);
+            // var direction = (b - a).Normalized;
+
+            var laserTileKey = GetTileKeyByPosition(laser.GlobalPosition);
+            var laserPointerKey = GetTileKeyByPosition(laser.marker2D.GlobalPosition);
+
+            var direction = new Vector2I(0, -1);
+
+            var tilesHigherLaser = tileData
+                .ToList()
+                .Where(entry => entry.Key.X == laserTileKey.X && entry.Key.Y < laserTileKey.Y);
+            var firstWallAheadTile = tilesHigherLaser
+                .Where(entry => entry.Value.type == TileType.Wall)
+                .MaxBy(entry => entry.Key.Y);
+
+            var laserTiles = tileData
+                .ToList()
+                .Where(entry =>
+                {
+                    return entry.Key.X == laserTileKey.X
+                        && entry.Key.Y > firstWallAheadTile.Key.Y
+                        && entry.Key.Y < laserTileKey.Y;
+                });
+
+            laserSprites.ForEach(node => node.Free());
+            laserSprites.Clear();
+
+            if (laser.isActivated)
+            {
+                GD.Print("KUK activate laser");
+                laserTiles
+                    .ToList()
+                    .ForEach(laserTile =>
+                    {
+                        var c = LocalToGlobalWithMagicOffset(
+                            GetPositionBy(laserTile.Key) - Vector2.One * tileSize / 2
+                        );
+                        var d = LocalToGlobalWithMagicOffset(
+                            GetPositionBy(laserTile.Key) + Vector2.One * tileSize / 2
+                        );
+                        debugDraw.UpdateVectorToDraw(
+                            $"laser-tile-{laserTile.Key}",
+                            c,
+                            d,
+                            new Color(1, 0, 0)
+                        );
+                        // var laserSprite = (LaserSprite)FindChild("LaserSprite").Duplicate();
+                        var laserSprite = (LaserSprite)
+                            laserSpriteResource.Instantiate().Duplicate();
+                        laserSprite.Position = GetPositionBy(laserTile.Key);
+                        subviewContent.AddChild(laserSprite);
+                        laserSprites.Add(laserSprite);
+                    });
+            }
+        }
     }
 
     private void RememberActivatorToConnect(Activator activator)

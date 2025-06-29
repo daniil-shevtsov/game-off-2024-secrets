@@ -10,8 +10,8 @@
 [ext_resource type="PackedScene" uid="uid://csdx1m5pews5h" path="res://game/structure/generic_structure.tscn" id="8_tb5d8"]
 [ext_resource type="Texture2D" uid="uid://cqg57vd5m2mhm" path="res://assets/bridge_retracted.png" id="9_t5aif"]
 [ext_resource type="PackedScene" uid="uid://cpu7xb0jqvt2x" path="res://game/structure/pressure_plate.tscn" id="10_2ksd6"]
-[ext_resource type="PackedScene" uid="uid://ma64if1u122n" path="res://game/structure/laser.tscn" id="11_68aui"]
-[ext_resource type="PackedScene" uid="uid://carynpofefprh" path="res://game/structure/laser_sprite.tscn" id="12_a3ex6"]
+[ext_resource type="Texture2D" uid="uid://cwl10x6kfn1fk" path="res://assets/laser_base_active.png" id="12_pypf2"]
+[ext_resource type="Texture2D" uid="uid://f5xayc3kpv15" path="res://assets/laser_base_inactive.png" id="13_84wrk"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_ogd8j"]
 texture = ExtResource("2_lxgo6")
@@ -116,7 +116,7 @@ layer_0/tile_data = PackedInt32Array(65546, 65536, 1, 327688, 65536, 0, 327689, 
 metadata/_edit_lock_ = true
 
 [node name="RespawnPoint" type="Marker2D" parent="."]
-position = Vector2(15, -394)
+position = Vector2(-24, -408)
 
 [node name="TileHighlight" type="ColorRect" parent="."]
 offset_right = 16.0
@@ -198,7 +198,7 @@ position = Vector2(392, 72)
 [node name="Lever7" parent="." instance=ExtResource("7_3plig")]
 position = Vector2(-24, -392)
 
-[node name="Laser" parent="." instance=ExtResource("11_68aui")]
-
-[node name="LaserSprite" parent="." instance=ExtResource("12_a3ex6")]
-position = Vector2(-24, -432)
+[node name="LaserBase" parent="." instance=ExtResource("8_tb5d8")]
+position = Vector2(8, -392)
+SpriteActivated = ExtResource("12_pypf2")
+SpriteDeactivated = ExtResource("13_84wrk")

@@ -363,15 +363,15 @@ public partial class Game : Node2D
     private void ToggleActivation(Activatable structure)
     {
         structure.ToggleActivation();
-        if (structure is Laser)
+        if (((Node2D)structure).Name.ToString().Contains("LaserBase"))
         {
-            var laser = (Laser)structure;
-            var a = LocalToGlobalWithMagicOffset(laser.GlobalPosition);
-            var b = LocalToGlobalWithMagicOffset(laser.marker2D.GlobalPosition);
+            var laser = (GenericStructure)structure;
+            // var a = LocalToGlobalWithMagicOffset(laser.GlobalPosition);
+            // var b = LocalToGlobalWithMagicOffset(laser.marker2D.GlobalPosition);
             // var direction = (b - a).Normalized;
 
             var laserTileKey = GetTileKeyByPosition(laser.GlobalPosition);
-            var laserPointerKey = GetTileKeyByPosition(laser.marker2D.GlobalPosition);
+            // var laserPointerKey = GetTileKeyByPosition(laser.marker2D.GlobalPosition);
 
             var direction = new Vector2I(0, -1);
 
@@ -545,13 +545,13 @@ public partial class Game : Node2D
     {
         structures.ForEach(structure =>
         {
-            if (structure is Laser)
-            {
-                var laser = (Laser)structure;
-                var a = LocalToGlobalWithMagicOffset(laser.GlobalPosition);
-                var b = LocalToGlobalWithMagicOffset(laser.marker2D.GlobalPosition);
-                debugDraw.UpdateVectorToDraw($"laser-{structure.Id}", a, b, new Color(1, 0, 0));
-            }
+            // if (structure.I)
+            // {
+            //     var laser = (Laser)structure;
+            //     var a = LocalToGlobalWithMagicOffset(laser.GlobalPosition);
+            //     var b = LocalToGlobalWithMagicOffset(laser.marker2D.GlobalPosition);
+            //     debugDraw.UpdateVectorToDraw($"laser-{structure.Id}", a, b, new Color(1, 0, 0));
+            // }
 
             if (structure is Activator)
             {

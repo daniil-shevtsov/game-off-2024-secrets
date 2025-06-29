@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3 uid="uid://carynpofefprh"]
+
+[ext_resource type="Script" path="res://game/structure/LaserSprite.cs" id="1_fxoy8"]
+[ext_resource type="Texture2D" uid="uid://chp6rsf5i5riv" path="res://assets/laser.png" id="1_ubo3b"]
+
+[node name="LaserSprite" type="Node2D"]
+script = ExtResource("1_fxoy8")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture_filter = 1
+texture = ExtResource("1_ubo3b")

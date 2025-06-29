@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://b3v30t0d0vnvp"]
+[gd_scene load_steps=15 format=3 uid="uid://b3v30t0d0vnvp"]
 
 [ext_resource type="PackedScene" uid="uid://bindx8eepy7ug" path="res://game/level/map.tscn" id="1_1d5xd"]
 [ext_resource type="Texture2D" uid="uid://d3qch0c4pa6lh" path="res://assets/tile_set.png" id="2_lxgo6"]
@@ -11,6 +11,7 @@
 [ext_resource type="Texture2D" uid="uid://cqg57vd5m2mhm" path="res://assets/bridge_retracted.png" id="9_t5aif"]
 [ext_resource type="PackedScene" uid="uid://cpu7xb0jqvt2x" path="res://game/structure/pressure_plate.tscn" id="10_2ksd6"]
 [ext_resource type="PackedScene" uid="uid://ma64if1u122n" path="res://game/structure/laser.tscn" id="11_68aui"]
+[ext_resource type="PackedScene" uid="uid://carynpofefprh" path="res://game/structure/laser_sprite.tscn" id="12_a3ex6"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_ogd8j"]
 texture = ExtResource("2_lxgo6")
@@ -198,3 +199,6 @@ position = Vector2(392, 72)
 position = Vector2(-24, -392)
 
 [node name="Laser" parent="." instance=ExtResource("11_68aui")]
+
+[node name="LaserSprite" parent="." instance=ExtResource("12_a3ex6")]
+position = Vector2(-24, -432)

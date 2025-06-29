@@ -10,6 +10,8 @@ public partial class Game : Node2D
 
     private List<Upgrade> upgrades = new();
 
+    private List<LaserSprite> laserSprites = new();
+
     private List<ContextMenuAction> obtainedActions =
         new()
         {
@@ -262,6 +264,9 @@ public partial class Game : Node2D
                             && entry.Key.Y < laserTileKey.Y;
                     });
 
+                laserSprites.ForEach(node => node.Free());
+                laserSprites.Clear();
+
                 laserTiles
                     .ToList()
                     .ForEach(laserTile =>
@@ -278,10 +283,16 @@ public partial class Game : Node2D
                             d,
                             new Color(1, 0, 0)
                         );
+                        // var laserSprite = (LaserSprite)FindChild("LaserSprite").Duplicate();
+                        var laserSprite = (LaserSprite)
+                            laserSpriteResource.Instantiate().Duplicate();
+                        laserSprite.Position = GetPositionBy(laserTile.Key);
+                        subviewContent.AddChild(laserSprite);
+                        laserSprites.Add(laserSprite);
+                        GD.Print(
+                            $"KUK {laserSprite.Position == player.Position} Move ${laserSprite} to ${laserSprite.Position}"
+                        );
                     });
-                GD.Print(
-                    $"KUK Laser tiles {laserTiles.Count()} {laserTileKey} {laserPointerKey} {firstWallAheadTile.Key}"
-                );
             }
         });
     }
@@ -620,10 +631,13 @@ public partial class Game : Node2D
         spriteHighlight = (Sprite2D)FindChild("SpriteHighlight");
         subViewportContainer = (SubViewportContainer)FindChild("SubViewportContainer");
         subViewport = (SubViewport)FindChild("SubViewport");
+        subviewContent = (Node2D)FindChild("SubviewContent");
         debugDraw = ((DebugOverlay)FindChild("DebugOverlay")).debugDraw;
         viewportDebugDraw = ((DebugOverlay)FindChild("ViewportDebugOverlay")).debugDraw;
         camera = (Camera2D)FindChild("Camera2D");
         timer = GetNode<Godot.Timer>("Timer");
+
+        laserSpriteResource = GD.Load<PackedScene>("res://game/structure/laser_sprite.tscn");
 
         InitGlobalPlayerSpriteSize();
     }
@@ -835,11 +849,14 @@ public partial class Game : Node2D
     private Sprite2D spriteHighlight;
     private SubViewportContainer subViewportContainer;
     private SubViewport subViewport;
+    private Node2D subviewContent;
     private DebugDraw debugDraw;
     private DebugDraw viewportDebugDraw;
     private Camera2D camera;
 
     private Godot.Timer timer;
+
+    private PackedScene laserSpriteResource = null;
 
     private int tileLayer = 0;
 

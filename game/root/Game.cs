@@ -15,6 +15,8 @@ public partial class Game : Node2D
     // private Dictionary<String, List<TileKey>> laserTiles = new();
     private Dictionary<TileKey, List<String>> tilesUnderLasers = new();
 
+    private Dictionary<String, HashSet<TileKey>> laserBaseTiles = new();
+
     private List<ContextMenuAction> obtainedActions =
         new()
         {
@@ -432,43 +434,68 @@ public partial class Game : Node2D
                 .ToList()
                 .Where(entry =>
                 {
-                    return entry.Key.X == laserTileKey.X
+                    return structure.isActivated
+                        && entry.Key.X == laserTileKey.X
                         && entry.Key.Y > firstWallAheadTile.Key.Y
                         && entry.Key.Y < laserTileKey.Y;
-                });
-
-            var tilesToUpdate = tilesUnderLasers
-                .ToList()
-                .Where(entry => entry.Value.Contains(structure.Id))
+                })
                 .Select(entry => entry.Key)
-                .Concat(newLaserTiles.ToList().Select(entry => entry.Key))
-                .ToHashSet()
-                .ToList();
-            GD.Print($"Before loop {tilesUnderLasers.Count} {tilesToUpdate.Count()}");
+                .ToHashSet();
 
-            tilesToUpdate
+            HashSet<TileKey> oldLaserTiles = new();
+            if (laserBaseTiles.ContainsKey(structure.Id))
+            {
+                oldLaserTiles = laserBaseTiles[structure.Id];
+            }
+
+            var oldAndNewLaserTiles = newLaserTiles.Concat(oldLaserTiles);
+
+            oldAndNewLaserTiles
                 .ToList()
                 .ForEach(tileKey =>
                 {
-                    List<String> laserIds = new();
-                    if (tilesUnderLasers.ContainsKey(tileKey))
-                    {
-                        laserIds = tilesUnderLasers[tileKey];
-                    }
-
-                    if (structure.isActivated)
-                    {
-                        //tilesUnderLasers[entry.Key].Add(structure.Id);
-                        AddLaserToTile(tileKey, structure.Id);
-                    }
-                    else
-                    {
-                        // tilesUnderLasers[entry.Key].Remove(structure.Id);
-                        RemoveLaserFromTile(tileKey, structure.Id);
-                    }
+                    RemoveLaserFromTile(tileKey, structure.Id);
                 });
+            newLaserTiles
+                .ToList()
+                .ForEach(tileKey =>
+                {
+                    AddLaserToTile(tileKey, structure.Id);
+                });
+            laserBaseTiles[structure.Id] = newLaserTiles;
 
-            GD.Print($"After loop {tilesUnderLasers.Count}");
+            // var tilesToUpdate = tilesUnderLasers
+            //     .ToList()
+            //     .Where(entry => entry.Value.Contains(structure.Id))
+            //     .Select(entry => entry.Key)
+            //     .Concat(newLaserTiles.ToList().Select(entry => entry.Key))
+            //     .ToHashSet()
+            //     .ToList();
+            // GD.Print($"Before loop {tilesUnderLasers.Count} {tilesToUpdate.Count()}");
+
+            // tilesToUpdate
+            //     .ToList()
+            //     .ForEach(tileKey =>
+            //     {
+            //         List<String> laserIds = new();
+            //         if (tilesUnderLasers.ContainsKey(tileKey))
+            //         {
+            //             laserIds = tilesUnderLasers[tileKey];
+            //         }
+
+            //         if (structure.isActivated)
+            //         {
+            //             //tilesUnderLasers[entry.Key].Add(structure.Id);
+            //             AddLaserToTile(tileKey, structure.Id);
+            //         }
+            //         else
+            //         {
+            //             // tilesUnderLasers[entry.Key].Remove(structure.Id);
+            //             RemoveLaserFromTile(tileKey, structure.Id);
+            //         }
+            //     });
+
+            // GD.Print($"After loop {tilesUnderLasers.Count}");
         }
     }
 

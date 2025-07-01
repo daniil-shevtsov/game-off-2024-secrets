@@ -1,8 +1,8 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
-using System.Threading;
 
 public partial class Game : Node2D
 {
@@ -72,7 +72,7 @@ public partial class Game : Node2D
         Respawn();
     }
 
-    private HashSet<TileTrait> GetAllTileTraits(TileData tileData)
+    private HashSet<TileTrait> GetAllTileTraits(TileKey tileKey, TileData tileData)
     {
         var tileTypeTraits = new HashSet<TileTrait>();
         if (tileData.type == TileType.Water)
@@ -90,20 +90,35 @@ public partial class Game : Node2D
         var tileTraitsToRemove = tileData.AdditionalTraitsToRemove;
         var tileTraitsToAdd = tileData.AdditionalTraitsToAdd;
 
+        var isTileUnderLaser = laserBaseTiles.Any(
+            tilesUnderLaser => tilesUnderLaser.Value.Contains(tileKey)
+        );
+        if (isTileUnderLaser)
+        {
+            GD.Print($"KEK Tile {tileKey} is under laser");
+            tileTraitsToAdd = tileTraitsToAdd.Add(TileTrait.Fall);
+        }
+
         var totalTraitsToRemove = structureTraitsToRemove.Concat(tileTraitsToRemove);
         var totalTraitsToAdd = structureTraitsToAdd.Concat(tileTraitsToAdd);
+
+        totalTraitsToAdd
+            .ToList()
+            .ForEach(trait =>
+            {
+                if (trait == TileTrait.Fall)
+                {
+                    GD.Print($"KEK totalTraitsToAdd add Fall");
+                }
+
+                tileTypeTraits.Add(trait);
+            });
 
         totalTraitsToRemove
             .ToList()
             .ForEach(trait =>
             {
                 tileTypeTraits.Remove(trait);
-            });
-        totalTraitsToAdd
-            .ToList()
-            .ForEach(trait =>
-            {
-                tileTypeTraits.Add(trait);
             });
 
         return tileTypeTraits;
@@ -202,7 +217,7 @@ public partial class Game : Node2D
             OnPickup(playerTileKey, playerTileData.item);
         }
 
-        var playerTileTraits = GetAllTileTraits(playerTileData);
+        var playerTileTraits = GetAllTileTraits(playerTileKey, playerTileData);
         if (!inProcessOfDying && playerTileTraits.Contains(TileTrait.Fall))
         {
             KillPlayer();
@@ -391,7 +406,7 @@ public partial class Game : Node2D
                 .Where(
                     entry =>
                         entry.Value.type == TileType.Wall
-                        || GetAllTileTraits(entry.Value).Contains(TileTrait.Wall)
+                        || GetAllTileTraits(entry.Key, entry.Value).Contains(TileTrait.Wall)
                         || entry.Key == GetTileKeyByPosition(player.Position)
                 )
                 .MaxBy(entry => entry.Key.Y);
@@ -442,7 +457,6 @@ public partial class Game : Node2D
             tilesUnderLasers[tileKey] = new();
         }
         tilesUnderLasers[tileKey].Add(laserBaseId);
-        tileData[tileKey].AdditionalTraitsToAdd.Add(TileTrait.Fall);
 
         var laserSprite = (LaserSprite)laserSpriteResource.Instantiate().Duplicate();
         laserSprite.Position = GetPositionBy(tileKey);
@@ -455,7 +469,6 @@ public partial class Game : Node2D
         if (tilesUnderLasers.ContainsKey(tileKey))
         {
             tilesUnderLasers[tileKey].Remove(laserBaseId);
-            tileData[tileKey].AdditionalTraitsToAdd.Remove(TileTrait.Fall);
         }
 
         if (laserSprites.ContainsKey(tileKey))
@@ -626,7 +639,7 @@ public partial class Game : Node2D
     private bool IsTileWalkable(TileKey tileKey)
     {
         var potentialNewTile = tileData[tileKey];
-        var traits = GetAllTileTraits(potentialNewTile);
+        var traits = GetAllTileTraits(tileKey, potentialNewTile);
 
         var shouldMove = !traits.Contains(TileTrait.Wall);
 
@@ -704,8 +717,8 @@ public partial class Game : Node2D
                         type: type,
                         item: null,
                         Structure: null,
-                        AdditionalTraitsToRemove: new(),
-                        AdditionalTraitsToAdd: new()
+                        AdditionalTraitsToRemove: ImmutableList.Create<TileTrait>(),
+                        AdditionalTraitsToAdd: ImmutableList.Create<TileTrait>()
                     );
                     tileData.Add(key, data);
                 }

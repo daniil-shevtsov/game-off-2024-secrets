@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using Godot;
 
 public enum TileType
@@ -17,8 +18,8 @@ public partial record TileData(
     TileType type,
     Item item,
     Structure Structure,
-    List<TileTrait> AdditionalTraitsToRemove,
-    List<TileTrait> AdditionalTraitsToAdd
+    ImmutableList<TileTrait> AdditionalTraitsToRemove,
+    ImmutableList<TileTrait> AdditionalTraitsToAdd
 );
 
 public enum TileTrait

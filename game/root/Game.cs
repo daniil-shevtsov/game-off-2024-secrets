@@ -391,11 +391,23 @@ public partial class Game : Node2D
             var laserTileKey = GetTileKeyByPosition(structure.GlobalPosition);
             // var laserPointerKey = GetTileKeyByPosition(laser.marker2D.GlobalPosition);
 
-            var direction = new Vector2I(0, -1);
+            var direction = new Vector2I(0, 1);
+            GD.Print(
+                $"{structure.Id} {structure.GlobalRotationDegrees} {structure.RotationDegrees}"
+            );
+            if (Mathf.IsEqualApprox(-90f, structure.RotationDegrees, 0.1f))
+            {
+                direction = new Vector2I(-1, 0);
+            }
+            // direction = new Vector2I(-1, 0);
 
             var tilesHigherLaser = tileData
                 .ToList()
                 .Where(entry => entry.Key.X == laserTileKey.X && entry.Key.Y < laserTileKey.Y);
+
+            var tilesLefterLaser = tileData
+                .ToList()
+                .Where(entry => entry.Key.Y == laserTileKey.Y && entry.Key.X < laserTileKey.X);
             var firstWallAheadTile = tilesHigherLaser
                 .Where(
                     entry =>
@@ -404,6 +416,14 @@ public partial class Game : Node2D
                         || entry.Key == GetTileKeyByPosition(player.Position)
                 )
                 .MaxBy(entry => entry.Key.Y);
+            var firstWalLefterTile = tilesLefterLaser
+                .Where(
+                    entry =>
+                        entry.Value.type == TileType.Wall
+                        || GetAllTileTraits(entry.Key, entry.Value).Contains(TileTrait.Wall)
+                        || entry.Key == GetTileKeyByPosition(player.Position)
+                )
+                .MaxBy(entry => entry.Key.X);
 
             HashSet<TileKey> newLaserTiles = new();
             if (structure.isActivated)
@@ -412,9 +432,18 @@ public partial class Game : Node2D
                     .ToList()
                     .Where(entry =>
                     {
-                        return entry.Key.X == laserTileKey.X
-                            && entry.Key.Y > firstWallAheadTile.Key.Y
-                            && entry.Key.Y < laserTileKey.Y;
+                        if (direction == new Vector2I(0, 1))
+                        {
+                            return entry.Key.X == laserTileKey.X
+                                && entry.Key.Y > firstWallAheadTile.Key.Y
+                                && entry.Key.Y < laserTileKey.Y;
+                        }
+                        else
+                        {
+                            return entry.Key.Y == laserTileKey.Y
+                                && entry.Key.X > firstWalLefterTile.Key.X
+                                && entry.Key.X < laserTileKey.X;
+                        }
                     })
                     .Select(entry => entry.Key)
                     .ToHashSet();

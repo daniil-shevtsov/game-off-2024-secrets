@@ -10,7 +10,7 @@ public partial class Game : Node2D
 
     private List<Upgrade> upgrades = new();
 
-    private Dictionary<TileKey, LaserSprite> laserSprites = new();
+    private Dictionary<Tuple<TileKey, String>, LaserSprite> laserSprites = new();
 
     // private Dictionary<String, List<TileKey>> laserTiles = new();
     private Dictionary<TileKey, List<String>> tilesUnderLasers = new();
@@ -467,13 +467,13 @@ public partial class Game : Node2D
                 .ToList()
                 .ForEach(tileKey =>
                 {
-                    AddLaserToTile(tileKey, structure.Id);
+                    AddLaserToTile(tileKey, structure.Id, structure.RotationDegrees);
                 });
             laserBaseTiles[structure.Id] = newLaserTiles;
         }
     }
 
-    private void AddLaserToTile(TileKey tileKey, String laserBaseId)
+    private void AddLaserToTile(TileKey tileKey, String laserBaseId, float rotationDegrees)
     {
         if (!tilesUnderLasers.ContainsKey(tileKey))
         {
@@ -483,8 +483,9 @@ public partial class Game : Node2D
 
         var laserSprite = (LaserSprite)laserSpriteResource.Instantiate().Duplicate();
         laserSprite.Position = GetPositionBy(tileKey);
+        laserSprite.RotationDegrees = rotationDegrees;
         subviewContent.AddChild(laserSprite);
-        laserSprites[tileKey] = laserSprite;
+        laserSprites[Tuple.Create(tileKey, laserBaseId)] = laserSprite;
     }
 
     private void RemoveLaserFromTile(TileKey tileKey, String laserBaseId)
@@ -494,10 +495,11 @@ public partial class Game : Node2D
             tilesUnderLasers[tileKey].Remove(laserBaseId);
         }
 
-        if (laserSprites.ContainsKey(tileKey))
+        var spriteKey = Tuple.Create(tileKey, laserBaseId);
+        if (laserSprites.ContainsKey(spriteKey))
         {
-            laserSprites[tileKey].Free();
-            laserSprites.Remove(tileKey);
+            laserSprites[spriteKey].Free();
+            laserSprites.Remove(spriteKey);
         }
     }
 

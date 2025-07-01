@@ -10,7 +10,10 @@ public partial class Game : Node2D
 
     private List<Upgrade> upgrades = new();
 
-    private List<LaserSprite> laserSprites = new();
+    private Dictionary<TileKey, LaserSprite> laserSprites = new();
+
+    // private Dictionary<String, List<TileKey>> laserTiles = new();
+    private Dictionary<TileKey, List<String>> tilesUnderLasers = new();
 
     private List<ContextMenuAction> obtainedActions =
         new()
@@ -243,6 +246,42 @@ public partial class Game : Node2D
         });
     }
 
+    private async void HandleTileLogic()
+    {
+        //     laserSprites.ToList().ForEach(laserIdAndSprites => {
+        //         var sprites = laserIdAndSprites.Value;
+        //         sprites.ForEach(sprite =>
+        //         {
+        //             sprite.Free();
+        //         });
+        // });
+        // laserSprites.Clear();
+        // tilesUnderLasers
+        //     .ToList()
+        //     .ForEach(entry =>
+        //     {
+        //         var tileKey = entry.Key;
+        //         var laserIds = entry.Value;
+
+        //         if (laserIds.Count > 0)
+        //         {
+        //             tileData[tileKey].AdditionalTraitsToAdd.Add(TileTrait.Fall);
+
+        //             var laserSprite = (LaserSprite)laserSpriteResource.Instantiate().Duplicate();
+        //             laserSprite.Position = GetPositionBy(tileKey);
+        //             subviewContent.AddChild(laserSprite);
+
+        //             laserSprites[tileKey] = laserSprite;
+        //         }
+        //         else
+        //         {
+        //             laserSprites[tileKey].Free();
+        //             laserSprites.Remove(tileKey);
+        //             tileData[tileKey].AdditionalTraitsToAdd.Remove(TileTrait.Fall);
+        //         }
+        //     });
+    }
+
     private void HandleContextMenu()
     {
         if (contextMenuTopLeftTileKey != null)
@@ -300,6 +339,8 @@ public partial class Game : Node2D
         HandlePlayerLogic();
 
         HandleStructureLogic();
+
+        HandleTileLogic();
     }
 
     private void OnMouseMovement()
@@ -370,10 +411,6 @@ public partial class Game : Node2D
     {
         if (structure != null && structure.type == StructureType.LaserBase)
         {
-            // var a = LocalToGlobalWithMagicOffset(laser.GlobalPosition);
-            // var b = LocalToGlobalWithMagicOffset(laser.marker2D.GlobalPosition);
-            // var direction = (b - a).Normalized;
-
             var laserTileKey = GetTileKeyByPosition(structure.GlobalPosition);
             // var laserPointerKey = GetTileKeyByPosition(laser.marker2D.GlobalPosition);
 
@@ -386,11 +423,12 @@ public partial class Game : Node2D
                 .Where(
                     entry =>
                         entry.Value.type == TileType.Wall
+                        || GetAllTileTraits(entry.Value).Contains(TileTrait.Wall)
                         || entry.Key == GetTileKeyByPosition(player.Position)
                 )
                 .MaxBy(entry => entry.Key.Y);
 
-            var laserTiles = tileData
+            var newLaserTiles = tileData
                 .ToList()
                 .Where(entry =>
                 {
@@ -399,36 +437,76 @@ public partial class Game : Node2D
                         && entry.Key.Y < laserTileKey.Y;
                 });
 
-            laserSprites.ForEach(node => node.Free());
-            laserSprites.Clear();
-
-            laserTiles
+            var tilesToUpdate = tilesUnderLasers
                 .ToList()
-                .ForEach(laserTile =>
+                .Where(entry => entry.Value.Contains(structure.Id))
+                .Select(entry => entry.Key)
+                .Concat(newLaserTiles.ToList().Select(entry => entry.Key))
+                .ToHashSet()
+                .ToList();
+            GD.Print($"Before loop {tilesUnderLasers.Count} {tilesToUpdate.Count()}");
+
+            tilesToUpdate
+                .ToList()
+                .ForEach(tileKey =>
                 {
-                    var tile = laserTile.Value;
+                    List<String> laserIds = new();
+                    if (tilesUnderLasers.ContainsKey(tileKey))
+                    {
+                        laserIds = tilesUnderLasers[tileKey];
+                    }
 
                     if (structure.isActivated)
                     {
-                        var laserSprite = (LaserSprite)
-                            laserSpriteResource.Instantiate().Duplicate();
-                        laserSprite.Position = GetPositionBy(laserTile.Key);
-                        subviewContent.AddChild(laserSprite);
-                        laserSprites.Add(laserSprite);
-
-                        if (tile.AdditionalTraitsToAdd.Count == 0)
-                        {
-                            tile.AdditionalTraitsToAdd.Add(TileTrait.Fall);
-                        }
+                        //tilesUnderLasers[entry.Key].Add(structure.Id);
+                        AddLaserToTile(tileKey, structure.Id);
                     }
                     else
                     {
-                        if (tile.AdditionalTraitsToAdd.Count > 0)
-                        {
-                            tile.AdditionalTraitsToAdd.Remove(TileTrait.Fall);
-                        }
+                        // tilesUnderLasers[entry.Key].Remove(structure.Id);
+                        RemoveLaserFromTile(tileKey, structure.Id);
                     }
                 });
+
+            GD.Print($"After loop {tilesUnderLasers.Count}");
+        }
+    }
+
+    private void AddLaserToTile(TileKey tileKey, String laserBaseId)
+    {
+        GD.Print($"AddLaserToTile tileKey {tileKey} {laserBaseId}");
+        if (!tilesUnderLasers.ContainsKey(tileKey))
+        {
+            tilesUnderLasers[tileKey] = new();
+        }
+        tilesUnderLasers[tileKey].Add(laserBaseId);
+        GD.Print($"tileData traits before {tileData[tileKey].AdditionalTraitsToAdd}");
+        tileData[tileKey].AdditionalTraitsToAdd.Add(TileTrait.Fall);
+        GD.Print($"tileData traits after {tileData[tileKey].AdditionalTraitsToAdd}");
+
+        var laserSprite = (LaserSprite)laserSpriteResource.Instantiate().Duplicate();
+        laserSprite.Position = GetPositionBy(tileKey);
+        subviewContent.AddChild(laserSprite);
+        laserSprites[tileKey] = laserSprite;
+    }
+
+    private void RemoveLaserFromTile(TileKey tileKey, String laserBaseId)
+    {
+        GD.Print($"RemoveLaserFromTile tileKey {tileKey} {laserBaseId}");
+        if (tilesUnderLasers.ContainsKey(tileKey))
+        {
+            GD.Print($"tileData traits before {tileData[tileKey].AdditionalTraitsToAdd}");
+            tilesUnderLasers[tileKey].Remove(laserBaseId);
+            tileData[tileKey].AdditionalTraitsToAdd.Remove(TileTrait.Fall);
+            GD.Print($"tileData traits after {tileData[tileKey].AdditionalTraitsToAdd}");
+        }
+
+        if (laserSprites.ContainsKey(tileKey))
+        {
+            GD.Print($"laser sprites before {laserSprites.Count}");
+            laserSprites[tileKey].Free();
+            laserSprites.Remove(tileKey);
+            GD.Print($"laser sprites after {laserSprites.Count}");
         }
     }
 

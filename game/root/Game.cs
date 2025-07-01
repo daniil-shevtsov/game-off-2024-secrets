@@ -95,7 +95,6 @@ public partial class Game : Node2D
         );
         if (isTileUnderLaser)
         {
-            GD.Print($"KEK Tile {tileKey} is under laser");
             tileTraitsToAdd = tileTraitsToAdd.Add(TileTrait.Fall);
         }
 
@@ -106,11 +105,6 @@ public partial class Game : Node2D
             .ToList()
             .ForEach(trait =>
             {
-                if (trait == TileTrait.Fall)
-                {
-                    GD.Print($"KEK totalTraitsToAdd add Fall");
-                }
-
                 tileTypeTraits.Add(trait);
             });
 

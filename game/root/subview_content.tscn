@@ -116,7 +116,7 @@ layer_0/tile_data = PackedInt32Array(65546, 65536, 1, 327688, 65536, 0, 327689, 
 metadata/_edit_lock_ = true
 
 [node name="RespawnPoint" type="Marker2D" parent="."]
-position = Vector2(-24, -408)
+position = Vector2(-24, -424)
 
 [node name="TileHighlight" type="ColorRect" parent="."]
 offset_right = 16.0
@@ -195,7 +195,7 @@ position = Vector2(392, 72)
 position = Vector2(-24, -392)
 
 [node name="Lever8" parent="." instance=ExtResource("7_3plig")]
-position = Vector2(24, -408)
+position = Vector2(40, -424)
 
 [node name="LaserBase" parent="." instance=ExtResource("8_tb5d8")]
 position = Vector2(8, -360)
@@ -206,7 +206,8 @@ TraitsToAddNotActivated = [0]
 TraitsToAddActivated = [0]
 
 [node name="LaserBase2" parent="." instance=ExtResource("8_tb5d8")]
-position = Vector2(40, -392)
+position = Vector2(40, -408)
+rotation = -1.57079
 type = 2
 SpriteActivated = ExtResource("12_pypf2")
 SpriteDeactivated = ExtResource("13_84wrk")

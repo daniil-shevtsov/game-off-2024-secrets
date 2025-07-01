@@ -69,7 +69,6 @@ public partial class GenericStructure : Node2D, Structure, Activatable
     public override void _Ready()
     {
         sprite = GetNode<Sprite2D>("Sprite2D");
-        isActivated = false;
         UpdateSprite();
     }
 

@@ -170,15 +170,6 @@ TraitsToAddNotActivated = [0]
 position = Vector2(416, 48)
 TraitsToAddNotActivated = [0]
 
-[node name="Gate6" parent="." instance=ExtResource("8_tb5d8")]
-position = Vector2(24, -408)
-TraitsToAddNotActivated = [0]
-
-[node name="Gate7" parent="." instance=ExtResource("8_tb5d8")]
-position = Vector2(8, -392)
-isActivated = true
-TraitsToAddNotActivated = [0]
-
 [node name="Bridge" parent="." instance=ExtResource("8_tb5d8")]
 position = Vector2(168, -408)
 SpriteActivated = ExtResource("8_qd0gu")
@@ -204,10 +195,18 @@ position = Vector2(392, 72)
 position = Vector2(-24, -392)
 
 [node name="Lever8" parent="." instance=ExtResource("7_3plig")]
-position = Vector2(-24, -408)
+position = Vector2(24, -408)
 
 [node name="LaserBase" parent="." instance=ExtResource("8_tb5d8")]
 position = Vector2(8, -360)
+type = 2
+SpriteActivated = ExtResource("12_pypf2")
+SpriteDeactivated = ExtResource("13_84wrk")
+TraitsToAddNotActivated = [0]
+TraitsToAddActivated = [0]
+
+[node name="LaserBase2" parent="." instance=ExtResource("8_tb5d8")]
+position = Vector2(40, -392)
 type = 2
 SpriteActivated = ExtResource("12_pypf2")
 SpriteDeactivated = ExtResource("13_84wrk")

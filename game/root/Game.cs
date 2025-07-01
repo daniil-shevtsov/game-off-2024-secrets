@@ -248,41 +248,7 @@ public partial class Game : Node2D
         });
     }
 
-    private async void HandleTileLogic()
-    {
-        //     laserSprites.ToList().ForEach(laserIdAndSprites => {
-        //         var sprites = laserIdAndSprites.Value;
-        //         sprites.ForEach(sprite =>
-        //         {
-        //             sprite.Free();
-        //         });
-        // });
-        // laserSprites.Clear();
-        // tilesUnderLasers
-        //     .ToList()
-        //     .ForEach(entry =>
-        //     {
-        //         var tileKey = entry.Key;
-        //         var laserIds = entry.Value;
-
-        //         if (laserIds.Count > 0)
-        //         {
-        //             tileData[tileKey].AdditionalTraitsToAdd.Add(TileTrait.Fall);
-
-        //             var laserSprite = (LaserSprite)laserSpriteResource.Instantiate().Duplicate();
-        //             laserSprite.Position = GetPositionBy(tileKey);
-        //             subviewContent.AddChild(laserSprite);
-
-        //             laserSprites[tileKey] = laserSprite;
-        //         }
-        //         else
-        //         {
-        //             laserSprites[tileKey].Free();
-        //             laserSprites.Remove(tileKey);
-        //             tileData[tileKey].AdditionalTraitsToAdd.Remove(TileTrait.Fall);
-        //         }
-        //     });
-    }
+    private async void HandleTileLogic() { }
 
     private void HandleContextMenu()
     {
@@ -430,17 +396,20 @@ public partial class Game : Node2D
                 )
                 .MaxBy(entry => entry.Key.Y);
 
-            var newLaserTiles = tileData
-                .ToList()
-                .Where(entry =>
-                {
-                    return structure.isActivated
-                        && entry.Key.X == laserTileKey.X
-                        && entry.Key.Y > firstWallAheadTile.Key.Y
-                        && entry.Key.Y < laserTileKey.Y;
-                })
-                .Select(entry => entry.Key)
-                .ToHashSet();
+            HashSet<TileKey> newLaserTiles = new();
+            if (structure.isActivated)
+            {
+                newLaserTiles = tileData
+                    .ToList()
+                    .Where(entry =>
+                    {
+                        return entry.Key.X == laserTileKey.X
+                            && entry.Key.Y > firstWallAheadTile.Key.Y
+                            && entry.Key.Y < laserTileKey.Y;
+                    })
+                    .Select(entry => entry.Key)
+                    .ToHashSet();
+            }
 
             HashSet<TileKey> oldLaserTiles = new();
             if (laserBaseTiles.ContainsKey(structure.Id))
@@ -463,53 +432,17 @@ public partial class Game : Node2D
                     AddLaserToTile(tileKey, structure.Id);
                 });
             laserBaseTiles[structure.Id] = newLaserTiles;
-
-            // var tilesToUpdate = tilesUnderLasers
-            //     .ToList()
-            //     .Where(entry => entry.Value.Contains(structure.Id))
-            //     .Select(entry => entry.Key)
-            //     .Concat(newLaserTiles.ToList().Select(entry => entry.Key))
-            //     .ToHashSet()
-            //     .ToList();
-            // GD.Print($"Before loop {tilesUnderLasers.Count} {tilesToUpdate.Count()}");
-
-            // tilesToUpdate
-            //     .ToList()
-            //     .ForEach(tileKey =>
-            //     {
-            //         List<String> laserIds = new();
-            //         if (tilesUnderLasers.ContainsKey(tileKey))
-            //         {
-            //             laserIds = tilesUnderLasers[tileKey];
-            //         }
-
-            //         if (structure.isActivated)
-            //         {
-            //             //tilesUnderLasers[entry.Key].Add(structure.Id);
-            //             AddLaserToTile(tileKey, structure.Id);
-            //         }
-            //         else
-            //         {
-            //             // tilesUnderLasers[entry.Key].Remove(structure.Id);
-            //             RemoveLaserFromTile(tileKey, structure.Id);
-            //         }
-            //     });
-
-            // GD.Print($"After loop {tilesUnderLasers.Count}");
         }
     }
 
     private void AddLaserToTile(TileKey tileKey, String laserBaseId)
     {
-        GD.Print($"AddLaserToTile tileKey {tileKey} {laserBaseId}");
         if (!tilesUnderLasers.ContainsKey(tileKey))
         {
             tilesUnderLasers[tileKey] = new();
         }
         tilesUnderLasers[tileKey].Add(laserBaseId);
-        GD.Print($"tileData traits before {tileData[tileKey].AdditionalTraitsToAdd}");
         tileData[tileKey].AdditionalTraitsToAdd.Add(TileTrait.Fall);
-        GD.Print($"tileData traits after {tileData[tileKey].AdditionalTraitsToAdd}");
 
         var laserSprite = (LaserSprite)laserSpriteResource.Instantiate().Duplicate();
         laserSprite.Position = GetPositionBy(tileKey);
@@ -519,21 +452,16 @@ public partial class Game : Node2D
 
     private void RemoveLaserFromTile(TileKey tileKey, String laserBaseId)
     {
-        GD.Print($"RemoveLaserFromTile tileKey {tileKey} {laserBaseId}");
         if (tilesUnderLasers.ContainsKey(tileKey))
         {
-            GD.Print($"tileData traits before {tileData[tileKey].AdditionalTraitsToAdd}");
             tilesUnderLasers[tileKey].Remove(laserBaseId);
             tileData[tileKey].AdditionalTraitsToAdd.Remove(TileTrait.Fall);
-            GD.Print($"tileData traits after {tileData[tileKey].AdditionalTraitsToAdd}");
         }
 
         if (laserSprites.ContainsKey(tileKey))
         {
-            GD.Print($"laser sprites before {laserSprites.Count}");
             laserSprites[tileKey].Free();
             laserSprites.Remove(tileKey);
-            GD.Print($"laser sprites after {laserSprites.Count}");
         }
     }
 

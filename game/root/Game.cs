@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Text;
 
 public partial class Game : Node2D
 {
@@ -159,11 +160,12 @@ public partial class Game : Node2D
         );
     }
 
-    private TileKey GetTileByMovementDirection(Vector2 direction)
+    private TileKey GetTileByMovementDirection(Vector2 position, Vector2 direction)
     {
         var potentialMove = direction * tileSize;
-        var potentialNewPosition = player.GlobalPosition + potentialMove;
+        var potentialNewPosition = position + potentialMove;
         var potentialNewTilePosition = tileMap.LocalToMap(potentialNewPosition);
+
         return new TileKey(potentialNewTilePosition);
     }
 
@@ -183,7 +185,10 @@ public partial class Game : Node2D
             var currentMoveTime = Time.GetTicksMsec();
             var elapsedSinceLastMove = currentMoveTime - lastMovementTime;
 
-            var potentialNewTile = GetTileByMovementDirection(inputDirection);
+            var potentialNewTile = GetTileByMovementDirection(
+                player.GlobalPosition,
+                inputDirection
+            );
 
             ulong movementTimeout = 150;
             var shouldMove =
@@ -214,11 +219,41 @@ public partial class Game : Node2D
             OnPickup(playerTileKey, playerTileData.item);
         }
 
+        var playerRange = GetRangeOfTile(playerTileKey, 1);
+        var checkpointKeys = checkpointMarkers.Select(
+            marker => Tuple.Create(GetTileKeyByPosition(marker.GlobalPosition), marker)
+        );
+        var checkpointsWithResults = checkpointMarkers.Select(marker =>
+        {
+            var checkpointTileKey = GetTileKeyByPosition(marker.GlobalPosition);
+            return Tuple.Create(
+                checkpointTileKey,
+                CheckPositionInTileRange(checkpointTileKey, playerRange)
+            );
+        });
+        var stringBuilder = new StringBuilder();
+        stringBuilder.AppendLine("1KEK1---------1KEK1");
+        stringBuilder.AppendLine($"player {playerTileKey}");
+        stringBuilder.AppendLine("---CHECKPOINTS---");
+        checkpointsWithResults
+            .ToList()
+            .ForEach(tuple =>
+            {
+                var tileKey = tuple.Item1;
+                var result = tuple.Item2;
+                stringBuilder.AppendLine($"Checkpoint {tileKey} {result}");
+            });
+        stringBuilder.AppendLine("--------");
+        GD.Print(stringBuilder.ToString());
+
         var marker = checkpointMarkers.Find(
-            marker => marker.GlobalPosition.IsEqualApprox(player.GlobalPosition)
+            marker =>
+                CheckPositionInTileRange(GetTileKeyByPosition(marker.GlobalPosition), playerRange)
         );
         if (marker != null && lastCheckpointMarker != marker)
         {
+            GD.Print($"1KEK1 Found checkpoint in range: {marker}");
+
             OnCheckpointAreaEntered(marker);
         }
 
@@ -255,6 +290,39 @@ public partial class Game : Node2D
                 }
             }
         }
+    }
+
+    private TileKey GetTileByMovementDirection(TileKey tileKey, Vector2I direction)
+    {
+        return new TileKey(X: tileKey.X + direction.X, Y: tileKey.Y + direction.Y);
+    }
+
+    private bool CheckPositionInTileRange(TileKey tileKey, List<TileKey> range)
+    {
+        return range.Contains(tileKey);
+    }
+
+    private List<TileKey> GetRangeOfTile(TileKey tileKey, int size)
+    {
+        var topLeftTileKey = GetTileByMovementDirection(tileKey, Vector2I.One * -size);
+        var bottomRightTileKey = GetTileByMovementDirection(tileKey, Vector2I.One * size);
+        var tilesInArea = tileData
+            .ToList()
+            .Where(entry =>
+            {
+                var entryTile = new Vector2I(entry.Key.X, entry.Key.Y);
+                var topLeftTile = new Vector2I(topLeftTileKey.X, topLeftTileKey.Y);
+                var bottomRightTile = new Vector2I(bottomRightTileKey.X, bottomRightTileKey.Y);
+
+                return entryTile.X >= topLeftTile.X
+                    && entryTile.X <= bottomRightTile.X
+                    && entryTile.Y >= topLeftTile.Y
+                    && entryTile.Y <= bottomRightTile.Y;
+            })
+            .Select(entry => entry.Key)
+            .ToList();
+
+        return tilesInArea;
     }
 
     private async void HandleStructureLogic()

@@ -216,7 +216,13 @@ TraitsToAddNotActivated = [0]
 TraitsToAddActivated = [0]
 
 [node name="CheckpointMarker" parent="." instance=ExtResource("13_yn5h6")]
-position = Vector2(168, 64)
+position = Vector2(168, -40)
 
 [node name="CheckpointMarker2" parent="." instance=ExtResource("13_yn5h6")]
-position = Vector2(168, -40)
+position = Vector2(168, -184)
+
+[node name="CheckpointMarker3" parent="." instance=ExtResource("13_yn5h6")]
+position = Vector2(56, -280)
+
+[node name="CheckpointMarker4" parent="." instance=ExtResource("13_yn5h6")]
+position = Vector2(56, -280)

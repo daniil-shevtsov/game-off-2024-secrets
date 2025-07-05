@@ -214,6 +214,14 @@ public partial class Game : Node2D
             OnPickup(playerTileKey, playerTileData.item);
         }
 
+        var marker = checkpointMarkers.Find(
+            marker => marker.GlobalPosition.IsEqualApprox(player.GlobalPosition)
+        );
+        if (marker != null && lastCheckpointMarker != marker)
+        {
+            OnCheckpointAreaEntered(marker);
+        }
+
         var playerTileTraits = GetAllTileTraits(playerTileKey, playerTileData);
         if (!inProcessOfDying && playerTileTraits.Contains(TileTrait.Fall))
         {

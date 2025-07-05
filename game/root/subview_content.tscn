@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://b3v30t0d0vnvp"]
+[gd_scene load_steps=16 format=3 uid="uid://b3v30t0d0vnvp"]
 
 [ext_resource type="PackedScene" uid="uid://bindx8eepy7ug" path="res://game/level/map.tscn" id="1_1d5xd"]
 [ext_resource type="Texture2D" uid="uid://d3qch0c4pa6lh" path="res://assets/tile_set.png" id="2_lxgo6"]
@@ -12,6 +12,7 @@
 [ext_resource type="PackedScene" uid="uid://cpu7xb0jqvt2x" path="res://game/structure/pressure_plate.tscn" id="10_2ksd6"]
 [ext_resource type="Texture2D" uid="uid://cwl10x6kfn1fk" path="res://assets/laser_base_active.png" id="12_pypf2"]
 [ext_resource type="Texture2D" uid="uid://f5xayc3kpv15" path="res://assets/laser_base_inactive.png" id="13_84wrk"]
+[ext_resource type="PackedScene" uid="uid://dh2bfjgov44aa" path="res://game/save/checkpoint_marker.tscn" id="13_yn5h6"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_ogd8j"]
 texture = ExtResource("2_lxgo6")
@@ -116,7 +117,7 @@ layer_0/tile_data = PackedInt32Array(65546, 65536, 1, 327688, 65536, 0, 327689, 
 metadata/_edit_lock_ = true
 
 [node name="RespawnPoint" type="Marker2D" parent="."]
-position = Vector2(-24, -424)
+position = Vector2(168, 104)
 
 [node name="TileHighlight" type="ColorRect" parent="."]
 offset_right = 16.0
@@ -143,7 +144,7 @@ position = Vector2(312, -472)
 position = Vector2(152, -392)
 
 [node name="Player" parent="." instance=ExtResource("3_0uujt")]
-position = Vector2(184, 96)
+position = Vector2(40, 32)
 
 [node name="Camera2D" type="Camera2D" parent="Player"]
 
@@ -213,3 +214,6 @@ SpriteActivated = ExtResource("12_pypf2")
 SpriteDeactivated = ExtResource("13_84wrk")
 TraitsToAddNotActivated = [0]
 TraitsToAddActivated = [0]
+
+[node name="CheckpointMarker" parent="." instance=ExtResource("13_yn5h6")]
+position = Vector2(168, 64)

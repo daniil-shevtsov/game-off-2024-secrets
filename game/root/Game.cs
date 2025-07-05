@@ -28,6 +28,9 @@ public partial class Game : Node2D
 
     private List<Structure> structures = new();
 
+    private List<CheckpointMarker> checkpointMarkers = new();
+    private CheckpointMarker lastCheckpointMarker = null;
+
     private TileKey hoveredTileKey = null;
     private TileKey contextMenuTopLeftTileKey = null;
     private bool inProcessOfDying = false;
@@ -685,9 +688,25 @@ public partial class Game : Node2D
         inProcessOfDying = false;
     }
 
+    private void OnCheckpointAreaEntered(CheckpointMarker marker)
+    {
+        GD.Print($"1KEK1 OnCheckpointAreaEntered {marker.Name} {marker.area2D}");
+        lastCheckpointMarker = marker;
+    }
+
     private void Respawn()
     {
-        player.GlobalPosition = respawnPoint.GlobalPosition;
+        if (lastCheckpointMarker != null)
+        {
+            GD.Print(
+                $"RESPAWN at OnCheckpointAreaEntered {lastCheckpointMarker} {lastCheckpointMarker.area2D}"
+            );
+            player.GlobalPosition = lastCheckpointMarker.GlobalPosition;
+        }
+        else
+        {
+            player.GlobalPosition = respawnPoint.GlobalPosition;
+        }
     }
 
     private void InitGlobalPlayerSpriteSize()
@@ -706,6 +725,9 @@ public partial class Game : Node2D
     private void InitNodeReferences()
     {
         player = (Player)FindChild("Player");
+        player.SetCollisionLayerValue(playerCollisionLevel, true);
+        player.pickupArea.SetCollisionMaskValue(playerPickupCollisionLevel, true);
+
         globalPlayerSprite = (Sprite2D)FindChild("GlobalPlayerSprite");
         tileMap = (TileMap)FindChild("TileMap");
         respawnPoint = (Marker2D)FindChild("RespawnPoint");
@@ -798,6 +820,35 @@ public partial class Game : Node2D
     {
         InitGlobalPlayerSpriteSize();
         SyncSpriteToPlayer();
+        InitSaveSystem();
+    }
+
+    private void InitSaveSystem()
+    {
+        checkpointMarkers = subviewContent
+            .GetChildren()
+            .Where(node => node is CheckpointMarker)
+            .Select(structure => structure as CheckpointMarker)
+            .ToList();
+
+        checkpointMarkers.ForEach(marker =>
+        {
+            // marker.area2D.SetCollisionMaskValue(1, false);
+            marker.area2D.SetCollisionMaskValue(playerCollisionLevel, true);
+            GD.Print(
+                $"1KEK1 Set OnCheckpointAreaEntered for {marker} and {marker.area2D} {marker.area2D.GetCollisionMaskValue(playerCollisionLevel)} <-> {player.GetCollisionLayerValue(playerCollisionLevel)}"
+            );
+            marker.area2D.Monitoring = false;
+            marker.area2D.BodyEntered += (body) =>
+            {
+                GD.Print($"1KEK1 Body {body.Name} of parent {body.GetParent().Name}");
+                if (body.GetParent() is Player)
+                {
+                    OnCheckpointAreaEntered(marker);
+                }
+            };
+            marker.area2D.Monitoring = true;
+        });
     }
 
     private void InitItems()
@@ -806,6 +857,8 @@ public partial class Game : Node2D
         upgrades.Add((Upgrade)FindChild("Upgrade2"));
         upgrades.ForEach(upgrade =>
         {
+            upgrade.SetCollisionLayerValue(playerPickupCollisionLevel, true);
+
             var key = GetTileKeyByPosition(upgrade.GlobalPosition);
             var upgradeTileData = tileData[key];
             ModifyTileItem(key, upgrade);
@@ -945,4 +998,7 @@ public partial class Game : Node2D
     private int tileLayer = 0;
 
     public const int tileSize = 16;
+
+    private int playerCollisionLevel = 3;
+    private int playerPickupCollisionLevel = 1;
 }

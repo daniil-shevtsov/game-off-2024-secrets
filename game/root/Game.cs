@@ -699,6 +699,50 @@ public partial class Game : Node2D
         GD.Print($"connect {activator.Id} to {structureId}");
     }
 
+    private void SaveGame()
+    {
+        using var saveGameFile = FileAccess.Open(saveFilePath, FileAccess.ModeFlags.Write);
+        var jsonString = Json.Stringify(
+            new Godot.Collections.Dictionary<string, Variant>()
+            {
+                { saveKeyLastCheckpoint, lastCheckpointMarker.Name },
+            }
+        );
+        saveGameFile.StoreLine(jsonString);
+    }
+
+    private void LoadGame()
+    {
+        if (!FileAccess.FileExists(saveFilePath))
+        {
+            GD.PrintErr("Can't load save game because save does not exist");
+            return;
+        }
+
+        using var saveGameFile = FileAccess.Open(saveFilePath, FileAccess.ModeFlags.Read);
+        var jsonString = saveGameFile.GetLine();
+        var json = new Json();
+        var parsedResult = json.Parse(jsonString);
+        if (parsedResult != Error.Ok)
+        {
+            GD.PrintErr(
+                $"JSON Parse Error: {json.GetErrorMessage()} in {jsonString} at line {json.GetErrorLine()}"
+            );
+            return;
+        }
+
+        var savedData = new Godot.Collections.Dictionary<string, Variant>(
+            (Godot.Collections.Dictionary)json.Data
+        );
+        var lastCheckpointName = (string)savedData[saveKeyLastCheckpoint];
+        var lastCheckpoint = checkpointMarkers.Find(marker => marker.Name == lastCheckpointName);
+        if (lastCheckpoint != null)
+        {
+            UpdateLastCheckpointMarker(lastCheckpoint);
+            Respawn();
+        }
+    }
+
     public static Color GetColorById(int id)
     {
         // Ensure the ID wraps around the valid range of 3-bit binary combinations (0 to 7)
@@ -767,6 +811,12 @@ public partial class Game : Node2D
     private void OnCheckpointAreaEntered(CheckpointMarker marker)
     {
         GD.Print($"1KEK1 OnCheckpointAreaEntered {marker.Name} {marker.area2D}");
+        UpdateLastCheckpointMarker(marker);
+        SaveGame();
+    }
+
+    private void UpdateLastCheckpointMarker(CheckpointMarker marker)
+    {
         lastCheckpointMarker = marker;
     }
 
@@ -945,6 +995,7 @@ public partial class Game : Node2D
     {
         InitNodeReferences();
         InitLogic();
+        LoadGame();
     }
 
     public override void _Process(double delta)
@@ -1077,4 +1128,7 @@ public partial class Game : Node2D
 
     private int playerCollisionLevel = 3;
     private int playerPickupCollisionLevel = 1;
+
+    private string saveFilePath = "user://save_game.save";
+    private string saveKeyLastCheckpoint = "last_checkpoint";
 }

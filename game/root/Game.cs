@@ -1,9 +1,10 @@
-using Godot;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
+using Godot;
+using System.Text.Json;
 
 public partial class Game : Node2D
 {
@@ -135,11 +136,18 @@ public partial class Game : Node2D
     public void OnPickup(TileKey tileKey, Item body)
     {
         var upgrade = body as Upgrade;
+
         if (upgrade != null)
         {
-            obtainedActions.Add(upgrade.action);
-            ModifyTileItem(tileKey, null);
+            PickUpUpgrade(upgrade);
         }
+    }
+
+    private void PickUpUpgrade(Upgrade upgrade)
+    {
+        obtainedActions.Add(upgrade.action);
+        var tileKey = GetTileKeyByPosition(upgrade.GlobalPosition);
+        ModifyTileItem(tileKey, null);
     }
 
     private Rect2 GlobalAreaToLocal(Rect2 globalRect)
@@ -701,13 +709,13 @@ public partial class Game : Node2D
 
     private void SaveGame()
     {
+        var saveData = new SaveData();
+        saveData.LastCheckpointName = lastCheckpointMarker.Name;
+        saveData.ObtainedUpgradeContextMenuActions = upgrades.Select(upgrade => upgrade.action);
+
         using var saveGameFile = FileAccess.Open(saveFilePath, FileAccess.ModeFlags.Write);
-        var jsonString = Json.Stringify(
-            new Godot.Collections.Dictionary<string, Variant>()
-            {
-                { saveKeyLastCheckpoint, lastCheckpointMarker.Name },
-            }
-        );
+
+        var jsonString = JsonSerializer.Serialize(saveData);
         saveGameFile.StoreLine(jsonString);
     }
 
@@ -721,25 +729,40 @@ public partial class Game : Node2D
 
         using var saveGameFile = FileAccess.Open(saveFilePath, FileAccess.ModeFlags.Read);
         var jsonString = saveGameFile.GetLine();
-        var json = new Json();
-        var parsedResult = json.Parse(jsonString);
-        if (parsedResult != Error.Ok)
+        SaveData parsedSaveData = null;
+        try
         {
-            GD.PrintErr(
-                $"JSON Parse Error: {json.GetErrorMessage()} in {jsonString} at line {json.GetErrorLine()}"
-            );
+            parsedSaveData = JsonSerializer.Deserialize<SaveData>(jsonString);
+        }
+        catch (Exception exception)
+        {
+            GD.PrintErr($"JSON Parse Error: {exception}");
             return;
         }
 
-        var savedData = new Godot.Collections.Dictionary<string, Variant>(
-            (Godot.Collections.Dictionary)json.Data
-        );
-        var lastCheckpointName = (string)savedData[saveKeyLastCheckpoint];
-        var lastCheckpoint = checkpointMarkers.Find(marker => marker.Name == lastCheckpointName);
-        if (lastCheckpoint != null)
+        if (parsedSaveData.LastCheckpointName != null)
         {
-            UpdateLastCheckpointMarker(lastCheckpoint);
-            Respawn();
+            var lastCheckpoint = checkpointMarkers.Find(
+                marker => marker.Name == parsedSaveData.LastCheckpointName
+            );
+            if (lastCheckpoint != null)
+            {
+                UpdateLastCheckpointMarker(lastCheckpoint);
+                Respawn();
+            }
+        }
+        if (parsedSaveData.ObtainedUpgradeContextMenuActions != null)
+        {
+            parsedSaveData.ObtainedUpgradeContextMenuActions
+                .ToList()
+                .ForEach(action =>
+                {
+                    var upgrade = upgrades.Find(upgrade => upgrade.action == action);
+                    if (upgrade != null)
+                    {
+                        PickUpUpgrade(upgrade);
+                    }
+                });
         }
     }
 
@@ -979,16 +1002,24 @@ public partial class Game : Node2D
 
     private void InitItems()
     {
-        upgrades.Add((Upgrade)FindChild("Upgrade"));
-        upgrades.Add((Upgrade)FindChild("Upgrade2"));
-        upgrades.ForEach(upgrade =>
-        {
-            upgrade.SetCollisionLayerValue(playerPickupCollisionLevel, true);
+        upgrades = subviewContent
+            .GetChildren()
+            .Where(node => node is Upgrade)
+            .Select(node =>
+            {
+                var upgrade = node as Upgrade;
+                InitUpgrade(upgrade);
+                return upgrade;
+            })
+            .ToList();
+    }
 
-            var key = GetTileKeyByPosition(upgrade.GlobalPosition);
-            var upgradeTileData = tileData[key];
-            ModifyTileItem(key, upgrade);
-        });
+    private void InitUpgrade(Upgrade upgrade)
+    {
+        upgrade.SetCollisionLayerValue(playerPickupCollisionLevel, true);
+
+        var key = GetTileKeyByPosition(upgrade.GlobalPosition);
+        ModifyTileItem(key, upgrade);
     }
 
     public override void _Ready()
@@ -1104,6 +1135,12 @@ public partial class Game : Node2D
         }
     }
 
+    public class SaveData
+    {
+        public string LastCheckpointName { get; set; }
+        public IEnumerable<ContextMenuAction> ObtainedUpgradeContextMenuActions { get; set; }
+    }
+
     private Player player;
     private Sprite2D globalPlayerSprite;
     private TileMap tileMap;
@@ -1131,4 +1168,6 @@ public partial class Game : Node2D
 
     private string saveFilePath = "user://save_game.save";
     private string saveKeyLastCheckpoint = "last_checkpoint";
+
+    private string saveKeyUpgradeActions = "upgrade_actions";
 }

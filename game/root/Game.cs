@@ -19,7 +19,7 @@ public partial class Game : Node2D
 
     private Dictionary<String, HashSet<TileKey>> laserBaseTiles = new();
 
-    private List<ContextMenuAction> obtainedActions =
+    private HashSet<ContextMenuAction> obtainedActions =
         new()
         {
             ContextMenuAction.Use,
@@ -126,7 +126,7 @@ public partial class Game : Node2D
     private void ModifyTileItem(TileKey key, Item item)
     {
         var currentTile = GetTileBy(key);
-        if (item == null)
+        if (item == null && currentTile.item != null)
         {
             ((Node2D)currentTile.item).Visible = false;
         }
@@ -144,6 +144,12 @@ public partial class Game : Node2D
     }
 
     private void PickUpUpgrade(Upgrade upgrade)
+    {
+        SetUpgrade(upgrade);
+        SaveGame();
+    }
+
+    private void SetUpgrade(Upgrade upgrade)
     {
         obtainedActions.Add(upgrade.action);
         var tileKey = GetTileKeyByPosition(upgrade.GlobalPosition);
@@ -710,8 +716,15 @@ public partial class Game : Node2D
     private void SaveGame()
     {
         var saveData = new SaveData();
-        saveData.LastCheckpointName = lastCheckpointMarker.Name;
+        if (lastCheckpointMarker != null)
+        {
+            saveData.LastCheckpointName = lastCheckpointMarker.Name;
+        }
         saveData.ObtainedUpgradeContextMenuActions = upgrades.Select(upgrade => upgrade.action);
+        if (saveData.ObtainedUpgradeContextMenuActions != null)
+        {
+            GD.Print($"2KEK2 save {saveData.ObtainedUpgradeContextMenuActions}");
+        }
 
         using var saveGameFile = FileAccess.Open(saveFilePath, FileAccess.ModeFlags.Write);
 
@@ -751,6 +764,7 @@ public partial class Game : Node2D
                 Respawn();
             }
         }
+        GD.Print($"2KEK2 Load saved {parsedSaveData.ObtainedUpgradeContextMenuActions}");
         if (parsedSaveData.ObtainedUpgradeContextMenuActions != null)
         {
             parsedSaveData.ObtainedUpgradeContextMenuActions
@@ -758,9 +772,11 @@ public partial class Game : Node2D
                 .ForEach(action =>
                 {
                     var upgrade = upgrades.Find(upgrade => upgrade.action == action);
+                    GD.Print($"2KEK2 saved action {action} upgrade {upgrade}");
+
                     if (upgrade != null)
                     {
-                        PickUpUpgrade(upgrade);
+                        SetUpgrade(upgrade);
                     }
                 });
         }

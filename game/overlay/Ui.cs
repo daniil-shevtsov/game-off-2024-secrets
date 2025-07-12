@@ -30,7 +30,7 @@ public partial class Ui : CanvasLayer
     public void ShowContextMenu(
         Vector2 newPosition,
         Vector2 tileSizeInGlobalCoordinates,
-        List<ContextMenuAction> actions,
+        HashSet<ContextMenuAction> actions,
         Action<ContextMenuAction> onActionSelected
     )
     {
@@ -45,23 +45,25 @@ public partial class Ui : CanvasLayer
                 contextMenu.RemoveChild(oldAction);
                 oldAction.QueueFree();
             });
-        actions.ForEach(action =>
-        {
-            var button = new Button();
-            button.Text = action.ToString();
-            button.Name = action.ToString();
-            button.FocusMode = Control.FocusModeEnum.None;
-            button.CustomMinimumSize = new Vector2(
-                tileSizeInGlobalCoordinates.X,
-                tileSizeInGlobalCoordinates.Y / 2f
-            );
-
-            contextMenu.AddChild(button);
-            button.Pressed += () =>
+        actions
+            .ToList()
+            .ForEach(action =>
             {
-                onActionSelected(action);
-            };
-        });
+                var button = new Button();
+                button.Text = action.ToString();
+                button.Name = action.ToString();
+                button.FocusMode = Control.FocusModeEnum.None;
+                button.CustomMinimumSize = new Vector2(
+                    tileSizeInGlobalCoordinates.X,
+                    tileSizeInGlobalCoordinates.Y / 2f
+                );
+
+                contextMenu.AddChild(button);
+                button.Pressed += () =>
+                {
+                    onActionSelected(action);
+                };
+            });
     }
 
     public void MoveContextMenu(Vector2 newPosition)
@@ -81,7 +83,7 @@ public partial class Ui : CanvasLayer
 
     public void UpdateClipboardItem(Texture2D icon)
     {
-		GD.Print($"Update clipboard item with {icon}");
+        GD.Print($"Update clipboard item with {icon}");
         clipboardItem.Texture = icon;
     }
 }

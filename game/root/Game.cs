@@ -19,6 +19,8 @@ public partial class Game : Node2D
 
     private Dictionary<String, HashSet<TileKey>> laserBaseTiles = new();
 
+    private HashSet<TileKey> tilesUnderContextMenu = new();
+
     private HashSet<ContextMenuAction> obtainedActions =
         new()
         {
@@ -272,7 +274,11 @@ public partial class Game : Node2D
         }
 
         var playerTileTraits = GetAllTileTraits(playerTileKey, playerTileData);
-        if (!inProcessOfDying && playerTileTraits.Contains(TileTrait.Fall))
+        if (
+            !inProcessOfDying
+            && playerTileTraits.Contains(TileTrait.Fall)
+            && !tilesUnderContextMenu.Contains(playerTileKey)
+        )
         {
             KillPlayer();
         }
@@ -377,29 +383,35 @@ public partial class Game : Node2D
                         && entry.Key.Y <= bottomRightTileKey.Y;
                 });
 
-            tilesUnderMenu
-                .ToList()
-                .ForEach(entry =>
-                {
-                    var key = entry.Key;
-                    var tile = entry.Value;
-                    if (
-                        ui.isContextMenuShown
-                        && tile.AdditionalTraitsToRemove.Count == 0
-                        && localSize.Y >= tileSize
-                    )
-                    {
-                        tile.AdditionalTraitsToRemove.Add(TileTrait.Fall);
-                    }
-                    else if (
-                        !ui.isContextMenuShown
-                        && tile.AdditionalTraitsToRemove.Contains(TileTrait.Fall)
-                    )
-                    {
-                        tile.AdditionalTraitsToRemove.Remove(TileTrait.Fall);
-                    }
-                });
+            tilesUnderContextMenu = tilesUnderMenu.Select(tile => tile.Key).ToHashSet();
+            // tilesUnderMenu
+            //     .ToList()
+            //     .ForEach(entry =>
+            //     {
+            //         var key = entry.Key;
+            //         var tile = entry.Value;
+            //         if (
+            //             ui.isContextMenuShown
+            //             && tile.AdditionalTraitsToRemove.Count == 0
+            //             && localSize.Y >= tileSize
+            //         )
+            //         {
+            //             tile.AdditionalTraitsToRemove.Add(TileTrait.Fall);
+            //         }
+            //         else if (
+            //             !ui.isContextMenuShown
+            //             && tile.AdditionalTraitsToRemove.Contains(TileTrait.Fall)
+            //         )
+            //         {
+            //             tile.AdditionalTraitsToRemove.Remove(TileTrait.Fall);
+            //         }
+            //     });
         }
+        else
+        {
+            tilesUnderContextMenu = new();
+        }
+        GD.Print($"3KEK3 New tiles under context menu {tilesUnderContextMenu.Count}");
     }
 
     private void UpdateLogic(double delta)
@@ -461,6 +473,7 @@ public partial class Game : Node2D
         }
         else
         {
+            contextMenuTopLeftTileKey = null;
             ui.HideContextMenu();
         }
     }

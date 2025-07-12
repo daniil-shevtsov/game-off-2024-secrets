@@ -57,6 +57,9 @@ public partial class Ui : CanvasLayer
                     tileSizeInGlobalCoordinates.X,
                     tileSizeInGlobalCoordinates.Y / 2f
                 );
+                GD.Print(
+                    $"4KEK4 tileSize = {tileSizeInGlobalCoordinates.X} {tileSizeInGlobalCoordinates.Y} buttonSize = {tileSizeInGlobalCoordinates.X} {tileSizeInGlobalCoordinates.Y / 2f}"
+                );
 
                 contextMenu.AddChild(button);
                 button.Pressed += () =>

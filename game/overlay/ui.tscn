@@ -60,6 +60,7 @@ visible = false
 offset_right = 40.0
 offset_bottom = 40.0
 theme = SubResource("Theme_h05ed")
+theme_override_constants/separation = 0
 
 [node name="Label" type="Label" parent="."]
 offset_right = 40.0

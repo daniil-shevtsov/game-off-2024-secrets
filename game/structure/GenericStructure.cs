@@ -78,8 +78,6 @@ public partial class GenericStructure : Node2D, Structure, Activatable
     public void ToggleActivation()
     {
         isActivated = !isActivated;
-        GD.Print($"Set {Id} to {isActivated}");
-
         UpdateSprite();
     }
 

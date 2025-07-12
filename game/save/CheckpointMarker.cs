@@ -12,7 +12,5 @@ public partial class CheckpointMarker : Node2D
     {
         marker2D = GetNode<Marker2D>("Marker2D");
         area2D = GetNode<Area2D>("Area2D");
-
-        GD.Print($"1KEK1 Create {this} with area {area2D}");
     }
 }

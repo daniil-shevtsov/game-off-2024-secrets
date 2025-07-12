@@ -247,20 +247,6 @@ public partial class Game : Node2D
                 CheckPositionInTileRange(checkpointTileKey, playerRange)
             );
         });
-        var stringBuilder = new StringBuilder();
-        stringBuilder.AppendLine("1KEK1---------1KEK1");
-        stringBuilder.AppendLine($"player {playerTileKey}");
-        stringBuilder.AppendLine("---CHECKPOINTS---");
-        checkpointsWithResults
-            .ToList()
-            .ForEach(tuple =>
-            {
-                var tileKey = tuple.Item1;
-                var result = tuple.Item2;
-                stringBuilder.AppendLine($"Checkpoint {tileKey} {result}");
-            });
-        stringBuilder.AppendLine("--------");
-        GD.Print(stringBuilder.ToString());
 
         var marker = checkpointMarkers.Find(
             marker =>
@@ -268,8 +254,6 @@ public partial class Game : Node2D
         );
         if (marker != null && lastCheckpointMarker != marker)
         {
-            GD.Print($"1KEK1 Found checkpoint in range: {marker}");
-
             OnCheckpointAreaEntered(marker);
         }
 
@@ -384,34 +368,11 @@ public partial class Game : Node2D
                 });
 
             tilesUnderContextMenu = tilesUnderMenu.Select(tile => tile.Key).ToHashSet();
-            // tilesUnderMenu
-            //     .ToList()
-            //     .ForEach(entry =>
-            //     {
-            //         var key = entry.Key;
-            //         var tile = entry.Value;
-            //         if (
-            //             ui.isContextMenuShown
-            //             && tile.AdditionalTraitsToRemove.Count == 0
-            //             && localSize.Y >= tileSize
-            //         )
-            //         {
-            //             tile.AdditionalTraitsToRemove.Add(TileTrait.Fall);
-            //         }
-            //         else if (
-            //             !ui.isContextMenuShown
-            //             && tile.AdditionalTraitsToRemove.Contains(TileTrait.Fall)
-            //         )
-            //         {
-            //             tile.AdditionalTraitsToRemove.Remove(TileTrait.Fall);
-            //         }
-            //     });
         }
         else
         {
             tilesUnderContextMenu = new();
         }
-        GD.Print($"3KEK3 New tiles under context menu {tilesUnderContextMenu.Count}");
     }
 
     private void UpdateLogic(double delta)
@@ -498,14 +459,11 @@ public partial class Game : Node2D
             // var laserPointerKey = GetTileKeyByPosition(laser.marker2D.GlobalPosition);
 
             var direction = new Vector2I(0, 1);
-            GD.Print(
-                $"{structure.Id} {structure.GlobalRotationDegrees} {structure.RotationDegrees}"
-            );
+
             if (Mathf.IsEqualApprox(-90f, structure.RotationDegrees, 0.1f))
             {
                 direction = new Vector2I(-1, 0);
             }
-            // direction = new Vector2I(-1, 0);
 
             var tilesHigherLaser = tileData
                 .ToList()
@@ -650,19 +608,11 @@ public partial class Game : Node2D
             var hoveredTile = GetTileBy(hoveredTileKey);
             var selectedStructure = hoveredTile.Structure;
 
-            GD.Print(
-                $"Connect clicked when hovered over {selectedStructure.Id} at {hoveredTileKey}"
-            );
-
             var currentRememberedActivatorToConnect = activatorToConnectId;
             var isActivatorCurrentlyRemembered = currentRememberedActivatorToConnect != null;
             var activatorToConnect = selectedStructure as Activator;
             if (activatorToConnect != null && !isActivatorCurrentlyRemembered)
             {
-                GD.Print(
-                    $"set activator to connect from {currentRememberedActivatorToConnect} to {activatorToConnect.Id}"
-                );
-
                 RememberActivatorToConnect(activatorToConnect);
             }
             else if (isActivatorCurrentlyRemembered)
@@ -676,13 +626,11 @@ public partial class Game : Node2D
         }
         else if (action == ContextMenuAction.Cut && hoveredTileKey != null)
         {
-            GD.Print($"Cut action clicked");
             var hoveredTile = GetTileBy(hoveredTileKey);
             var selectedStructure = hoveredTile.Structure;
 
             if (selectedStructure != null)
             {
-                GD.Print($"Selected structure is not null {selectedStructure}");
                 clipboardStructureId = selectedStructure.Id;
                 ModifyTile(hoveredTileKey, hoveredTile with { Structure = null });
 
@@ -712,7 +660,7 @@ public partial class Game : Node2D
             }
             else
             {
-                GD.Print(
+                GD.PrintErr(
                     $"Could not find structure by id {clipboardStructureId} in list of cound {structures.Count}"
                 );
             }
@@ -723,7 +671,6 @@ public partial class Game : Node2D
     {
         var activator = structures.Find(structure => structure.Id == activatorId) as Activator;
         activator.TargetId = structureId;
-        GD.Print($"connect {activator.Id} to {structureId}");
     }
 
     private void SaveGame()
@@ -734,10 +681,6 @@ public partial class Game : Node2D
             saveData.LastCheckpointName = lastCheckpointMarker.Name;
         }
         saveData.ObtainedUpgradeContextMenuActions = upgrades.Select(upgrade => upgrade.action);
-        if (saveData.ObtainedUpgradeContextMenuActions != null)
-        {
-            GD.Print($"2KEK2 save {saveData.ObtainedUpgradeContextMenuActions}");
-        }
 
         using var saveGameFile = FileAccess.Open(saveFilePath, FileAccess.ModeFlags.Write);
 
@@ -777,7 +720,6 @@ public partial class Game : Node2D
                 Respawn();
             }
         }
-        GD.Print($"2KEK2 Load saved {parsedSaveData.ObtainedUpgradeContextMenuActions}");
         if (parsedSaveData.ObtainedUpgradeContextMenuActions != null)
         {
             parsedSaveData.ObtainedUpgradeContextMenuActions
@@ -785,7 +727,6 @@ public partial class Game : Node2D
                 .ForEach(action =>
                 {
                     var upgrade = upgrades.Find(upgrade => upgrade.action == action);
-                    GD.Print($"2KEK2 saved action {action} upgrade {upgrade}");
 
                     if (upgrade != null)
                     {
@@ -862,7 +803,6 @@ public partial class Game : Node2D
 
     private void OnCheckpointAreaEntered(CheckpointMarker marker)
     {
-        GD.Print($"1KEK1 OnCheckpointAreaEntered {marker.Name} {marker.area2D}");
         UpdateLastCheckpointMarker(marker);
         SaveGame();
     }
@@ -876,9 +816,6 @@ public partial class Game : Node2D
     {
         if (lastCheckpointMarker != null)
         {
-            GD.Print(
-                $"RESPAWN at OnCheckpointAreaEntered {lastCheckpointMarker} {lastCheckpointMarker.area2D}"
-            );
             player.GlobalPosition = lastCheckpointMarker.GlobalPosition;
         }
         else
@@ -958,13 +895,11 @@ public partial class Game : Node2D
             .Where(node => node is Structure)
             .Select(structure => structure as Structure)
             .ToList();
-        GD.Print($"structures {structures.Count}");
 
         var index = 0;
         structures.ForEach(structure =>
         {
             structure.Id = $"{structure.GetType().Name}-{index++}";
-            GD.Print($"{structure.Id}");
         });
 
         var togglableStructureDistances = structures
@@ -1011,15 +946,10 @@ public partial class Game : Node2D
 
         checkpointMarkers.ForEach(marker =>
         {
-            // marker.area2D.SetCollisionMaskValue(1, false);
             marker.area2D.SetCollisionMaskValue(playerCollisionLevel, true);
-            GD.Print(
-                $"1KEK1 Set OnCheckpointAreaEntered for {marker} and {marker.area2D} {marker.area2D.GetCollisionMaskValue(playerCollisionLevel)} <-> {player.GetCollisionLayerValue(playerCollisionLevel)}"
-            );
             marker.area2D.Monitoring = false;
             marker.area2D.BodyEntered += (body) =>
             {
-                GD.Print($"1KEK1 Body {body.Name} of parent {body.GetParent().Name}");
                 if (body.GetParent() is Player)
                 {
                     OnCheckpointAreaEntered(marker);

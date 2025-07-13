@@ -293,6 +293,13 @@ public partial class Game : Node2D
                     activatorStandingOnId = activator.Id;
                 }
             }
+
+            var currentPlayerPosition = player.GlobalPosition;
+            var screen = LocalToGlobalWithMagicOffset(currentPlayerPosition);
+            var back = GlobalToLocalWithMagicOffset(screen);
+            GD.Print(
+                $"KEK current {currentPlayerPosition.X} toGlobal {screen.X} back toLocal {back.X}"
+            );
         }
     }
 
@@ -377,6 +384,8 @@ public partial class Game : Node2D
 
     private void UpdateLogic(double delta)
     {
+        GD.Print($"KEK {DisplayServer.WindowGetSize().X} {DisplayServer.WindowGetSize().Y}");
+
         HandleContextMenu();
 
         HandlePlayerLogic();
@@ -388,8 +397,13 @@ public partial class Game : Node2D
 
     private void OnMouseMovement()
     {
-        var mousePosition = GlobalToLocalWithMagicOffset(GetGlobalMousePosition());
-        var hoveredTile = tileMap.LocalToMap(tileMap.ToLocal(mousePosition));
+        var globalMousePosition = GetGlobalMousePosition();
+        var mousePosition = GlobalToLocalWithMagicOffset(globalMousePosition);
+        var localMousePosition = tileMap.ToLocal(mousePosition);
+        GD.Print(
+            $"1KEK1 mousePosition global {globalMousePosition} global with offset {mousePosition} toleMap.toLocal {localMousePosition}"
+        );
+        var hoveredTile = tileMap.LocalToMap(localMousePosition);
         if (hoveredTile != null && !ui.isContextMenuShown)
         {
             var final2 = (mousePosition - Vector2.One * tileSize / 2).Snapped(
@@ -1062,23 +1076,53 @@ public partial class Game : Node2D
             * position;
     }
 
-    // It seems magic offset is required only when mouse position is somehow involved
+    private Vector2 GetMagicalOffset()
+    {
+        return Vector2.Zero;
+        var originalSize = new Vector2(1600, 960);
+        var newSize = new Vector2(DisplayServer.WindowGetSize().X, DisplayServer.WindowGetSize().Y);
+        var a = originalSize / newSize;
+        var b = newSize / originalSize;
+
+        var originalMagicalOffset = new Vector2(200, 120);
+
+        GD.Print(
+            $"KEK original size = {originalSize.X} original offset = {originalMagicalOffset.X} new size = {newSize.X}"
+        );
+
+        // return originalMagicalOffset;
+    }
+
+    // It seems magic offsets required only when mouse position is somehow involved
     private Vector2 GlobalToLocalWithMagicOffset(Vector2 position)
     {
-        var magicOffset =
-            subViewport.GetCamera2D().GetScreenCenterPosition() - new Vector2(200, 120);
-        return WorldToViewportLocal(position) + magicOffset;
+        var screenCenterProjection = subViewport.GetCamera2D().GetScreenCenterPosition();
+        var getMagicalOffset = GetMagicalOffset();
+        var magicOffset = screenCenterProjection - getMagicalOffset;
+        var without = WorldToViewportLocal(position);
+        var with = without + magicOffset;
+        GD.Print(
+            $"1KEK1 position {position} screenCenter {screenCenterProjection.X} getMagicalOffset {getMagicalOffset.X} magicOffset {magicOffset.X} without {without.X} {with.X}"
+        );
+        return with;
     }
 
     private Vector2 LocalToGlobalWithMagicOffset(Vector2 localPosition)
     {
         var localWithMagicOffset = localPosition - CalculateMagicOffset();
-        return ViewportLocalToWorld(localWithMagicOffset);
+        var result = ViewportLocalToWorld(localWithMagicOffset);
+        if (localPosition == player.GlobalPosition)
+        {
+            GD.Print(
+                $"KEK localPosition {localPosition.X} getMagicalOffset {CalculateMagicOffset().X} localWithMagicOffset {localWithMagicOffset.X} result {result.X}"
+            );
+        }
+        return result;
     }
 
     private Vector2 CalculateMagicOffset()
     {
-        return subViewport.GetCamera2D().GetScreenCenterPosition() - new Vector2(200, 120);
+        return subViewport.GetCamera2D().GetScreenCenterPosition() - GetMagicalOffset();
     }
 
     private TileType? ParseTileType(Vector2I tileCoords)

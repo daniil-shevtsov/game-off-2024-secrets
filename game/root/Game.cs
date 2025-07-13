@@ -1078,19 +1078,20 @@ public partial class Game : Node2D
 
     private Vector2 GetMagicalOffset()
     {
-        return Vector2.Zero;
-        var originalSize = new Vector2(1600, 960);
+        // return Vector2.Zero;
+        var originalSize = new Vector2(2048, 1024);
         var newSize = new Vector2(DisplayServer.WindowGetSize().X, DisplayServer.WindowGetSize().Y);
         var a = originalSize / newSize;
         var b = newSize / originalSize;
 
-        var originalMagicalOffset = new Vector2(200, 120);
+        var originalMagicalOffset = originalSize / 8;
+        var newMagicalOffset = originalMagicalOffset;
 
         GD.Print(
-            $"KEK original size = {originalSize.X} original offset = {originalMagicalOffset.X} new size = {newSize.X}"
+            $"KEK original size = {originalSize.X} original offset = {originalMagicalOffset.X} new size = {newSize.X} new offset = {newMagicalOffset.X}"
         );
 
-        // return originalMagicalOffset;
+        return newMagicalOffset;
     }
 
     // It seems magic offsets required only when mouse position is somehow involved
